@@ -91,7 +91,7 @@ Glob patterns for the .md files the file dialog offers.
 |---|---|---|
 | a list of text (at least one) | `*.md` | `SOLIPSIST_SEARCH_PATHS` |
 
-Relative to the folder Solipsist runs in. `*.md` is that folder only; `docs/**/*.md` goes deep; a folder name means the .md files directly in it. A brace holding a slash (`{a,b/c}/*.md`) matches nothing, so list those as separate patterns. Dot-folders and `node_modules` are never offered. Anything git ignores isn't either, unless the pattern starts with the folder's name: `docs/*.md` finds them in an ignored `docs/`, and `**/*.md` doesn't. An absolute path or `..` is an error.
+Relative to the folder Solipsist runs in. `*.md` is that folder only; `docs/**/*.md` goes deep; a folder name means the .md files directly in it. A brace holding a slash (`{a,b/c}/*.md`) matches nothing, so list those as separate patterns. Dot-folders and `node_modules` are never offered. Anything git ignores isn't either, unless the pattern starts with the folder's name: `docs/*.md` finds them in an ignored `docs/`, and `**/*.md` doesn't. An absolute path or `..` is an error. Change it and restart, and the file dialog opens again with the new files it finds.
 
 ### server
 
@@ -471,7 +471,7 @@ The server's log of its core actions, one JSON line each: a file path, or `off`.
 |---|---|---|
 | a file path, or "off" | unset | `SOLIPSIST_LOG` |
 
-Saves, refused saves, outside edits, runs, waits, chats, stops and errors. Default: `.solipsist/server.log` in the first folder of md_search_paths. Always off under `bun test`.
+Saves, refused saves, outside edits, runs, waits, chats, stops and errors. Default: `.solipsist/server.log` in the folder Solipsist runs in. Always off under `bun test`.
 
 #### `log.max_bytes`
 

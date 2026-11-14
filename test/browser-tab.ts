@@ -15,7 +15,11 @@ export { Server };
 const tabs = new Map<string, Tab>();
 let mounting: Tab | null = null;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// The mock lasts for the whole `bun test` run, so it starts from the real module: a test that renders other parts of
+// the app (the pages list, `pages-setup.test.tsx`) still finds what it imports, talking to its own fake fetch.
+const realClient = { ...(await import("../src/app/doc/client")) };
 mock.module("../src/app/doc/client", () => ({
+  ...realClient,
   // The page's event stream: the tab being mounted keeps the callbacks, so a test can deliver files as SSE would.
   openEvents: (_id: string, on: Tab["events"]) => { mounting!.events = on; on!.onState("live"); return () => {}; },
   getPage: async () => { throw new Error("unused"); },

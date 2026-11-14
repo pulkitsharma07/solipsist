@@ -19,6 +19,8 @@ import { pagesDir, root } from "./runtime";
 
 const store = () => join(root(), ".solipsist");
 const snapshotFile = (id: string) => join(store(), "originals", `${id}.md`);
+/** The search paths the file dialog last offered files from, so a change to them opens it again. */
+const offeredFile = () => join(store(), "search_paths.json");
 /** Where the agent's images for page `id` wait until Sync. */
 export const projectImages = (id: string) => join(store(), "images", id);
 /** Files found this many or more are cut off, with a note in the dialog. */
@@ -90,12 +92,23 @@ export async function findFiles(): Promise<{ files: string[]; capped: boolean }>
   return { files: [...found].filter((f) => !skip.has(f) || named.has(f)).sort(), capped };
 }
 
-export interface SetupView { project: boolean; needed: boolean; found: string[]; searchPaths: string[]; capped: boolean }
+/** `changed`: the search paths aren't the ones the dialog last offered from, and they find files not added yet. */
+export interface SetupView { project: boolean; needed: boolean; changed: boolean; found: string[]; searchPaths: string[]; capped: boolean }
+
+/** Whether the search paths differ from the ones last offered (or none were recorded). */
+async function pathsChanged(): Promise<boolean> {
+  const before = await read(offeredFile());
+  return before === null || before !== JSON.stringify(config().md_search_paths);
+}
+const recordPaths = () => writeFile(offeredFile(), JSON.stringify(config().md_search_paths));
 
 /** What the file dialog shows: the files found that aren't in Solipsist yet. */
 export async function setupView(): Promise<SetupView> {
   const { files, capped } = await findFiles();
-  return { project: true, needed: needsSetup(), found: files.filter((f) => !existsSync(join(pagesDir(), f))), searchPaths: config().md_search_paths, capped };
+  const needed = needsSetup();
+  const found = files.filter((f) => !existsSync(join(pagesDir(), f)));
+  const changed = !needed && found.length > 0 && (await pathsChanged());
+  return { project: true, needed, changed, found, searchPaths: config().md_search_paths, capped };
 }
 
 // ------------------------------------------------------------------------------------------------ the copy
@@ -123,10 +136,14 @@ async function makeStore() {
   await writeFile(join(store(), ".gitignore"), "*\n");
 }
 
-/** Copies the files picked. A path that isn't among the files found is refused. Returns the ones that couldn't be read. */
+/**
+ * Copies the files picked. A path that isn't among the files found is refused. Returns the ones that couldn't be read.
+ * Records the search paths as offered, so an empty list is how the writer dismisses the dialog after they changed.
+ */
 export async function addFiles(paths: string[]): Promise<{ failed: string[] }> {
   const allowed = new Set((await findFiles()).files);
   await makeStore();
+  await recordPaths();
   const failed: string[] = [];
   for (const path of paths) {
     try {

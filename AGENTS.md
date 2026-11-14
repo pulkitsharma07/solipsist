@@ -2,7 +2,7 @@
 
 How the code is laid out, the words it uses and the rules it keeps. Read it before changing anything.
 
-Writing app: a Tiptap editor on the `.md` files of the folder it runs in. The first launch shows the files `md_search_paths` finds (globs, default `*.md`); the ones picked are copied to `.solipsist/pages/<path>.md`, worked on there, and written back only by Sync (`src/server/project.ts`). Under `bun test` only, `DOCS_DIR` makes that folder the pages themselves: no dialog, no Sync; elsewhere it is ignored. Comments live in a hidden HTML block at the end of the working copy. No database.
+Writing app: a Tiptap editor on the `.md` files of the folder it runs in. The first launch shows the files `md_search_paths` finds (globs, default `*.md`), and so does a launch after they change (`.solipsist/search_paths.json` holds the ones last offered); the ones picked are copied to `.solipsist/pages/<path>.md`, worked on there, and written back only by Sync (`src/server/project.ts`). Under `bun test` only, `DOCS_DIR` makes that folder the pages themselves: no dialog, no Sync; elsewhere it is ignored. Comments live in a hidden HTML block at the end of the working copy. No database.
 
 ## Glossary
 

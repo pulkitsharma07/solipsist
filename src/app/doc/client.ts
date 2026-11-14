@@ -18,7 +18,7 @@ export async function createPage(path?: string): Promise<string | undefined> {
   return (await j(await fetch("/api/pages", { method: "POST", ...(path !== undefined && { body: JSON.stringify({ path }) }) }))).id;
 }
 
-export interface SetupInfo { project: boolean; needed: boolean; found: string[]; searchPaths: string[]; capped: boolean }
+export interface SetupInfo { project: boolean; needed: boolean; changed: boolean; found: string[]; searchPaths: string[]; capped: boolean }
 export async function getSetup(): Promise<SetupInfo> {
   return (await fetch("/api/setup")).json();
 }

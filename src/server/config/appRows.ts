@@ -19,7 +19,7 @@ export const APP_ROWS: Setting[] = [
 
   { key: "log.file", env: "SOLIPSIST_LOG", kind: "logfile", example: "off",
     summary: "The server's log of its core actions, one JSON line each: a file path, or `off`.",
-    purpose: "Saves, refused saves, outside edits, runs, waits, chats, stops and errors. Default: `.solipsist/server.log` in the first folder of md_search_paths. Always off under `bun test`." },
+    purpose: "Saves, refused saves, outside edits, runs, waits, chats, stops and errors. Default: `.solipsist/server.log` in the folder Solipsist runs in. Always off under `bun test`." },
   { key: "log.max_bytes", env: "SOLIPSIST_LOG_MAX_BYTES", kind: "int", default: 10485760, min: 1024,
     summary: "The size at which the log is moved aside (bytes).",
     purpose: "Past it, the file moves to `server.log.1` (the one before is dropped) and a new one starts, so the log never grows for ever." },

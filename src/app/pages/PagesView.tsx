@@ -9,6 +9,8 @@ export interface PageRow { id: string; title: string; mtime: number; unsynced?: 
 /** What the home page offers when it shows a project's files. */
 export interface ProjectControls {
   onAddFiles(): void;
+  /** Files the search paths find that aren't pages yet: shown on Add files, so a file made since is seen. */
+  newFiles: number;
   onSyncAll(): void;
   /** Pages Sync all left alone, because their originals changed. */
   skipped: string[];
@@ -46,7 +48,11 @@ export function PagesView({ docs, onNew, project }: { docs: PageRow[]; onNew(): 
       <header>
         <h1>Pages</h1>
         <SettingsButton />
-        {project && <button className="btn" onClick={project.onAddFiles}>Add files</button>}
+        {project && (
+          <button className="btn" onClick={project.onAddFiles} title={project.newFiles ? `${project.newFiles} markdown file${project.newFiles === 1 ? "" : "s"} not added yet` : undefined}>
+            Add files{project.newFiles > 0 && <span className="btn-count">{project.newFiles}</span>}
+          </button>
+        )}
         {project && <button className="btn" disabled={!docs.some((d) => d.unsynced)} title="Write every page with edits to its original file" onClick={project.onSyncAll}>Sync all to files</button>}
         <button className="btn btn-primary" onClick={project ? () => setNaming(true) : onNew}>New page</button>
       </header>

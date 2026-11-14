@@ -254,3 +254,4 @@ button.sb-item:hover { background: var(--sunken); color: var(--ink); }
 .home-folder { margin: var(--s4) 0 var(--s2); font: var(--t-xs)/1.5 var(--mono); color: var(--ink-3); }
 .home header { gap: var(--s2); }
 .home header h1 { margin-right: auto; }
+.btn-count { min-width: 18px; height: 18px; padding: 0 5px; border-radius: var(--r-pill); background: var(--agent-soft); color: var(--agent); font: 600 var(--t-xs)/18px var(--sans); text-align: center; }

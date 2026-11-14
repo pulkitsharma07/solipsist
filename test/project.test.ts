@@ -67,7 +67,7 @@ test("what git ignores isn't offered", async () => {
 test("launching creates nothing until the writer confirms", async () => {
   put("README.md", "# R\n");
   expect(needsSetup()).toBe(true);
-  expect(await setupView()).toEqual({ project: true, needed: true, found: ["README.md"], searchPaths: ["*.md"], capped: false });
+  expect(await setupView()).toEqual({ project: true, needed: true, changed: false, found: ["README.md"], searchPaths: ["*.md"], capped: false });
   await api.listPages();
   expect(existsSync(join(dir, ".solipsist"))).toBe(false);
 });
@@ -85,6 +85,24 @@ test("only the files picked are copied; the rest are never touched; git sees not
   expect(git("status", "--short")).toBe("");
   expect((await setupView()).found).toEqual(["b.md"]);
   expect((await (await api.listPages()).json()).map((d: { id: string }) => d.id)).toEqual(["a"]);
+});
+
+test("changing md_search_paths after the first launch opens the dialog again, until it is answered", async () => {
+  put("a.md", "# A\n");
+  put("notes/b.md", "# B\n");
+  await addFiles(["a.md"]);
+  expect((await setupView()).changed).toBe(false);
+  // The restart with a new search path: the new folder's file is offered without asking for it.
+  search("*.md", "notes/*.md");
+  expect(await setupView()).toMatchObject({ needed: false, changed: true, found: ["notes/b.md"] });
+  // Cancel answers it with no files; the file is still there under Add files.
+  await addFiles([]);
+  expect(await setupView()).toMatchObject({ changed: false, found: ["notes/b.md"] });
+  // A change that finds nothing new doesn't ask.
+  search("*.md", "notes/*.md", "empty/*.md");
+  await addFiles(["notes/b.md"]);
+  search("*.md", "notes/*.md", "other/*.md");
+  expect(await setupView()).toMatchObject({ changed: false, found: [] });
 });
 
 test("a path the search paths don't cover can't be added", async () => {
