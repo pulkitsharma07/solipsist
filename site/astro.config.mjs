@@ -14,6 +14,7 @@ export default defineConfig({
       social: [{ icon: "github", label: "GitHub", href: "https://github.com/pulkitsharma07/solipsist" }],
       editLink: { baseUrl: "https://github.com/pulkitsharma07/solipsist/edit/main/site/" },
       customCss: ["./src/styles/docs.css"],
+      components: { PageTitle: "./src/components/PageTitle.astro", Footer: "./src/components/Footer.astro" },
       sidebar: [
         { label: "Overview", link: "/docs/" },
         { label: "Start here", items: [{ autogenerate: { directory: "docs/start" } }] },

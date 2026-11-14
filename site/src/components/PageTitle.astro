@@ -1,0 +1,57 @@
+---
+// Starlight's page title, with "Copy page as markdown" beside it: the page's markdown (src/llms.ts, served at
+// <page>.md) to the clipboard, the quickest way to hand a page to an agent. "View" opens that markdown.
+import Default from "@astrojs/starlight/components/PageTitle.astro";
+import { mdPath } from "../llms";
+
+const { id } = Astro.locals.starlightRoute;
+const md = id.startsWith("docs") ? `/${mdPath(id)}.md` : null;
+---
+
+<Default />
+{
+  md && (
+    <div class="page-md not-content">
+      <button type="button" class="page-md-copy" data-md={md}>Copy page as markdown</button>
+      <a href={md}>View as markdown</a>
+    </div>
+  )
+}
+
+<script>
+  for (const button of document.querySelectorAll<HTMLButtonElement>(".page-md-copy")) {
+    const label = button.textContent;
+    button.addEventListener("click", async () => {
+      try {
+        const res = await fetch(button.dataset.md!);
+        if (!res.ok) throw new Error(String(res.status));
+        await navigator.clipboard.writeText(await res.text());
+        button.textContent = "Copied";
+      } catch {
+        button.textContent = "Couldn't copy: use View as markdown";
+      }
+      setTimeout(() => (button.textContent = label), 2000);
+    });
+  }
+</script>
+
+<style>
+  .page-md {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 0.5rem;
+    font-size: var(--sl-text-sm);
+  }
+  .page-md button {
+    font: inherit;
+    color: var(--sl-color-gray-2);
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 6px;
+    padding: 0.2rem 0.6rem;
+    cursor: pointer;
+  }
+  .page-md button:hover { color: var(--sl-color-white); border-color: var(--sl-color-gray-4); }
+  .page-md a { color: var(--sl-color-gray-3); }
+</style>

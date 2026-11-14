@@ -1,0 +1,20 @@
+---
+// Starlight's footer, ending with the version the docs describe: one version of the docs, the latest, until 1.0.
+// It's the app's `version` in the root package.json, as major.minor.
+import Default from "@astrojs/starlight/components/Footer.astro";
+import pkg from "../../../package.json";
+
+const version = pkg.version.split(".").slice(0, 2).join(".");
+---
+
+<Default />
+<p class="docs-version">For Solipsist {version}</p>
+
+<style>
+  .docs-version {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-3);
+  }
+</style>
