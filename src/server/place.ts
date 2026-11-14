@@ -10,7 +10,7 @@ export interface Proposal {
   gloss?: string;
   body?: string;
   description?: string;
-  /** A picture the reviewer drew for it, as the page writes the path (`images/<page id>/x.svg`). */
+  /** A picture the reviewer drew for it, as the page writes the path (`images/<link folder>/x.svg`: the page's file name under `images/`). */
   image?: string;
   /** The `engine:model` the reviewer ran on. */
   model?: string;

@@ -82,7 +82,8 @@ function checkReview(id: string, readSrc: string, max: number) {
     // writes it. Checked here so you can fix the path or draw the file, in this turn.
     for (const c of reply.comments) {
       if (!c.image) continue;
-      if (!COMMENT_IMAGE.test(c.image)) return `“${c.image}” is not a path this page can show: write it as \`images/${id}/<short-kebab-name>.svg\`, in the image folder your prompt names.`;
+      // The page's folder is what its links are relative to, so the folder part is the page's file name, not its whole id.
+      if (!COMMENT_IMAGE.test(c.image) || !c.image.startsWith(`images/${basename(id)}/`)) return `“${c.image}” is not a path this page can show: write it as \`images/${basename(id)}/<short-kebab-name>.svg\`, in the image folder your prompt names.`;
       if (!existsSync(join(folder, basename(c.image)))) return `There is no file at “${c.image}”: draw the SVG in ${folder} first, then give its path, or leave \`image\` out.`;
     }
     return null;
@@ -111,7 +112,7 @@ export function reviewSpec(id: string, src: string, max: number, reviewer: Revie
   const { markdown } = parseFile(src);
   return {
     start: { system: promptText(briefPromptId(reviewer.id)), replyTools: REVIEW_TOOLS, readable: [promptPath("images")] },
-    prompt: () => renderPrompt("review", { id, file: pageFile(id), images: imagesDir(id), page: markdown, max: String(max), raised: alreadyRaised(src) }),
+    prompt: () => renderPrompt("review", { id, file: pageFile(id), images: imagesDir(id), imageLink: basename(id), page: markdown, max: String(max), raised: alreadyRaised(src) }),
     check: checkReview(id, src, max),
     timeoutMs: config().agent.run_timeout_ms,
   };

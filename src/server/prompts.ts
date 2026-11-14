@@ -102,6 +102,7 @@ const FIXED: Def[] = [
       { name: "file", description: "The page's file, in full." },
       { name: "page", description: "The page as it is now." },
       { name: "images", description: "The folder the reviewer may draw images in." },
+      { name: "imageLink", description: "The folder under images/ that the page links its images from." },
       { name: "max", description: "The most questions this review may raise (`review.max_per_review`)." },
       { name: "raised", description: "The questions already live, dismissed or orphaned on this page, with a line introducing them; empty when there are none." },
     ] },

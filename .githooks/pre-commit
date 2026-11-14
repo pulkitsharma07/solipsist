@@ -1,0 +1,14 @@
+#!/bin/sh
+# Before every commit: no secret in what's staged (gitleaks), then the fast unit tests (`bun run test:fast`, about
+# 20 s). Git uses this folder because `bun install` sets `core.hooksPath` (package.json `prepare`).
+# Skip once with `git commit --no-verify`, only when the commit can't touch what these check.
+set -e
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --no-banner
+else
+  echo "pre-commit: gitleaks isn't installed (brew install gitleaks), so nothing was scanned and the commit stopped" >&2
+  exit 1
+fi
+
+bun run test:fast

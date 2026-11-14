@@ -96,6 +96,18 @@ test("a save is refused when it is empty or leaves out a required slot", () => {
   expect(existsSync(file("run"))).toBe(false);
 });
 
+test("every slot a prompt declares is filled when given, whatever its spelling", () => {
+  for (const p of listPrompts()) {
+    const out = renderPrompt(p.id, Object.fromEntries(p.slots.map((s) => [s.name, "X"])));
+    for (const s of p.slots) expect(out, `${p.id}: {${s.name}} left as written`).not.toContain(`{${s.name}}`);
+  }
+});
+
+test("the review prompt names the folder a picture is linked from: the page's file name, not its whole id", () => {
+  const out = renderPrompt("review", { id: "test_docs/init", imageLink: "init", file: "f", images: "/x", page: "p", max: "3", raised: "" });
+  expect(out).toContain("`images/init/<short-kebab-name>.svg`");
+});
+
 test("the run prompt names the folder an image is linked from: the page's file name, not its whole id", () => {
   const out = promptFor("test_docs/init", { id: "abc", taskType: "gen" });
   expect(out).toContain("linked from the page as `images/init/<name>.svg`");

@@ -5,9 +5,11 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks || true",
     "dev": "bun --hot src/index.ts",
     "start": "NODE_ENV=production bun src/index.ts",
     "test": "bun test",
+    "test:fast": "bun scripts/test-fast.ts",
     "test:ui": "bun test ./test/e2e/smoke.e2e.ts ./test/e2e/chat.e2e.ts ./test/e2e/pi.e2e.ts",
     "typecheck": "bun --bun tsc --noEmit",
     "features": "bun scripts/features/index.tsx",

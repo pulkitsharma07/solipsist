@@ -14,7 +14,7 @@ export interface CommentEntry {
   /** Why it is in the text, in the reviewer's own voice: two to four sentences, shown when the card is open. */
   description?: string;
   /**
-   * A picture the reviewer drew for this question, as the page would write the path (`images/<page id>/x.svg`),
+   * A picture the reviewer drew for this question, as the page would write the path (`images/<link folder>/x.svg`: the page's file name under `images/`),
    * shown in the open card. It is a file in the page's own image folder, the only place a reviewer may write. An
    * animated SVG animates in an `<img>`; a script inside one does not run, which is why it is served that way.
    */
