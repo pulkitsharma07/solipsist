@@ -19,6 +19,10 @@
 </p>
 
 <p align="center">
+  <a href="https://solipsist.sh/launch.mp4">▶ Watch the 50-second film</a>
+</p>
+
+<p align="center">
   <a href="https://solipsist.work">Website</a> ·
   <a href="https://solipsist.work/docs/">Docs</a> ·
   <a href="https://solipsist.work/features.html">Every feature</a> ·
