@@ -1,0 +1,45 @@
+---
+title: Suggestions
+description: Reviewing what an agent suggests, and every way to decide.
+sidebar:
+  order: 3
+---
+
+import Shot from "../../../../components/Shot.astro";
+
+A suggestion shows up in the page as a diff: additions in green, removals struck through. Nothing changes until you
+decide. Hover over it to see its card in the right margin. Click it, or use one of the keys, and the card stays open
+until you press <kbd>Escape</kbd> or click somewhere else.
+
+<Shot name="preview-replace" title="Suggested replacement" alt="The old words struck through, the suggested words in green" caption="Replacing your words: the old ones struck through." />
+<Shot name="preview-blocks" title="Suggested blocks" alt="Suggested blocks drawn where they would land, marked in green" caption="New blocks, drawn where they would land." />
+
+## Deciding
+
+<Shot name="card" title="Suggestion card" alt="The suggestion card: the agent's note, with Accept, Reject, Ask again and Chat" />
+
+| Action | Key | What happens |
+|---|---|---|
+| Accept | <kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd> | The result goes in the page as your own edit, so undo works. |
+| Reject | <kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>N</kbd> | The page stays as it was. |
+| Ask again | | The request goes back to its agent with the result you turned down and, if you want, why. |
+| Chat | <kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> | Talk it over with the agent that made it. If the chat produces a new suggestion, it replaces the card. |
+| Accept as a Button | `▾` beside Accept | Keep the result, with a button that runs the request again. See [Buttons](/docs/guides/buttons/). |
+
+The keys work on the suggestion at the cursor, or the one whose card is open.
+<kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>]</kbd> and <kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>[</kbd> jump to the next and previous
+suggestion, and the [status bar](/docs/reference/status-bar/#suggestions) counts the ones waiting. If a suggestion also changes other parts of the page, its card lists them:
+
+<Shot name="card-edits" title="Card with other edits" alt="A suggestion card that lists the other blocks it changes" />
+
+## If you edit the page in the meantime
+
+You can keep writing while an agent works. Agents wait until you stop typing before they start, and when a result
+arrives it's matched up with the text as it is at that moment.
+
+## After you accept
+
+The pill in the margin stays next to where the result went ("Accepted") until you close or reload the page. Clicking
+it still opens the chat with its agent.
+
+<Shot name="pill-accepted" title="Accepted pill" alt="The Accepted pill beside where the result landed" width={220} />

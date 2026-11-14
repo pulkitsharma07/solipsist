@@ -1,0 +1,40 @@
+---
+title: Your first request
+description: Ask an agent for something, then decide what to do with its suggestion.
+sidebar:
+  order: 3
+---
+
+import Shot from "../../../../components/Shot.astro";
+
+Open a page and put the cursor where you want something written.
+
+1. **Ask.** Press <kbd>Mod</kbd>+<kbd>.</kbd> (<kbd>⌘</kbd><kbd>.</kbd> on a Mac, <kbd>Ctrl</kbd>+<kbd>.</kbd>
+   elsewhere). With nothing selected, this asks the agent to write something at the cursor. With text selected, it
+   opens a box where you say what to do with it ("make it shorter"). With an image selected, you say what to change in
+   the picture.
+
+   <Shot name="instruction" title="Request box" alt="The request box under selected text, with the instruction typed in" />
+2. **Wait.** A small pill in the margin shows how the request is doing: a clock while it's queued, the agent's icon
+   while an agent is working on it. You can keep writing. The agent works in the background and waits until you stop
+   typing before it reads the page.
+
+   <Shot name="range-working" title="Agent working" alt="Selected words underlined, with a turning ring beside them: an agent is working on the request" />
+3. **Decide.** The result shows up in the page as a coloured diff. Hover over it to see its card:
+
+   <Shot name="preview-replace" title="Suggested replacement" alt="The old words struck through in red, the suggested words in green after them" />
+   <Shot name="card" title="Suggestion card" alt="The suggestion card: the agent's note, with Accept, Reject, Ask again and Chat" />
+
+   - **Accept** (<kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd>) puts it in the page.
+   - **Reject** (<kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>N</kbd>) leaves the page as it was.
+   - **Ask again** sends it back, with your reason if you give one.
+   - **Chat** (<kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd>) lets you talk it over with the agent that made it.
+
+<kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>]</kbd> and <kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>[</kbd> jump between the suggestions
+waiting for you. The [status bar](/docs/reference/status-bar/#suggestions) shows how many there are; click the count to
+accept or reject them all.
+
+<Shot name="suggestion-count" title="Status bar: suggestions waiting" alt="The status bar's count of suggestions waiting" />
+
+When you're happy with the page, **Sync to file** writes your changes to the original file. See
+[Suggestions](/docs/guides/suggestions/) for everything a card can do.

@@ -10,11 +10,12 @@
 </p>
 
 <p align="center">
-  <img src="site/app.jpg" alt="A page in Solipsist: an agent's suggestion waits in green, with a card to accept, reject, ask again or chat" width="900">
+  <img src="site/public/app.jpg" alt="A page in Solipsist: an agent's suggestion waits in green, with a card to accept, reject, ask again or chat" width="900">
 </p>
 
 <p align="center">
   <a href="https://solipsist.work">Website</a> ·
+  <a href="https://solipsist.work/docs/">Docs</a> ·
   <a href="https://solipsist.work/features.html">Every feature</a> ·
   <a href="CONFIGURATION.md">Configuration</a> ·
   <a href="CONTRIBUTING.md">Contributing</a> ·

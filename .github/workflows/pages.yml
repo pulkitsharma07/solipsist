@@ -1,12 +1,12 @@
-# Publishes the website on GitHub Pages: site/ as it is committed (built by `bun run site`), plus
-# FEATURES.html as /features.html.
+# Publishes the website on GitHub Pages: the Astro Starlight project in site/ (the landing page at /, the
+# documentation at /docs/), plus FEATURES.html as /features.html.
 # Needs Settings → Pages → Source set to "GitHub Actions".
 name: Pages
 
 on:
   push:
     branches: [main]
-    paths: ["site/**", "FEATURES.html", ".github/workflows/pages.yml"]
+    paths: ["site/**", "scripts/site/**", "FEATURES.html", "CONFIGURATION.md", "package.json", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:
@@ -27,9 +27,15 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-      - run: cp FEATURES.html site/features.html
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with: { bun-version-file: .bun-version }
+      - run: bun install --frozen-lockfile
+        working-directory: site
+      # Writes the landing page, the configuration page and features.html first (scripts/site/build.ts), then dist/.
+      - run: bun run build
+        working-directory: site
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
-          path: site
+          path: site/dist
       - id: deploy
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

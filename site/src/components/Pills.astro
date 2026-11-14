@@ -1,0 +1,22 @@
+---
+// The margin pill in each of its states, side by side, each with what it means.
+import Shot from "./Shot.astro";
+
+const PILLS = [
+  { name: "pill-waiting", label: "Waiting", alt: "A clock: the request waits for its turn" },
+  { name: "pill-working", label: "Working", alt: "Pi's mark and the agent's latest step: an agent is working" },
+  { name: "pill-done", label: "Done", alt: "A check: finished, the agent is still kept" },
+  { name: "pill-snoozed", label: "Snoozed", alt: "A moon: the agent sleeps, its conversation saved" },
+  { name: "pill-chat", label: "In chat", alt: "A bubble: you are chatting with its agent" },
+  { name: "pill-accepted", label: "Accepted", alt: "Accepted: beside where the result landed" },
+];
+---
+<div class="pills not-content">
+  {PILLS.map((p) => <div><Shot name={p.name} alt={p.alt} width={220} /><span>{p.label}</span></div>)}
+</div>
+
+<style>
+  .pills { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.75rem 1rem; margin: 1.25rem 0; }
+  .pills span { font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); }
+  .pills :global(.shot) { margin: 0 0 0.25rem; }
+</style>

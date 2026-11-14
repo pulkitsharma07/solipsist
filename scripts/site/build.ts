@@ -1,9 +1,12 @@
-// Builds the website, site/index.html, from scripts/site/template.html: the app's real stylesheet (from
-// FEATURES.html) goes in at /*APP_CSS*/, the engine marks at <!--PI:size-->, and the version from
-// package.json at <!--VERSION-->, so the demos are drawn by the app's own CSS and icons.
-// Run `bun run features` first if the catalogue is stale, then `bun run site`. GitHub Pages serves site/
-// (.github/workflows/pages.yml).
-import { readFileSync, writeFileSync } from "node:fs";
+// Writes the website's two generated files; site/ is an Astro Starlight project that serves them (its `dev` and
+// `build` run this first; .github/workflows/pages.yml publishes site/dist):
+// - site/src/landing.html, the landing page at /, from scripts/site/template.html: the app's real stylesheet (from
+//   FEATURES.html) goes in at /*APP_CSS*/, the engine marks at <!--PI:size-->, and the version from package.json at
+//   <!--VERSION-->, so the demos are drawn by the app's own CSS and icons. Run `bun run features` first if the
+//   catalogue is stale.
+// - the documentation's configuration reference, from CONFIGURATION.md, so the two never differ;
+// - site/public/features.html, a copy of FEATURES.html, served as /features.html.
+import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "../..");
@@ -33,6 +36,27 @@ const html = src
   .replaceAll("<!--VERSION-->", () => version);
 if (/<!--PI:|<!--PIWORK-->|<!--VERSION-->/.test(html)) throw new Error("site: a slot was left unfilled");
 
-const out = join(root, "site/index.html");
-writeFileSync(out, html);
-console.log(`site/index.html: ${html.length} bytes (${appCss.length} bytes of app CSS)`);
+writeFileSync(join(root, "site/src/landing.html"), html);
+console.log(`site/src/landing.html: ${html.length} bytes (${appCss.length} bytes of app CSS)`);
+
+// CONFIGURATION.md as a docs page: its title becomes the frontmatter, and a link to a file of the repo goes to GitHub.
+const configMd = readFileSync(join(root, "CONFIGURATION.md"), "utf8");
+if (!configMd.startsWith("# Configuration\n")) throw new Error("site: CONFIGURATION.md no longer starts with its title");
+const repoFile = "https://github.com/pulkitsharma07/solipsist/blob/main/";
+const configPage = [
+  "---",
+  "title: Configuration",
+  "description: Every setting, its default, and where it can be set.",
+  "editUrl: " + repoFile.replace("/blob/", "/edit/") + "CONFIGURATION.md",
+  "sidebar:",
+  "  order: 1",
+  "---",
+  "",
+  "<!-- Generated from CONFIGURATION.md by scripts/site/build.ts: edit that file instead. -->",
+  configMd.slice("# Configuration\n".length).replace(/\]\((?!https?:|#)([^)]+)\)/g, (_, f) => `](${repoFile}${f})`),
+].join("\n");
+writeFileSync(join(root, "site/src/content/docs/docs/reference/configuration.md"), configPage);
+console.log(`site/src/content/docs/docs/reference/configuration.md: ${configPage.length} bytes`);
+
+copyFileSync(join(root, "FEATURES.html"), join(root, "site/public/features.html"));
+console.log("site/public/features.html: copied from FEATURES.html");

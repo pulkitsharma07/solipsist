@@ -8,7 +8,7 @@ const REPO = process.env.SOLIPSIST_TEST_REPO!;
 const DIRS = ["src", "scripts", "test", "site", "design", "blogs", ".github"];
 const FILES = ["README.md", "AGENTS.md", "NOTICE", "SECURITY.md", "CONTRIBUTING.md", "CODE_OF_CONDUCT.md", "CHANGELOG.md", "CONFIGURATION.md",
   "package.json", ".env.example", ".gitignore", "solipsist.example.yaml", "FEATURES.html"];
-const TEXT = /\.(tsx?|css|html|md|ya?ml|json|sh)$/;
+const TEXT = /\.(tsx?|css|html|mdx?|astro|mjs|ya?ml|json|sh)$/;
 /** Real pages kept as fixtures, what a writer wrote, not ours; and the blog, which may name the tools its writer uses. */
 const SKIP = ["test/fixtures/", "test/no-claude.test.ts", "blogs/"];
 
@@ -18,8 +18,11 @@ const ALLOWED: [file: RegExp, line: RegExp][] = [
   [/./, /openrouter\/anthropic\/claude-[a-z0-9.-]+|"Anthropic: /],
 ];
 
+/** Installed or built, not written here (the website's own `node_modules`, `dist` and `.astro`). */
+const SKIP_DIRS = ["node_modules", "dist", ".astro"];
+
 const walk = (dir: string): string[] =>
-  !existsSync(dir) ? [] : readdirSync(dir).flatMap((n) => {
+  !existsSync(dir) ? [] : readdirSync(dir).filter((n) => !SKIP_DIRS.includes(n)).flatMap((n) => {
     const p = join(dir, n);
     return statSync(p).isDirectory() ? walk(p) : TEXT.test(n) ? [p] : [];
   });

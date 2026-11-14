@@ -1,0 +1,61 @@
+---
+title: Asking for something
+description: The three kinds of request and what each one works on.
+sidebar:
+  order: 2
+---
+
+import Shot from "../../../../components/Shot.astro";
+import Pills from "../../../../components/Pills.astro";
+
+Every request starts with the same key, <kbd>Mod</kbd>+<kbd>.</kbd>. What you get depends on what's selected:
+
+| Where you are | Request | What the agent does |
+|---|---|---|
+| At the cursor, nothing selected | **Completion** | Writes something there. |
+| Text selected | **Request** | Does what you type in the box with the selected text: rewrite it, shorten it, answer a question about it. The instruction is optional. |
+| One image selected | **Image** | Changes the picture the way you describe. The instruction is required. |
+
+<Shot name="point-waiting" title="Completion waiting" alt="A blinking dot at the cursor: a completion waits to be picked up" caption="A completion at the cursor, waiting." />
+<Shot name="instruction" title="Request box" alt="The request box under selected text, with an instruction" caption="A request on selected text, with its instruction." />
+<Shot name="image-selected" title="Selected image" alt="A selected image with the key's hint in its corner" caption="A selected image: the key asks for a change to the picture." />
+
+The request is saved in the page as a marker (an HTML comment), so it's still there after a reload or a restart. Each
+request gets its own agent. Up to three run at a time per page, and the rest wait in line.
+
+## What can come back
+
+- A **suggestion**: text at the cursor, a replacement for the selection, or text after it. It can also suggest changes
+  to other parts of the page. Those are shown with it and applied with it.
+- An **answer**, if you asked a question about the text. It stays on the request ("Answered") and nothing goes in the
+  page.
+- A **decline**, with the agent's reason, if it can't or shouldn't do it.
+
+<Shot name="chip-answered" title="Answered chip" alt="An Answered chip in place of a suggestion" />
+<Shot name="chip-declined" title="Declined chip" alt="A Declined chip with the agent's reason" />
+
+For an image, the suggestion is a new picture in place of the old one:
+
+<Shot name="image-suggested" title="Suggested image" alt="The old image dimmed, the new one suggested beside it" />
+
+## How a request is doing
+
+The pill in the margin next to a request shows its state:
+
+<Pills />
+
+| Pill | Means |
+|---|---|
+| Clock | Waiting in line, or waiting for you to stop typing. |
+| Agent icon | An agent is working on it. |
+| Check, "Done" | Finished. The agent stays around for a few minutes in case you want to chat or ask again. |
+| Moon | The agent is asleep. It wakes up, with its conversation, when you need it. |
+| Bubble | You're chatting with its agent. |
+
+If a run fails, it's retried. After three failures in a row, the request is declined. The
+[agent panel's log](/docs/reference/agent-panel/#the-log) says why each run failed.
+
+## Turning agents off
+
+The switch in the [agent panel](/docs/reference/agent-panel/) turns a page's agents off. Your requests stay in the page and start when you turn the
+agents back on.

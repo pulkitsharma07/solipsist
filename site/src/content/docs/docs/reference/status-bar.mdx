@@ -1,0 +1,108 @@
+---
+title: Status bar
+description: What each part of the bar at the bottom of the page tells you, and what clicking it does.
+sidebar:
+  order: 3
+---
+
+import Shot from "../../../../components/Shot.astro";
+import StatusBarMap from "../../../../components/StatusBarMap.astro";
+
+The status bar runs along the bottom of every page, the way it does in a code editor. It's too wide to show whole
+here, so the two diagrams below take it in halves. Click a name in either one to jump to its section.
+
+<StatusBarMap half="left" title="Status bar: left half" />
+
+The left half starts with how you're editing: **Standard**, or vim's mode once you turn vim keys on. After a gap come
+the page's agents. **Suggestions** counts what's waiting for you to decide, **Model** is the model answering on this
+page, and **Single agent** says whether one agent handles every request or each request gets its own. Click the mode
+to switch editing, the count to accept or reject everything, or the model to open the [agent panel](/docs/reference/agent-panel/).
+
+<StatusBarMap half="right" title="Status bar: right half" />
+
+The right half carries on with the agents: **Cost** is what this page's runs have spent since you opened it, **Page
+review** asks an agent for questions in the margin, **Questions** counts the ones it left, and **Debug** opens the agent
+panel, its dot showing whether anything is running. The bar ends with where you are: the cursor's **Position**, the
+page's **Words**, and the **Version** of Solipsist serving it.
+
+Some parts only show up when they have something to say: the suggestion count when a suggestion is waiting, the
+question count after a review, and vim's typed keys while you type a command.
+
+A coloured dot beside a part means the same thing everywhere in the bar: grey is idle, a breathing dot in the agent
+colour is at work, and red means something needs you.
+
+## Editing mode
+
+**Standard** is plain editing. Click it to turn on vim keys. The bar then shows vim's mode instead: `NORMAL`,
+`INSERT`, `VISUAL` or `V-LINE`, with the dot breathing whenever you're out of normal mode. Click it again to go back to
+Standard. A count or operator you're halfway through typing, like `2d`, shows beside the mode until the command is
+complete. The [keyboard reference](/docs/reference/keyboard/#vim-mode) lists what vim mode supports.
+
+<Shot name="status-bar-vim" title="Status bar with vim" alt="The status bar with vim on: NORMAL at the left end" />
+
+## Suggestions
+
+How many [suggestions](/docs/guides/suggestions/) are waiting in the page for you to decide on. Click it for a menu:
+**Next** jumps to the next one, and **Accept all** or **Reject all** decides every one at once. The next one is also on
+<kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>]</kbd>. When none are waiting, the count goes away.
+
+## Model
+
+The model that answers requests on this page, shortened to its name (`deepseek-flash-latest` for
+`pi:openrouter/~deepseek/deepseek-flash-latest`). Its dot breathes while a run is going. Click it to open the
+[agent panel](/docs/reference/agent-panel/), where you change the model and turn the page's agents off and on.
+
+If no model can run yet, this part reads **Connect a model** with a red dot. Click it to see the two ways to
+[connect one](/docs/start/connect-a-model/).
+
+## Single agent
+
+Whether the page has one long-running agent for every request (**on**) or a fresh agent per request (**off**, the
+default). It's set by `agent.single_agent` in your [configuration](/docs/reference/configuration/), not from here. See
+[single-agent mode](/docs/agents/how-agents-work/#single-agent-mode) for what changes.
+
+## Cost
+
+What this page's agent runs have spent since you opened it, to the hundredth of a cent, added up as each run ends.
+The daily and monthly [spending limits](/docs/agents/how-agents-work/#spending-limits) are kept by the server, across
+all pages. A run whose engine doesn't report a price adds nothing here; the [agent panel's log](/docs/reference/agent-panel/#the-log)
+marks it "cost not known".
+
+## Page review
+
+Starts a [page review](/docs/guides/page-review/): an agent reads the whole page and leaves questions in the margin.
+It can't change the text. While it reads, the button says **Reviewing…** with a breathing dot, and its steps show in
+the [agent panel](/docs/reference/agent-panel/). If a review finds nothing to ask, hovering the button says so.
+
+## Questions
+
+How many review questions are on the page. They sit in the right margin beside the passages they're about. In a narrow
+window the margin is hidden, and this count is the only sign they're there.
+
+## Debug
+
+Opens and closes the [agent panel](/docs/reference/agent-panel/), the same as clicking the model. Its dot tells you
+what the agents are doing without opening it; the panel's
+[status line](/docs/reference/agent-panel/#what-the-agent-is-doing) says it in words:
+
+| Dot | Means |
+|---|---|
+| Grey | Idle, waiting, or the page's agents are off. |
+| Breathing | At least one run is going. |
+| Red | Something is wrong: the connection to the server dropped, or the page's agents are running in another tab. |
+
+## Position and words
+
+The cursor's position as block and column (`12:4` is the twelfth paragraph, heading or list item, fourth character),
+then the page's word count.
+
+## Version
+
+Which version of Solipsist is serving the page, like `v0.1.0`. A build from source reads `v0.1.0-dev`. Hover it for
+the full `solipsist --version` line, with the platform, commit and build date. That's the line to put in a bug report.
+
+## See also
+
+- [Agent panel](/docs/reference/agent-panel/): what Model and Debug open.
+- [Keyboard](/docs/reference/keyboard/): vim mode and the keys for suggestions.
+- [How the agents work](/docs/agents/how-agents-work/): runs, single-agent mode and spending limits.

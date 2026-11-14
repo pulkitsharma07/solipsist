@@ -1,0 +1,41 @@
+---
+title: Keyboard
+description: Every shortcut Solipsist adds to the editor.
+sidebar:
+  order: 2
+---
+
+import Shot from "../../../../components/Shot.astro";
+
+<kbd>Mod</kbd> is <kbd>⌘</kbd> on a Mac and <kbd>Ctrl</kbd> everywhere else. Hints inside the app always show the
+right key for your keyboard.
+
+## Requests and suggestions
+
+| Key | Does |
+|---|---|
+| <kbd>Mod</kbd>+<kbd>.</kbd> | Ask for something: a completion at the cursor, a request about the selected text, or a change to the selected image. |
+| <kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>Y</kbd> | Accept the suggestion at the cursor (or the one whose card is open). |
+| <kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>N</kbd> | Reject it. |
+| <kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> | Chat with the agent that made it, or the one working on the request at the cursor. |
+| <kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>]</kbd> | Next suggestion. |
+| <kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>[</kbd> | Previous suggestion. |
+| <kbd>Escape</kbd> | Close an open card, a chat or a popup. |
+
+## Vim mode
+
+You turn vim mode on and off from the [status bar](/docs/reference/status-bar/#editing-mode), which also shows the
+current mode.
+
+<Shot name="status-bar-vim" title="Status bar with vim" alt="The status bar with vim on" />
+<Shot name="vim-normal" title="Vim normal mode" alt="A page in vim normal mode, with the block cursor" />
+
+Normal mode has the usual motions
+(`h` `j` `k` `l`, `w` `b` `e`, `0` `^` `$`, `gg` `G`, `{` `}`, <kbd>Ctrl</kbd>+<kbd>D</kbd> / <kbd>Ctrl</kbd>+<kbd>U</kbd>)
+and three of its own:
+
+| Key | Does |
+|---|---|
+| `ga` | Accept the suggestion at the cursor. |
+| `gr` | Reject it. |
+| `gc` | Chat with the agent that made it. |

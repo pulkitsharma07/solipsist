@@ -1,0 +1,61 @@
+---
+title: Install and run
+description: Run Solipsist on a folder of markdown files.
+sidebar:
+  order: 1
+---
+
+import Shot from "../../../../components/Shot.astro";
+
+You need [Bun](https://bun.sh). For now you run Solipsist from a clone of its repository:
+
+```bash
+git clone https://github.com/pulkitsharma07/solipsist ~/solipsist
+cd ~/solipsist && bun install
+```
+
+Then start it **in the folder you want to write in**:
+
+```bash
+cd ~/my-notes && bun ~/solipsist/src/index.ts
+```
+
+Open [localhost:3000](http://localhost:3000). To use a different port, set `server.port` (or `PORT`).
+
+## Picking the files
+
+The first time you start it, Solipsist lists the markdown files it finds in that folder.
+
+<Shot name="setup-dialog" title="Choose your files" alt="The Choose your files dialog: the markdown files found in the folder, each with a checkbox" caption="The first launch: pick the files to work on." />
+
+Pick the ones you want to work on. Each one is copied into `.solipsist/pages/` and opened from there. Your originals
+aren't touched until you [sync](/docs/guides/files-and-sync/).
+
+By default it only looks in the folder itself (`*.md`). To include subfolders, add patterns to a `solipsist.yaml` in
+the same folder:
+
+```yaml
+md_search_paths:
+  - "*.md"
+  - docs/**/*.md
+```
+
+It never lists files in dot-folders, in `node_modules`, or anything git ignores.
+
+## Command line
+
+```text
+bun ~/solipsist/src/index.ts [--config <file>] [--print-config] [--version] [--help]
+```
+
+Everything else is a setting. See the [command line reference](/docs/reference/cli/) and
+[configuration](/docs/reference/configuration/).
+
+## Updating
+
+```bash
+cd ~/solipsist && git pull && bun install
+```
+
+Restart the server afterwards. If a page was saved by a newer build than the one you're running, it opens read-only,
+so an older build can't mess up a format it doesn't know.

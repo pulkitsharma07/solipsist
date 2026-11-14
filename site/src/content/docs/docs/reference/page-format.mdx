@@ -1,0 +1,54 @@
+---
+title: Page format
+description: How requests, suggestions and comments are stored inside a plain markdown file.
+sidebar:
+  order: 6
+---
+
+import Shot from "../../../../components/Shot.astro";
+
+A page is one markdown file. Everything Solipsist adds is an HTML comment, so any markdown tool can still read it.
+When Sync writes back to your original, it leaves Solipsist's comments out.
+
+## Markers
+
+A request is a **marker** in the text: an HTML comment with its kind (`gen`, `sel`, `img`), its id and its state.
+
+```md
+A point where a completion was asked for: <!-- gen:abc:sug -->
+
+The <!-- sel:def "make it shorter" -->deadline is the end of the month<!-- /sel:def --> for all teams.
+```
+
+<Shot name="range-working" title="Agent working" alt="A range marker in the editor: the words underlined, with a turning ring beside them" caption="The same range marker as the editor shows it." />
+
+- A **point** marks a place. A **range** opens and closes around the text it's about.
+- If a request has an instruction, your words are kept on the opening comment.
+- The state comes after the id: nothing while it's waiting, `ack` while an agent works on it, `sug` when a suggestion
+  is waiting for you, `done`, and `btn` for a result kept as a [button](/docs/guides/buttons/).
+
+An HTML comment you wrote yourself is kept exactly as you wrote it and shown as a chip.
+
+## The hidden block
+
+One comment at the end of the file holds everything that isn't in the text: the page's agent settings, a record for
+each request (its kind, state, times, the agent and model that worked on it, its suggestion, and the text the agent
+saw), and the margin comments from a page review.
+
+```md
+<!-- solip-comments
+"format": 1
+"agent":
+  "model": "pi:openrouter/~deepseek/deepseek-flash-latest"
+"tasks":
+  "abc":
+    "type": "gen"
+    "status": "suggested"
+    "suggestion": "the thirtieth"
+    ...
+-->
+```
+
+The block's `format` says which builds can write it. If a page is in a newer format than the build you're running, it
+opens read-only with its agents off, so the older build can't write it wrong. Keys a build doesn't recognise are left
+as they are.

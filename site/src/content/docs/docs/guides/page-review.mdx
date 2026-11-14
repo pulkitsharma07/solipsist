@@ -1,0 +1,24 @@
+---
+title: Page review
+description: Get questions about a page in the margin, without a word of it changing.
+sidebar:
+  order: 5
+---
+
+import Shot from "../../../../components/Shot.astro";
+
+**Page review** (in the [agent panel](/docs/reference/agent-panel/) and the
+[status bar](/docs/reference/status-bar/#page-review)) sends the whole page to an agent that can only leave comments.
+It can't change the text. Its questions show up in the margin, in blue, each next to the passage it's about.
+
+<Shot name="review-margin" title="Review notes in the margin" alt="Two review questions as short notes in the margin" width={300} />
+
+Open one to read the whole question and the passage it quotes. From there you can **Ask** the reviewer about it, or
+**Dismiss** it, and it won't come up on that passage again.
+
+<Shot name="review-open" title="Review question" alt="A review question opened under its passage, with Dismiss and Ask" />
+
+The reviewer's questions are scored and filtered before you see them, so you get a few useful ones instead of one on
+every line. The `review.*` settings control how many are kept overall and per block (see
+[configuration](/docs/reference/configuration/)), and the `review` prompts control what the reviewer looks for (see
+[Prompts](/docs/agents/prompts/)).

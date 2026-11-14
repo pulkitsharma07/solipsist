@@ -1,0 +1,56 @@
+---
+title: Connect a model
+description: Give the built-in agent a model to run on.
+sidebar:
+  order: 2
+---
+
+import Shot from "../../../../components/Shot.astro";
+
+The agents are [Pi](https://github.com/earendil-works/pi), an open-source coding agent. It's built into Solipsist, so
+there's nothing extra to install. Pi needs a model, and there are two ways to give it one.
+
+If you ask for something before a model is connected, you get this dialog instead of a request that would fail:
+
+<Shot name="connect-model" title="Connect a model" alt="The Connect a model dialog: an OpenRouter key, or a login saved in Pi" />
+
+## An OpenRouter key
+
+Put the key in a `.env` file in the folder you run Solipsist from (keep it out of version control), or set it in your
+environment:
+
+```bash
+SOLIPSIST_OPENROUTER_KEY=sk-or-...
+```
+
+You can also put it in `solipsist.yaml` as `pi.openrouter_key`, but that file is easy to commit by accident. The
+server never prints a key. Errors and `--print-config` only say whether one is set.
+
+## A login you saved in Pi
+
+If you already use Pi in a terminal, Solipsist picks up Pi's own configuration, the same way the `pi` command does in
+that folder (`~/.pi/agent`, plus a project `.pi`). Your saved logins, skills and connected tools work here too. To add
+a login, run `pi` and then `/login`.
+
+## Choosing the model
+
+Each page has its own model. You pick it in the [agent panel](/docs/reference/agent-panel/), next to the
+switch that turns the page's agents on and off, and the [status bar](/docs/reference/status-bar/#model) shows which model
+the page is using. The picker shows a shortlist first, and you can search
+every model Pi can run. To pin your favourites to the top of the list on every page:
+
+```yaml
+agent:
+  preferred_models:
+    - pi:openrouter/~deepseek/deepseek-flash-latest
+```
+
+If a run is in progress when you change the model, it finishes on the old one. If no model can run yet, the status
+bar's model reads [Connect a model](/docs/reference/status-bar/#model) instead.
+
+<Shot name="status-bar" title="Status bar" alt="The status bar: editing mode, the agent on, the model, what the page has cost" />
+
+:::caution
+Like Pi in a terminal, an agent can run commands on your computer, and Solipsist doesn't sandbox them. Pi's own
+`write` and `edit` tools can only write to the images folder, but its shell can do anything you can.
+:::

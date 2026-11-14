@@ -1,0 +1,63 @@
+---
+// A picture of the app, drawn by scripts/site/shots.ts in light and dark (src/assets/shots/<name>-<theme>.png):
+// the one that matches the reader's theme is shown. Pictures are drawn at twice their size, for sharp screens.
+// Each sits in a frame with its title above it, so a picture of part of the app doesn't run into the text.
+import { Image } from "astro:assets";
+
+interface Props {
+  name: string;
+  /** The frame's title: the part of the app pictured, in a few words. */
+  title: string;
+  alt: string;
+  caption?: string;
+  /** Shown narrower than drawn, in CSS pixels. */
+  width?: number;
+}
+
+const shots = import.meta.glob<{ default: ImageMetadata }>("../assets/shots/*.png", { eager: true });
+const { name, title, alt, caption, width } = Astro.props;
+const picture = (theme: "light" | "dark") => {
+  const found = shots[`../assets/shots/${name}-${theme}.png`];
+  if (!found) throw new Error(`Shot: no picture ${name}-${theme}.png (scripts/site/shots.ts draws them)`);
+  return found.default;
+};
+const light = picture("light");
+const dark = picture("dark");
+const shown = (img: ImageMetadata) => Math.min(width ?? Infinity, Math.round(img.width / 2));
+---
+<figure class="shot not-content">
+  <div class="shot-frame">
+    <div class="shot-title">{title}</div>
+    <div class="shot-body">
+      <Image src={light} alt={alt} width={shown(light)} densities={[1, 2]} class="shot-light" />
+      <Image src={dark} alt={alt} width={shown(dark)} densities={[1, 2]} class="shot-dark" />
+    </div>
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .shot { margin: 1.5rem 0; }
+  /* The frame is as wide as its picture, never wider than the column. */
+  .shot-frame {
+    width: fit-content;
+    max-width: 100%;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--sl-color-gray-6);
+  }
+  .shot-title {
+    padding: 0.4rem 0.85rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--sl-color-gray-2);
+  }
+  .shot-body { padding: 0.75rem; }
+  .shot img { display: block; max-width: 100%; height: auto; border-radius: 6px; }
+  /* The picture for the reader's theme: Starlight sets data-theme on the root, light or dark. */
+  :global(:root[data-theme="light"]) .shot-dark, :global(:root[data-theme="dark"]) .shot-light { display: none; }
+  .shot figcaption { margin-top: 0.5rem; font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); }
+</style>

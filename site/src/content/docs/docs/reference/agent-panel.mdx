@@ -1,0 +1,86 @@
+---
+title: Agent panel
+description: Change the page's model, turn its agents off and on, and see what every run did, step by step.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Shot from "../../../../components/Shot.astro";
+
+The agent panel opens on the right of the page when you click [**Debug**](/docs/reference/status-bar/#debug) or the
+[model](/docs/reference/status-bar/#model) in the status bar, and closes the same way or with **✕**. It's where you
+change the page's model and turn its agents off and on, and it shows everything the agents do, step by step. For how
+the runs themselves work, see [How the agents work](/docs/agents/how-agents-work/).
+
+<Shot name="debug-panel" title="Agent panel" alt="The agent panel: the model picker and the Agent on switch in its header, what the agent is doing, the run counts, the runs in flight, and each step of a run" width={600} />
+
+## Header
+
+- **The model picker** sets this page's model, saved in the page's file. A run already going finishes on the old one;
+  the next starts on the new one. A suggestion's own agent keeps its model when you chat or ask again. See
+  [choosing the model](/docs/start/connect-a-model/#choosing-the-model).
+- **Agent on / off** starts or stops this page's agents. It's saved in the page's file too, so a reload and every other
+  tab agree. With the agents off, your [requests](/docs/guides/requests/#turning-agents-off) stay in the page and start
+  when you turn them back on. Turning them off stops a run that's going.
+- **Page review** starts a [page review](/docs/guides/page-review/), the same as the
+  [button in the status bar](/docs/reference/status-bar/#page-review). When it ends, the panel says what became of
+  each question it raised.
+- **Clear** empties the log below and starts the counts again. It doesn't stop anything.
+- **✕** closes the panel.
+
+<Shot name="debug-off" title="Agent panel, agents off" alt="The agent panel with the page's agents off: Agent is off, no runs, no messages" width={600} />
+
+## What the agent is doing
+
+The line under the header says what the page's agents are up to right now, with a timer while a run is going:
+
+| Says | Means |
+|---|---|
+| Running #3 · Running 2 runs | One run, or several, in progress. |
+| Waiting for the page to stop changing | You're typing. Runs wait until the page settles, so no agent reads half a word. |
+| Idle: nothing to do | No request is waiting. |
+| Idle: page unchanged | Nothing new to work on since the last run. |
+| Waiting: other pages' runs | The limit on runs across all pages is reached (`agent.max_runs`, see [one agent per request](/docs/agents/how-agents-work/#one-agent-per-request)). |
+| Stopped: cost limit reached | A [spending limit](/docs/agents/how-agents-work/#spending-limits) is reached. No new run starts. |
+| Agent is off | You turned this page's agents off. |
+| Agent runs in another tab | The page is open in another tab, and that tab has the agents. The status bar's [Debug](/docs/reference/status-bar/#debug) dot turns red. |
+| Reconnecting… | The connection to the server dropped. It comes back on its own. |
+
+## Counts
+
+**Runs** finished, how many **Failed**, the **Average** time a run took, how many times a run was **Skipped** (with
+the reason in the log), and the **Cost**, the same figure as the [status bar's](/docs/reference/status-bar/#cost). **Clear** starts the counts again.
+
+## Runs in flight
+
+A tab for each run that's going, named by its number and its request (`#3 sel:abc`), with how long it has run. Pick
+one to see only its messages, or **All** for everything. **‹** and **›** step through them. A run you picked stays
+listed after it ends, marked done or failed, until you pick another.
+
+## The log
+
+Every message from the page's agents, newest at the bottom. It follows new messages unless you scroll up to read.
+
+| Message | Means |
+|---|---|
+| connected | The panel reached the server. Says the model and how many runs may go at once. |
+| run #3 started | A run began, on which request and model. |
+| text, tool, tool result | The agent's steps: what it wrote, each tool it called, and what came back. What it's told to do is in its [prompts](/docs/agents/prompts/). |
+| run #3 finished · failed | The run ended. Says how long it took and what it cost, or why it failed. |
+| page changed | You edited the page; runs wait until it settles. |
+| skipped | No run started, and why: nothing waiting, the run limit, the cost limit, or the agents are stopped. |
+| model | The page's model changed; the next run starts on it. |
+| error, warning | Something went wrong. A permission prompt nobody can answer shows here too (see [privacy](/docs/reference/privacy/)). A request whose runs fail three times in a row is [declined](/docs/guides/requests/). |
+
+<Aside type="tip" title="When nothing seems to happen">
+Open the panel and read the line under the header first. It almost always says why: you're still typing, a limit is
+reached, the agents are off, or they're running in another tab. A failed run's last message says what went wrong.
+</Aside>
+
+## See also
+
+- [Status bar](/docs/reference/status-bar/): the model, cost and Debug dot at a glance, without opening the panel.
+- [Connect a model](/docs/start/connect-a-model/): when no model can run yet.
+- [Chat](/docs/agents/chat/): talk to the agent behind a request or suggestion.
+- [Configuration](/docs/reference/configuration/): the `agent.*` limits the panel mentions.

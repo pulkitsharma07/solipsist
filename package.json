@@ -12,6 +12,7 @@
     "typecheck": "bun --bun tsc --noEmit",
     "features": "bun scripts/features/index.tsx",
     "site": "bun scripts/site/build.ts",
+    "site:shots": "bun scripts/site/shots.ts",
     "random-edits": "bun scripts/random-edits.ts"
   },
   "dependencies": {

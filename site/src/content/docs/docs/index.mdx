@@ -1,0 +1,31 @@
+---
+title: Solipsist documentation
+description: What Solipsist is, how it keeps your files safe, and where to go next.
+sidebar:
+  order: 0
+---
+
+import { CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+Solipsist is a markdown editor for the `.md` files in a folder you already have. It has AI agents built in, but they
+only **suggest** changes and never edit the page themselves. You ask for something at the cursor or about a selection,
+an agent works on it in the background, and the result shows up in the page as a suggestion. You can accept it, reject
+it, ask again, or chat about it.
+
+![A page in Solipsist: an agent's suggestion waits in green, with a card to accept, reject, ask again or chat](/app.jpg)
+
+Three things are always true:
+
+- **Your files only change when you say so.** You work on copies in `.solipsist/`, and **Sync to file** writes back
+  only what you changed.
+- **Agents don't edit the page.** Everything they do shows up as a suggestion. The one exception is a result you
+  turn into a [button](/docs/guides/buttons/) yourself.
+- **Nothing leaves your machine except what a request needs**, and that only goes to the model you connect. No
+  analytics, no telemetry, no update check.
+
+<CardGrid>
+  <LinkCard title="Install and run" href="/docs/start/install/" description="Bun, one clone, and a folder of notes." />
+  <LinkCard title="Connect a model" href="/docs/start/connect-a-model/" description="An OpenRouter key, or a login you saved in Pi." />
+  <LinkCard title="Your first request" href="/docs/start/first-request/" description="Ask, wait, decide. The whole loop in two minutes." />
+  <LinkCard title="Configuration" href="/docs/reference/configuration/" description="Every setting, its default and where you can set it." />
+</CardGrid>

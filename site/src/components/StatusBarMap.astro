@@ -1,0 +1,135 @@
+---
+// The status bar, annotated: the real picture of it (scripts/site/shots.ts draws status-bar-<theme>.png and measures
+// where each part sits, status-bar-parts.json), cut in two halves so it is readable in the column, each part with a
+// leader line to its name. One diagram per half (`half`), framed with its title like a Shot; a name is a link to the
+// part's section of the status bar page.
+import map from "../assets/shots/status-bar-parts.json";
+import light from "../assets/shots/status-bar-light.png";
+import dark from "../assets/shots/status-bar-dark.png";
+
+interface Props {
+  half: "left" | "right";
+  title: string;
+}
+const { half, title } = Astro.props;
+
+/** The parts, in the bar's order (the picture's specimen shows every one): a name and the section about it. */
+const NAMES = [
+  ["Editing mode", "editing-mode"],
+  ["Suggestions", "suggestions"],
+  ["Model", "model"],
+  ["Single agent", "single-agent"],
+  ["Cost", "cost"],
+  ["Page review", "page-review"],
+  ["Questions", "questions"],
+  ["Debug", "debug"],
+  ["Position", "position-and-words"],
+  ["Words", "position-and-words"],
+  ["Version", "version"],
+] as const;
+if (map.parts.length !== NAMES.length) {
+  throw new Error(`StatusBarMap: the picture has ${map.parts.length} parts, the diagram names ${NAMES.length}; redraw with bun run site:shots and update NAMES`);
+}
+
+const W = map.width;
+const H = map.height;
+const parts = map.parts.map((p, i) => ({ ...p, n: i + 1, name: NAMES[i]![0], id: NAMES[i]![1], cx: p.x + p.w / 2 }));
+
+// Two rows, cut between two parts where the wider row is narrowest.
+let cut = 1;
+for (let k = 1; k < parts.length; k++) {
+  const a = parts[k]!.x, b = parts[cut]!.x;
+  if (Math.max(a, W - a) < Math.max(b, W - b)) cut = k;
+}
+const PAD = 14;      // room left and right of a row
+const LINE = 18;     // leader line to the first level of names
+const LEVEL = 22;    // a second level, for a name that would touch the one before it
+const label = (name: string) => 22 + name.length * 6.9; // its width: the badge, then the name at 12px
+const rows = [parts.slice(0, cut), parts.slice(cut)].map((ps, r) => {
+  // The cut falls in the gap between the two parts on either side of it.
+  const gap = (parts[cut - 1]!.x + parts[cut - 1]!.w + parts[cut]!.x) / 2;
+  const x0 = r === 0 ? 0 : gap;
+  const x1 = r === 0 ? gap : W;
+  // A name goes one level down when it would run into the last name on the first level.
+  let end = -Infinity;
+  const placed = ps.map((p) => {
+    const w = label(p.name);
+    const low = p.cx - w / 2 < end + 8;
+    if (!low) end = p.cx + w / 2;
+    return { ...p, w, level: low ? 1 : 0 };
+  });
+  const deep = placed.some((p) => p.level) ? 1 : 0;
+  return { x0, x1, parts: placed, height: H + LINE + LEVEL * deep + 22, cutLeft: r > 0, cutRight: r === 0 };
+});
+// Both halves at one scale, as large as the frame allows: the wider fills it, the other is as much narrower as it is.
+const widest = Math.max(...rows.map((row) => row.x1 - row.x0 + 2 * PAD));
+---
+<figure class="sbmap not-content">
+  <div class="sbmap-title">{title}</div>
+  <div class="sbmap-body">
+  {rows.filter((_, r) => r === (half === "left" ? 0 : 1)).map((row) => { const r = half === "left" ? 0 : 1; return (
+    <svg
+      class="sbmap-row"
+      viewBox={`${row.x0 - PAD} 0 ${row.x1 - row.x0 + 2 * PAD} ${row.height}`}
+      style={`width: ${((row.x1 - row.x0 + 2 * PAD) / widest) * 100}%`}
+      role="img"
+      aria-label={`The status bar, ${r === 0 ? "left" : "right"} part: ${row.parts.map((p) => p.name).join(", ")}`}
+    >
+      <defs>
+        <clipPath id={`sbmap-clip-${r}`}><rect x={row.x0} y="0" width={row.x1 - row.x0} height={H} /></clipPath>
+      </defs>
+      <g clip-path={`url(#sbmap-clip-${r})`}>
+        <image class="sbmap-light" href={light.src} x="0" y="0" width={W} height={H} />
+        <image class="sbmap-dark" href={dark.src} x="0" y="0" width={W} height={H} />
+      </g>
+      {/* Where the bar is cut: it goes on in the other row. */}
+      {row.cutRight && <line class="sbmap-cut" x1={row.x1} y1="1" x2={row.x1} y2={H - 1} />}
+      {row.cutLeft && <line class="sbmap-cut" x1={row.x0} y1="1" x2={row.x0} y2={H - 1} />}
+      {row.parts.map((p) => {
+        const y = H + LINE + p.level * LEVEL;
+        return (
+          <a href={`#${p.id}`} class="sbmap-part">
+            <rect class="sbmap-hit" x={p.x} y={p.y} width={p.w} height={p.h} rx="4" />
+            <line x1={p.cx} y1={p.y + p.h + 1} x2={p.cx} y2={y - 6} />
+            <circle cx={p.cx - p.w / 2 + 8} cy={y + 2} r="7.5" />
+            <text class="sbmap-n" x={p.cx - p.w / 2 + 8} y={y + 5.5} text-anchor="middle">{p.n}</text>
+            <text class="sbmap-name" x={p.cx - p.w / 2 + 20} y={y + 6}>{p.name}</text>
+          </a>
+        );
+      })}
+    </svg>
+  ); })}
+  </div>
+</figure>
+
+<style>
+  /* The same frame and title bar as a Shot. */
+  .sbmap {
+    margin: 1.5rem 0;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--sl-color-gray-6);
+  }
+  .sbmap-title {
+    padding: 0.4rem 0.85rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--sl-color-gray-2);
+  }
+  .sbmap-body { padding: 1rem 0.5rem 0.5rem; }
+  .sbmap-row { display: block; height: auto; margin: 0 auto; overflow: visible; }
+  :global(:root[data-theme="light"]) .sbmap-dark, :global(:root[data-theme="dark"]) .sbmap-light { display: none; }
+
+  .sbmap-cut { stroke: var(--sl-color-gray-4); stroke-width: 1; stroke-dasharray: 3 3; }
+  .sbmap-part line { stroke: var(--sl-color-gray-4); stroke-width: 1; }
+  .sbmap-part circle { fill: var(--sl-color-accent); }
+  .sbmap-n { fill: var(--sl-color-black); font: 600 9.5px var(--sl-font); }
+  .sbmap-name { fill: var(--sl-color-gray-2); font: 500 12px var(--sl-font); }
+  .sbmap-hit { fill: transparent; stroke: transparent; }
+  .sbmap-part:hover .sbmap-hit, .sbmap-part:focus-visible .sbmap-hit { stroke: var(--sl-color-accent); stroke-width: 1.5; }
+  .sbmap-part:hover .sbmap-name, .sbmap-part:focus-visible .sbmap-name { fill: var(--sl-color-accent); text-decoration: underline; }
+  .sbmap-part:focus-visible { outline: none; }
+</style>

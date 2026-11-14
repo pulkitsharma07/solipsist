@@ -1,0 +1,40 @@
+---
+title: Chat
+description: Talk to the agent behind a suggestion, or to one about the whole page.
+sidebar:
+  order: 2
+---
+
+import Shot from "../../../../components/Shot.astro";
+
+## Chat about a request
+
+**Chat** on a suggestion's card (<kbd>Mod</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd>, or `gc` in vim) opens a conversation with
+the agent that made it. It still knows everything from its run. You can also open the chat from the margin pill of a
+request that's still being worked on, and watch the agent work.
+
+<Shot name="chat-window" title="Chat on a suggestion" alt="A chat with the agent behind a suggestion" width={560} />
+
+If the agent suggests something new in the chat, it replaces the suggestion on the card. If you've already decided on
+that request, the new suggestion goes at the end of the page instead.
+
+## Chat about the page
+
+The chat button opens a chat about the whole page. It uses the page's model, and you can change it from the picker in
+the header (the same picker as the [agent panel's](/docs/reference/agent-panel/#header)). Suggestions it makes go at
+the end of the page and work like any other.
+
+<Shot name="chat-page" title="Page chat" alt="The page's chat, with the model picker and New chat in its header" />
+
+When the agent replies with a suggestion, an answer or a decline, the chat shows it as a card:
+
+<Shot name="chat-tools" title="Chat reply with a suggestion" alt="A chat reply showing a suggestion it made, as a card" width={560} />
+
+The conversation is saved with the page and picks up where you left off next time you open it. **New chat** starts
+over.
+
+## Closing and coming back
+
+Closing the window (the close button, <kbd>Escape</kbd> or a click outside) doesn't stop a reply. Open the chat again
+and you're back in it. If you send a message while the agent is replying, it reads it after its current step and
+answers in the same reply. **Stop** ends a reply.

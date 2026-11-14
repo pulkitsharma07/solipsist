@@ -1,0 +1,32 @@
+---
+title: Privacy and security
+description: What leaves your machine, and what an agent can do on it.
+sidebar:
+  order: 7
+---
+
+## What is sent
+
+Solipsist doesn't send anything about you or how you use it, anywhere. No analytics, no telemetry, no update check.
+Your pages stay on disk.
+
+When you ask an agent for something, the text it needs goes to the model you connected, under that provider's terms.
+If the agent uses tools you connected to Pi (a search, a browser, your calendar), it goes to those too.
+
+## What an agent can do
+
+An agent is Pi, running on your computer as you. Its `write` and `edit` tools can only write to the images folder, and
+it can't change your pages. Everything it suggests comes back as a suggestion. But its shell is **not sandboxed**.
+Like Pi in a terminal, it can run commands, so only connect models and tools you'd trust with that.
+
+Nobody is there to answer a permission prompt while an agent runs in the background, so it's refused and shows up as
+an error in the [agent panel](/docs/reference/agent-panel/#the-log).
+
+## Who can reach the server
+
+The server listens on `localhost` by default (`server.host`). The settings and prompts endpoints only answer requests
+from the machine the server runs on, even if you set `server.host` to open the rest to the network.
+
+## Reporting a vulnerability
+
+See [`SECURITY.md`](https://github.com/pulkitsharma07/solipsist/blob/main/SECURITY.md).

@@ -1,0 +1,85 @@
+---
+title: How the agents work
+description: One agent per request, what they're told, and the limits that keep them in check.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+import Shot from "../../../../components/Shot.astro";
+
+Solipsist runs in the folder your files are in. The server serves the editor to your browser and starts
+[Pi](https://github.com/earendil-works/pi) agents inside its own process, one per request. The agents call the model
+you connected, whether that's on your computer or online.
+
+<Shot name="how-it-works" title="How it fits together" alt="Diagram: on your computer, you start Solipsist in a folder. It serves the editor to your browser and starts Pi agents through the pi-coding-agent SDK. The agents call a model, local or remote." />
+
+## They keep working in the background
+
+<Aside type="tip" title="Ask, then keep writing">
+Agents run in the server, not in your browser tab. You can ask for several things in a row and carry on writing. Each
+request is worked on in the background while you type, and its result is waiting in the page as a suggestion when you
+get back to it. Closing the tab doesn't stop them either. Open the page again and you'll see how each one is doing.
+</Aside>
+
+- **While you write**, a run waits until you've stopped typing for a moment, so the agent doesn't read a half-typed
+  word. If a result arrives while you're typing, it's matched up with the text as it is at that moment.
+- **With the tab closed**, the page's agents finish what they started and pick up any requests still waiting. They
+  stop once there's nothing left to do and no tab is open. When you reopen the page, you see what's still in progress.
+- **Scheduled [buttons](/docs/guides/buttons/)** run on the server whether the page is open or not, as long as
+  Solipsist is running.
+- **Stopping the server** stops every agent. The requests they were working on go back to waiting and start again
+  next time.
+
+The [agent panel](/docs/reference/agent-panel/) (opened from the [status bar](/docs/reference/status-bar/)) shows what
+each run is doing, step by step, and what it cost:
+
+<Shot name="debug-panel" title="Agent panel" alt="The agent panel: runs, failures, cost, and each step of a run" width={600} />
+
+## One agent per request
+
+Each waiting request gets its own run on a fresh agent. Up to three run at a time on a page (`agent.concurrency`) and
+six across all pages (`agent.max_runs`).
+
+When a run starts, the request is marked as in progress in the file. When it ends, the result is saved with the
+request and shown to you as a suggestion. A run that takes longer than ten minutes (`agent.run_timeout_ms`) is stopped
+and counts as failed.
+
+## An agent remembers its conversation
+
+After its run, an agent stays around for five minutes (`agent.wait_ms`) in case you want to chat with it or ask again.
+Then it goes to sleep and its conversation is saved. Asking again or chatting wakes it up with everything it knew. A
+request always goes back to the agent that made it, on the model it used, as long as that model can still run.
+
+## Single-agent mode
+
+With `agent.single_agent: true`, a page has one long-running agent instead of one per request. Requests become turns
+in its conversation, one at a time, so it remembers what it read and wrote. That helps when the requests on a page
+build on each other. While you're chatting with it, requests wait until you close the chat. The status bar's
+[Single agent](/docs/reference/status-bar/#single-agent) says which mode a page is in.
+
+## What the agents are told
+
+Everything the agents are told is a prompt you can read and change: the protocol (how requests, markers and replies
+work), the prompt for each run, one for each kind of request, and the chat prompts. See
+[Prompts](/docs/agents/prompts/).
+
+## Spending limits
+
+New runs stop when you hit a limit:
+
+| Setting | Default | Counts |
+|---|---|---|
+| `agent.cost_limit_day_usd` | $5 | Spend today. |
+| `agent.cost_limit_month_usd` | $50 | Spend this month. |
+| `agent.cost_limit_usd` | none | Spend since the server started. |
+| `agent.max_unmetered_runs_day` | 40 | Runs today whose cost isn't reported. |
+
+The day and month totals are rebuilt from the server's log, so they carry over restarts. Set a limit to `0` to turn it
+off. The status bar's [Cost](/docs/reference/status-bar/#cost) shows what a page has spent, and the agent panel says
+[Stopped: cost limit reached](/docs/reference/agent-panel/#what-the-agent-is-doing) once a limit is hit.
+
+## What an agent can touch
+
+An agent runs on your computer as you. Pi's `write` and `edit` tools can only write to the images folder, but its
+shell isn't sandboxed. Treat a request the way you'd treat running Pi in a terminal in that folder.
