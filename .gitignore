@@ -2,6 +2,7 @@ node_modules
 # Pages live on disk only
 /docs/
 /docs2/
+/test_docs/
 .env
 
 # The app's own working folder and settings, where it runs on this repo
