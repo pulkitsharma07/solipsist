@@ -24,6 +24,7 @@ import { engineLabel } from "../../shared/choice";
 import { focusQuietly } from "../editor/focus";
 import { Banners, SupportNudge, TopBar } from "./Frame";
 import { Margin } from "./Margin";
+import { chatDraft } from "./CommentModal";
 import { NewerPage, newerFormat } from "./NewerPage";
 import { StatusBar } from "./StatusBar";
 
@@ -229,6 +230,10 @@ function Page() {
             placed={snap.placed}
             onDismiss={(id) => session.dismissComment(id)}
             onOpen={(id) => session.openComment(id)}
+            onAsk={(cid) => {
+              const c = snap.comments.find((x) => x.id === cid);
+              if (c) setChat({ task: PAGE_CHAT, title: `Chat with ${engineTitle}`, draft: chatDraft(c) });
+            }}
           />
           <AgentNotes editor={editor} events={agentEvents} link={agentPaused ? "paused" : agentLink} engine={engineOf(agentModel)} onChat={(p) => startChat.current(p)} />
         </div>

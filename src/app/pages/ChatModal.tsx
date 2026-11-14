@@ -4,8 +4,11 @@ import { openChatStream, sayInChat, stopChat } from "../doc/client";
 import { ModelSelect, type AgentModelOption } from "./DebugPanel";
 import { keyLabel } from "../keys";
 
-/** The chat being opened: the page, the task it is about, and what to call it. */
-export interface ChatState { task: string; title: string }
+/**
+ * The chat being opened: the page, the task it is about, and what to call it. `draft`: what the message box starts
+ * with, for the writer to finish and send (a review question carried into the page chat).
+ */
+export interface ChatState { task: string; title: string; draft?: string }
 
 /** The page's model picker, shown in the page-wide chat: the page's choice, and what to offer; and its New chat. */
 export interface ChatModels { model: string; models: AgentModelOption[]; onModel(m: string): void; onNew?(): void }
@@ -27,7 +30,7 @@ export function ChatModal({ page, chat, models, onClose }: { page: string; chat:
   const [error, setError] = useState<string | null>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [opened, setOpened] = useState(false);
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(chat.draft ?? "");
   const [, tick] = useState(0);
   const list = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
@@ -136,7 +139,13 @@ export function ChatModal({ page, chat, models, onClose }: { page: string; chat:
       window.removeEventListener("pointercancel", up);
     };
   }, []);
-  useEffect(() => { if (opened) input.current?.focus(); }, [opened]);
+  // Focused once it can be sent from, with the caret after anything it started with, where the writer goes on.
+  useEffect(() => {
+    const box = input.current;
+    if (!opened || !box) return;
+    box.focus();
+    box.setSelectionRange(box.value.length, box.value.length);
+  }, [opened]);
   useEffect(() => {
     const key = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); onClose(); } };
     window.addEventListener("keydown", key);

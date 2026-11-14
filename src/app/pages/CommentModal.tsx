@@ -9,13 +9,23 @@ import { modelName } from "./StatusBar";
  * reviewer's reasoning and the picture it drew.
  *
  * It is a window on a question, not on a suggestion, so there is no Accept and no Reject: nothing of it is in the
- * page. **Dismiss** takes it down for good, and **Ask** carries it into the chat. Escape, the backdrop and the close
- * button all close it, as the chat's window does.
+ * page. **Dismiss** takes it down for good, and **Chat** carries it into the page chat (`chatDraft`). Escape, the
+ * backdrop and the close button all close it, as the chat's window does.
  *
  * With room to its left it hangs in the margin beside its passage; on a laptop screen, where the margin is too narrow,
  * it opens just below the passage instead. Either way a thin line joins it to the passage, and the rest of the page
  * recedes (`Margin` marks the editor) instead of going behind a dark scrim. On a phone it is a window of its own.
  */
+/**
+ * What Chat puts in the page chat's message box: the passage, and the question the reviewer raised about it, ready
+ * for the writer to add their own words and send. The reviewer's run isn't kept, so the page's agent takes it up.
+ */
+export function chatDraft(comment: Pick<CommentEntry, "title" | "body" | "anchor">): string {
+  const passage = comment.anchor.exact.trim().split("\n").map((l) => `> ${l}`).join("\n");
+  const question = [comment.title.trim(), comment.body?.trim()].filter(Boolean).join("\n");
+  return `About this passage:\n${passage}\n\nThe reviewer asked: ${question}\n\n`;
+}
+
 const WIDTH = 320; // keep in step with `.comment-modal.anchored` in margin.css
 const PHONE = 640; // below this it is a full window (margin.css)
 export function CommentModal({ comment, onDismiss, onAsk, onClose }: {
@@ -98,7 +108,7 @@ export function CommentModal({ comment, onDismiss, onAsk, onClose }: {
         </div>
         <footer>
           <button type="button" className="btn btn-ghost" title="Take this question down, and don't raise it on this passage again" onClick={() => { onDismiss?.(comment.id); onClose(); }}>Dismiss</button>
-          {onAsk && <button type="button" className="btn btn-ghost ask" title="Ask the reviewer about this passage" onClick={() => { onAsk(comment.id); onClose(); }}>Ask</button>}
+          {onAsk && <button type="button" className="btn btn-ghost ask" title="Talk this question over in the page chat: the passage and the question start your message" onClick={() => { onAsk(comment.id); onClose(); }}>Chat</button>}
         </footer>
       </section>
     </>
