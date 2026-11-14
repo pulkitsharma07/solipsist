@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <img src="site/public/app.jpg" alt="A page in Solipsist: an agent's suggestion waits in green, with a card to accept, reject, ask again or chat" width="900">
+  <img src="site/public/demo.gif" alt="Solipsist in 15 seconds: the writer presses ⌘. at the end of a sentence, an agent works on it with their tools, and its suggestion waits in green until they accept it" width="880">
 </p>
 
 <p align="center">

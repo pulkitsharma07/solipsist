@@ -15,6 +15,7 @@
     "features": "bun scripts/features/index.tsx",
     "site": "bun scripts/site/build.ts",
     "site:shots": "bun scripts/site/shots.ts",
+    "site:demo": "bun scripts/site/demo-gif.ts",
     "random-edits": "bun scripts/random-edits.ts"
   },
   "dependencies": {
