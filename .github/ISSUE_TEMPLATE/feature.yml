@@ -1,0 +1,19 @@
+name: Idea or request
+description: Something you'd like Solipsist to do. Read, even when the answer is no.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you were trying to write or do, and where Solipsist got in the way. The problem, not the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: today
+    attributes:
+      label: What you do today instead
+  - type: textarea
+    id: idea
+    attributes:
+      label: An idea, if you have one

@@ -1,0 +1,14 @@
+* text=auto eol=lf
+
+# Generated: collapsed in diffs, left out of the language bar
+FEATURES.html linguist-generated
+CONFIGURATION.md linguist-generated
+landing/** linguist-generated
+bun.lock linguist-generated
+
+# Binary
+*.png binary
+*.gif binary
+*.jpg binary
+*.mp4 binary
+*.woff2 binary

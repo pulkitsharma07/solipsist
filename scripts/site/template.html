@@ -1,0 +1,744 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solipsist: a local markdown editor for working with AI agents</title>
+<meta name="description" content="Plan, research and write with AI agents that run on your own computer. They suggest; nothing is written until you accept. Open source.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Solipsist">
+<meta property="og:title" content="Solipsist: a local markdown editor for working with AI agents">
+<meta property="og:description" content="Plan, research and write with AI agents that run on your own computer. They suggest; nothing is written until you accept. Open source.">
+<meta property="og:url" content="https://solipsist.work/">
+<meta property="og:image" content="https://solipsist.work/app.jpg">
+<meta property="og:image:alt" content="A page in Solipsist with an agent's suggestion in green and a card to accept or reject it">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MCA4MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSJTb2xpcHNpc3QiPjxzdHlsZT4uZ3tmaWxsOiMxZjFkMWF9LnN7ZmlsbDojZmNmYmY4fUBtZWRpYShwcmVmZXJzLWNvbG9yLXNjaGVtZTpkYXJrKXsuZ3tmaWxsOiNlOWU1ZGN9LnN7ZmlsbDojMWIxYTE3fX08L3N0eWxlPjxyZWN0IGNsYXNzPSJnIiB3aWR0aD0iODAiIGhlaWdodD0iODAiIHJ4PSIxNiIvPjxwYXRoIGNsYXNzPSJzIiBkPSJNMzEuNiA1Ny4wMVEzNC4zOSA1Ny4wMSAzNS45NiA1NS41OFEzNy41MyA1NC4xNSAzNy41MyA1MS45NFEzNy41MyA1MC41NiAzNi45IDQ5LjQyUTM2LjI4IDQ4LjI4IDM0LjU0IDQ3LjM2UTMyLjgxIDQ2LjQ0IDI5LjU1IDQ1LjYzUTIzLjg4IDQ0LjQgMjAuNyA0Mi41NlExNy41MiA0MC43MyAxNi4yNiAzOC4zM1ExNS4wMSAzNS45MyAxNS4wMSAzMy4xMVExNS4wMSAyNy44OCAxOC43IDI0Ljc4UTIyLjQgMjEuNjggMjkuMzYgMjEuNjhRMzEuODUgMjEuNjggMzMuNDggMjIuMTFRMzUuMTEgMjIuNTQgMzYuMTcgMjIuOThRMzcuMjQgMjMuNDIgMzguMDIgMjMuNDJRMzguODUgMjMuNDIgMzkuMjggMjIuOThRMzkuNzEgMjIuNTQgNDAuMTMgMjIuMVE0MC41NSAyMS42NiA0MS4zMyAyMS42NlE0MS44NCAyMS42NiA0Mi4yOCAyMlE0Mi43MSAyMi4zNCA0Mi45NyAyMy4zMkw0NS43IDMxLjMxUTQ2LjExIDMyLjUyIDQ1Ljk1IDMzLjMxUTQ1LjggMzQuMSA0NC45OCAzNC40M1E0NC4xNiAzNC43MyA0My41NiAzNC40MlE0Mi45NyAzNC4xMiA0Mi40NCAzMy4zMlE0MC43MSAzMC4xNCAzOC43MSAyOC4zMVEzNi43MSAyNi40OCAzNC40NyAyNS42N1EzMi4yMiAyNC44NiAyOS44NCAyNC44NlEyNi4zNSAyNC44NiAyNC42IDI2LjMzUTIyLjg0IDI3LjggMjIuODQgMzAuMjRRMjIuODQgMzEuNjggMjMuNTggMzIuODdRMjQuMzEgMzQuMDYgMjYuMzEgMzUuMDZRMjguMyAzNi4wNSAzMS45OSAzNi45M1EzNi45NiAzOC4wOCAzOS44NSAzOS43N1E0Mi43MyA0MS40NSA0My45OSA0My44UTQ1LjI1IDQ2LjE1IDQ1LjI1IDQ5LjM1UTQ1LjI1IDUyLjUzIDQzLjYxIDU1LjAxUTQxLjk3IDU3LjQ4IDM5LjAxIDU4Ljg3UTM2LjA1IDYwLjI1IDMyLjExIDYwLjI1UTI5LjY3IDYwLjI1IDI4LjE2IDU5Ljc1UTI2LjY1IDU5LjI2IDI1LjY0IDU4Ljc3UTI0LjY0IDU4LjI4IDIzLjcgNTguMjhRMjIuOSA1OC4yOCAyMi4zOSA1OC43N1EyMS44NyA1OS4yNiAyMS40MSA1OS43NVEyMC45NSA2MC4yNSAyMC4yNyA2MC4yNVExOS43NCA2MC4yNSAxOS4zOSA1OS44N1ExOS4wNCA1OS40OSAxOC44NyA1OC42MUwxNy4yNyA1MC45NVExNi45NyA0OS41MSAxNy4xNCA0OC43OFExNy4zMSA0OC4wNiAxOC4wMSA0Ny44MVExOC43OSA0Ny41IDE5LjM4IDQ3Ljg4UTE5Ljk4IDQ4LjI2IDIwLjYyIDQ5LjMzUTIyLjkgNTMuNDUgMjUuNzYgNTUuMjNRMjguNjIgNTcuMDEgMzEuNiA1Ny4wMVoiLz48Y2lyY2xlIGN4PSI1NS40OSIgY3k9IjUzLjMiIHI9IjYiIGZpbGw9IiNjNDYyM2YiLz48L3N2Zz4K">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* The app's own stylesheet (tokens, both themes, every component), copied from FEATURES.html by
+   scripts/site/build.ts. The demos below are the app's real markup and classes. */
+/*APP_CSS*/
+
+/* ---- The site's own chrome, on the app's tokens. Everything is prefixed l- so it never meets an app
+   class. One typeface (Inter), one column, and a single moving thing: the demo under the headline. ---- */
+[hidden] { display: none !important; }
+body { overflow-x: hidden; }
+.l-wrap { max-width: 1080px; margin: 0 auto; padding-inline: max(20px, env(safe-area-inset-left, 0px)) max(20px, env(safe-area-inset-right, 0px)); }
+@media (min-width: 720px) { .l-wrap { padding-inline: 40px; } }
+
+.l-nav { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+.l-nav .l-wrap { display: flex; align-items: center; height: 60px; gap: 32px; }
+.l-brand { display: flex; align-items: center; gap: 9px; font: 500 17px/1 var(--serif); color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+.l-brand svg { width: 22px; height: 22px; }
+.l-nav nav { display: flex; gap: 26px; margin-left: auto; font-size: 14px; }
+.l-nav nav a { color: var(--ink-2); text-decoration: none; }
+.l-nav nav a:hover { color: var(--ink); }
+@media (max-width: 640px) { .l-nav nav { display: none; } .l-nav .l-btn { margin-left: auto; } }
+
+.l-btn { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 15px; border-radius: var(--r-md); border: 1px solid var(--line-2); background: var(--raised); color: var(--ink); font: 500 14px/1 var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
+.l-btn:hover { border-color: var(--ink-3); }
+.l-btn.l-solid { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.l-btn.l-solid:hover { opacity: 0.86; }
+.l-btn.l-lg { height: 44px; padding: 0 20px; font-size: 15px; }
+.l-btn:focus-visible, .l-step:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---- hero ---- */
+.l-hero { position: relative; isolation: isolate; overflow-x: clip; padding-top: 72px; text-align: center; }
+/* A soft glow that drifts behind the heading, with a faint dot grid fading out around it. */
+.l-hero::before, .l-hero::after { content: ""; position: absolute; left: 0; right: 0; top: -60px; height: 780px; z-index: -1; pointer-events: none; }
+.l-hero::before {
+  background:
+    radial-gradient(38% 46% at 30% 34%, color-mix(in srgb, var(--agent) 24%, transparent), transparent 70%),
+    radial-gradient(34% 42% at 72% 28%, color-mix(in srgb, var(--add) 20%, transparent), transparent 70%),
+    radial-gradient(30% 36% at 52% 62%, color-mix(in srgb, var(--warn) 16%, transparent), transparent 70%);
+  filter: blur(36px); opacity: 0.85; will-change: transform;
+  animation: l-drift 16s ease-in-out infinite alternate;
+  -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent);
+}
+.l-hero::after {
+  background-image: radial-gradient(color-mix(in srgb, var(--ink) 22%, transparent) 1px, transparent 1.2px); background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(60% 60% at 50% 32%, #000, transparent 75%); mask-image: radial-gradient(60% 60% at 50% 32%, #000, transparent 75%);
+  opacity: 0.5;
+}
+/* A faint light that follows the pointer over the whole page. It only moves by transform. */
+.l-spot { position: fixed; left: 0; top: 0; width: 320px; height: 320px; margin: -160px 0 0 -160px; z-index: -1; pointer-events: none; border-radius: 50%; opacity: 0; transition: opacity .5s; will-change: transform;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--agent) 9%, transparent), color-mix(in srgb, var(--agent) 3%, transparent) 55%, transparent); }
+.l-spot.on { opacity: 1; }
+@media (hover: none), (prefers-reduced-motion: reduce) { .l-spot { display: none; } }
+@keyframes l-drift { from { transform: translate3d(-3%, 0, 0) scale(1.04); } to { transform: translate3d(3%, 2%, 0) scale(1.1); } }
+@media (prefers-reduced-motion: reduce) { .l-hero::before { animation: none; } }
+.l-hero > .l-wrap > h1 { font: 600 clamp(36px, 6vw, 64px)/1.05 var(--sans); letter-spacing: -0.035em; margin: 0 auto; max-width: 15ch; text-wrap: balance; }
+.l-lede { font-size: clamp(16px, 1.7vw, 19px); line-height: 1.6; color: var(--ink-2); max-width: 54ch; margin: 24px auto 0; text-wrap: pretty; }
+.l-lede kbd, .l-step kbd, .l-row kbd { font-size: 11.5px; vertical-align: 1px; }
+.l-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+@media (max-width: 720px) { .l-hero { padding-top: 64px; } }
+
+/* ---- the demo: one window, one task, three steps ---- */
+.l-win { margin-top: 56px; border-radius: 14px; border: 1px solid var(--line); background: var(--sunken); box-shadow: var(--shadow-3); text-align: left; overflow: hidden; }
+.l-winbar { height: 40px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--line); font-size: var(--t-sm); color: var(--ink-2); background: var(--bg); }
+.l-desk { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; padding: 32px; align-items: start; }
+.l-side { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; min-height: 150px; }
+@media (max-width: 860px) { .l-desk { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 14px; } .l-side { padding-top: 0 !important; min-height: 178px; } }
+
+/* The app's pieces, taken out of the app's layout: they sit where this page puts them. */
+.l-app .sheet { width: auto; min-height: 0; --pad-x: 48px; padding: 44px var(--pad-x) 48px; border-radius: var(--r-md); }
+.l-app .agent-notes { position: static; width: auto; margin: 0; }
+.l-app .agent-note { position: static; transform: none; right: auto; background: none; box-shadow: none; padding-left: 0; }
+.l-app .sug-side { position: static; width: 100%; max-width: 280px; max-height: none; }
+.l-app .task-popup { position: static; display: block; animation: none; }
+.l-app .task-btn { cursor: default; transition: transform 0.12s; }
+.l-app .task-btn.is-press { transform: scale(0.93); }
+.l-app .tiptap table p { margin: 0; }
+.l-app .sug-preview { cursor: default; }
+@media (max-width: 720px) { .l-app .sheet { --pad-x: 22px; padding: 26px var(--pad-x) 30px; } }
+#d-sheet .tiptap { min-height: 212px; }
+.l-caret { display: inline-block; width: 1.5px; height: 1.1em; margin: 0 -0.75px; vertical-align: -0.18em; background: var(--ink); animation: l-blink 1.05s steps(1) infinite; }
+@keyframes l-blink { 50% { opacity: 0; } }
+
+/* The three steps under the window say what is happening; the one playing is in ink. */
+.l-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; margin: 28px 0 0; padding: 0; list-style: none; text-align: left; counter-reset: step; }
+.l-step { position: relative; display: block; width: 100%; padding: 18px 0 0; border: 0; border-top: 2px solid var(--line); background: none; text-align: left; font: inherit; color: var(--ink-3); cursor: pointer; transition: color 0.25s; }
+.l-step::before { counter-increment: step; content: counter(step); display: block; font: 500 13px/1 var(--sans); margin-bottom: 10px; }
+.l-step b { display: block; font: 600 16px/1.3 var(--sans); letter-spacing: -0.01em; margin-bottom: 4px; }
+.l-step span { display: block; font-size: 14.5px; line-height: 1.5; max-width: 34ch; }
+.l-step i { position: absolute; left: 0; top: -2px; height: 2px; width: var(--p, 0%); background: var(--ink); }
+.l-step[aria-current="step"] { color: var(--ink-2); }
+.l-step[aria-current="step"] b, .l-step[aria-current="step"]::before { color: var(--ink); }
+.l-step kbd.is-press { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+@media (max-width: 720px) { .l-steps { grid-template-columns: minmax(0, 1fr); gap: 0; } .l-step { padding: 14px 0 16px; } }
+
+/* ---- features: text on the left, one still picture of the app on the right ---- */
+.l-sec { padding-top: 160px; }
+.l-head { max-width: 640px; }
+.l-head h2, .l-end h2 { font: 600 clamp(28px, 3.8vw, 42px)/1.1 var(--sans); letter-spacing: -0.03em; margin: 0; text-wrap: balance; }
+.l-head p { font-size: 17px; line-height: 1.6; color: var(--ink-2); margin: 16px 0 0; max-width: 52ch; }
+.l-head + .l-shot { margin-top: 56px; }
+@media (max-width: 860px) { .l-head + .l-shot { margin-top: 32px; } }
+.l-row { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 64px; align-items: center; padding-top: 96px; }
+.l-row h3 { font: 600 22px/1.25 var(--sans); letter-spacing: -0.02em; margin: 0; }
+.l-row p { font-size: 16px; line-height: 1.65; color: var(--ink-2); margin: 12px 0 0; max-width: 42ch; }
+.l-row code { font-size: 0.9em; }
+.l-shot { border-radius: 14px; background: var(--sunken); padding: 28px; min-width: 0; }
+.l-shot .sheet { --pad-x: 32px; padding: 30px var(--pad-x) 32px; }
+.l-shot .sug-side, .l-shot .agent-notes { margin-top: 14px; }
+.l-prog { height: 3px; border-radius: 2px; margin-top: 18px; background: color-mix(in srgb, var(--ink) 10%, transparent); overflow: hidden; }
+.l-prog i { display: block; height: 100%; background: var(--ink-2); transform-origin: left; transform: scaleX(0); }
+@media (max-width: 860px) { .l-sec { padding-top: 104px; } .l-row { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 64px; } .l-shot { padding: 14px; } .l-shot .sheet { --pad-x: 20px; padding: 22px var(--pad-x); } }
+
+/* Copy and paste: the page on the left, a plain document editor on the right. */
+.l-panes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+.l-panes { position: relative; }
+.l-mouse { position: absolute; left: 0; top: 0; z-index: 5; pointer-events: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,.35)); transition: transform .9s cubic-bezier(.4,0,.2,1); }
+.l-pane { min-width: 0; display: flex; flex-direction: column; }
+.l-bar { display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 14px; height: 38px; margin-bottom: 10px; }
+.l-paste .sheet { flex: 1; --pad-x: 24px; padding: 22px var(--pad-x); }
+.l-paste .sheet h2 { margin-top: 0; }
+.l-paste .l-chart { margin: 8px 0; }
+.l-browser { border: 1px solid var(--line-2); border-radius: 12px; overflow: hidden; background: var(--surface); box-shadow: var(--shadow-1); }
+.l-bchrome { background: var(--sunken); border-bottom: 1px solid var(--line); }
+.l-tabs { display: flex; align-items: flex-end; gap: 4px; padding: 8px 10px 0; }
+.l-dots { display: flex; gap: 6px; align-self: center; margin: 0 8px 8px 0; }
+.l-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line-2); }
+.l-tab { display: flex; align-items: center; gap: 6px; max-width: 128px; padding: 6px 12px; border-radius: 8px 8px 0 0; font: 500 11.5px/1.2 var(--sans); color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.l-tab.on { background: var(--surface); color: var(--ink); }
+.l-tab i { flex: none; width: 10px; height: 10px; border-radius: 3px; background: var(--ink); }
+.l-addr { display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: var(--surface); border-top: 1px solid var(--line); }
+.l-bnav { color: var(--ink-3); font: 500 15px/1 var(--sans); letter-spacing: 6px; }
+.l-url { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; height: 24px; padding: 0 12px; border-radius: 12px; background: var(--sunken); color: var(--ink-2); font: 400 12px/1 var(--sans); white-space: nowrap; overflow: hidden; }
+.l-bbody { flex: 1; display: flex; flex-direction: column; padding: 10px; background: var(--sunken); }
+.l-bbody .sheet { flex: 1; }
+.l-gd { --ink: #202124; --ink-2: #5f6368; --ink-3: #80868b; --line: #e0e0e0; --line-2: #dadce0; --surface: #fff; background: #f1f3f4; flex: 1; color: var(--ink); font-family: Arial, "Helvetica Neue", sans-serif; }
+.l-gd-top { display: flex; align-items: center; gap: 12px; padding: 10px 14px 6px; font-size: 12px; color: var(--ink-2); background: #fff; }
+.l-gd-top b { font-weight: 500; font-size: 14px; color: var(--ink); margin-right: 6px; }
+.l-gd-tools { display: flex; align-items: center; gap: 10px; padding: 7px 14px 8px; background: #edf2fa; border-bottom: 1px solid var(--line-2); }
+.l-gd-tools i { width: 14px; height: 14px; border-radius: 3px; background: #c4c7c5; }
+.l-gd-tools i.w { width: 44px; }
+.l-gd-page { padding: 16px; }
+.l-gd-doc { position: relative; min-height: 340px; background: #fff; box-shadow: 0 1px 3px rgba(60,64,67,.3); padding: 28px 30px; font: 400 12.5px/1.6 Arial, "Helvetica Neue", sans-serif; color: #202124; }
+.l-gd-doc h2 { font: 400 20px/1.3 Arial, "Helvetica Neue", sans-serif; margin: 0 0 8px; color: #202124; }
+.l-gd-doc p { margin: 0 0 8px; color: #202124; }
+.l-gd-doc .l-chart { margin: 6px 0; }
+.l-gd-doc .l-pasted.l-hide { opacity: 0; }
+.l-gd-doc .l-pasted { transition: opacity .35s; }
+.l-gd-doc .l-caret { position: absolute; left: 30px; top: 30px; }
+.l-keys { margin-left: auto; padding: 2px 7px; border: 1px solid var(--line-2); border-radius: 5px; background: #fff; font: 500 11px/1.4 Arial, sans-serif; color: var(--ink-2); transition: background .15s, color .15s; }
+.l-keys.on { background: #202124; color: #fff; }
+@media (prefers-reduced-motion: reduce) { .l-mouse { display: none; } }
+#p-copy.is-press { background: var(--sunken); transform: scale(0.96); }
+@media (max-width: 860px) { .l-panes { grid-template-columns: minmax(0, 1fr); } }
+
+.l-chart { display: block; width: 100%; height: auto; }
+.l-chart .bar { fill: var(--ink-2); }
+#chart { margin: 0; }
+.l-chart .axis { stroke: var(--line-2); }
+.l-chart text { fill: var(--ink-3); font: 10px var(--sans); }
+.l-chart .t { fill: var(--ink); font: 600 11px var(--sans); }
+
+/* How it works: four boxes and three arrows. Solipsist is the one in ink; each other area has its own tint. */
+.l-flow { display: flex; align-items: center; margin-top: 56px; }
+.l-zone { position: relative; flex: 1 1 auto; min-width: 0; display: flex; align-items: center; padding: 44px 24px 28px; border: 1px dashed var(--line-2); border-radius: 16px; background: var(--surface); }
+.l-zone-name { position: absolute; top: 14px; left: 24px; font: 500 12.5px/1 var(--sans); color: var(--ink-2); }
+.l-node { flex: 1 1 0; min-width: 0; align-self: stretch; padding: 16px 18px 18px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-1); }
+.l-node.l-main { border-color: var(--ink); background: var(--raised); box-shadow: var(--shadow-2); }
+.l-c-ui { --c: var(--review); --c-soft: var(--review-soft); --c-edge: var(--review-edge); }
+.l-c-agent { --c: var(--agent); --c-soft: var(--agent-soft); --c-edge: var(--agent-edge); }
+.l-c-model { --c: var(--add); --c-soft: var(--add-soft); --c-edge: var(--add-edge); }
+.l-node[class*="l-c-"] { border-color: var(--c-edge); background: linear-gradient(var(--c-soft), var(--c-soft)), var(--raised); }
+.l-node[class*="l-c-"] .l-kind { color: var(--c); }
+.l-node .l-kind.l-mark { display: flex; align-items: center; gap: 7px; font: 500 14px/1 var(--serif); color: var(--ink); letter-spacing: -0.01em; }
+.l-node .l-kind.l-mark svg { width: 14px; height: 14px; flex: none; }
+.l-flow .l-node > b { display: flex; align-items: center; gap: 7px; }
+.l-c-agent .l-ag { border-color: var(--agent-edge); }
+.l-node.l-out { flex: 0 0 176px; align-self: center; }
+.l-node .l-kind { display: block; font: 500 12px/1 var(--sans); color: var(--ink-3); margin-bottom: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.l-node b { display: block; font: 600 16px/1.3 var(--sans); letter-spacing: -0.01em; }
+.l-node b code { font: 500 14.5px/1.3 var(--mono); letter-spacing: 0; }
+.l-node > code { display: block; margin-top: 4px; font: 12px/1.4 var(--mono); color: var(--ink-2); }
+.l-node p { margin: 10px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
+.l-node p code { font-size: 0.92em; }
+.l-ags { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: 10px; }
+.l-ag { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px 3px 6px; border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--raised); font: 12px/1.4 var(--sans); color: var(--ink-2); }
+.l-link { position: relative; flex: 0 0 68px; height: 1px; background: var(--line-2); }
+.l-link span { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%); font: 500 12px/1 var(--sans); color: var(--ink-2); }
+.l-link::after { content: ""; position: absolute; right: 0; top: -3.5px; width: 7px; height: 7px; border-top: 1px solid var(--ink-2); border-right: 1px solid var(--ink-2); transform: rotate(45deg); }
+.l-link.l-back::after { right: auto; left: 0; transform: rotate(-135deg); }
+@media (max-width: 900px) {
+  .l-flow, .l-zone { flex-direction: column; align-items: stretch; }
+  .l-flow { margin-top: 40px; }
+  .l-zone { padding: 44px 16px 16px; }
+  .l-node, .l-node.l-out { flex: none; align-self: stretch; }
+  .l-ags { flex-direction: row; }
+  .l-link { flex: none; align-self: center; width: 1px; height: 44px; }
+  .l-link span { left: 14px; bottom: auto; top: 50%; transform: translateY(-50%); }
+  .l-link::after { right: -3.5px; top: auto; bottom: 0; transform: rotate(135deg); }
+  .l-link.l-back::after { left: -3.5px; bottom: auto; top: 0; transform: rotate(-45deg); }
+}
+
+/* The pictures loop: asked, suggested, accepted. What isn't there yet keeps its room, so nothing jumps. */
+.l-hide { visibility: hidden; }
+.l-hold { min-height: 6.6em; }
+.l-shot [data-r="res"] { margin: 6px 0; padding: 2px var(--s3); border-left: 2px solid transparent; }
+.l-shot [data-r="res"].sug-blocks { border-left-color: var(--add); }
+.l-shot .agent-note { min-height: 26px; }
+
+/* Screenshots a task brought back. */
+.l-thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 8px 0 2px; }
+.l-thumbs figure { margin: 0; }
+.l-thumbs svg { display: block; width: 100%; height: auto; }
+.l-thumbs .f { fill: var(--surface); stroke: var(--line-2); } .l-thumbs .l { stroke: var(--line-2); } .l-thumbs .d { fill: var(--ink-3); }
+.l-thumbs .b { fill: var(--ink-2); } .l-thumbs .g { fill: var(--line-2); }
+.l-thumbs figcaption { margin-top: 5px; font: 11px/1.3 var(--sans); color: var(--ink-2); }
+
+/* Page review: the questions stand in the left margin, level with the passage each is about. */
+.l-review { display: grid; grid-template-columns: 156px minmax(0, 1fr); gap: 14px; }
+.l-review .margin { position: relative; right: auto; top: auto; bottom: auto; margin: 0; width: auto; }
+.l-review .margin .card { display: block; opacity: 1; cursor: default; padding: 7px 12px; white-space: nowrap; }
+@media (max-width: 560px) { .l-review { grid-template-columns: minmax(0, 1fr); } .l-review .margin { order: 2; display: flex; gap: 8px; flex-wrap: wrap; } .l-review .margin .card { position: static !important; } }
+
+/* ---- the rest: eight short ones, no pictures ---- */
+.l-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 48px 40px; margin: 64px 0 0; padding: 0; list-style: none; }
+.l-grid h3 { font: 600 15px/1.35 var(--sans); letter-spacing: -0.005em; margin: 0; }
+.l-grid p { font-size: 14.5px; line-height: 1.6; color: var(--ink-2); margin: 6px 0 0; }
+#more .l-grid li { --c: var(--agent); --cs: var(--agent-soft); }
+#more .l-grid li:nth-child(4n+2) { --c: var(--add); --cs: var(--add-soft); }
+#more .l-grid li:nth-child(4n+3) { --c: var(--warn); --cs: color-mix(in srgb, var(--warn) 12%, transparent); }
+#more .l-grid li:nth-child(4n) { --c: var(--del); --cs: var(--del-soft); }
+.l-ic { display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 14px; border-radius: 10px; color: var(--c); background: var(--cs); }
+@media (max-width: 960px) { .l-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .l-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
+
+/* ---- closing ---- */
+.l-end { padding-block: 176px 136px; text-align: center; }
+.l-end p { font-size: 17px; line-height: 1.6; color: var(--ink-2); margin: 16px auto 0; max-width: 46ch; }
+.l-term { display: inline-grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; margin-top: 32px; padding: 14px 14px 14px 20px; border: 1px solid var(--line-2); border-radius: var(--r-lg); background: var(--surface); text-align: left; max-width: 100%; }
+.l-term pre { margin: 0; font: 13.5px/1.8 var(--mono); color: var(--ink); overflow-x: auto; }
+.l-term .p { color: var(--ink-3); user-select: none; }
+.l-end .l-more { margin-top: 20px; font-size: 14.5px; }
+.l-end .l-more a, .l-foot a { color: var(--ink-2); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+.l-end .l-more a:hover, .l-foot a:hover { color: var(--ink); }
+.l-foot { border-top: 1px solid var(--line); padding-block: 28px; color: var(--ink-3); font-size: 13.5px; }
+.l-foot .l-wrap { display: flex; justify-content: space-between; gap: 16px 24px; flex-wrap: wrap; }
+.l-foot nav { display: flex; gap: 20px; }
+@media (max-width: 720px) { .l-end { padding-block: 112px 88px; } }
+@media (prefers-reduced-motion: reduce) { .l-caret { animation: none; } .l-step, .l-app .task-btn { transition: none; } }
+</style>
+
+<div class="l-spot" id="spot" aria-hidden="true"></div>
+<header class="l-nav">
+  <div class="l-wrap">
+    <a class="l-brand" href="#top"><svg class="l-logo" viewBox="0 0 80 80" aria-hidden="true"><rect width="80" height="80" rx="16" fill="var(--ink)"/><path d="M31.6 57.01Q34.39 57.01 35.96 55.58Q37.53 54.15 37.53 51.94Q37.53 50.56 36.9 49.42Q36.28 48.28 34.54 47.36Q32.81 46.44 29.55 45.63Q23.88 44.4 20.7 42.56Q17.52 40.73 16.26 38.33Q15.01 35.93 15.01 33.11Q15.01 27.88 18.7 24.78Q22.4 21.68 29.36 21.68Q31.85 21.68 33.48 22.11Q35.11 22.54 36.17 22.98Q37.24 23.42 38.02 23.42Q38.85 23.42 39.28 22.98Q39.71 22.54 40.13 22.1Q40.55 21.66 41.33 21.66Q41.84 21.66 42.28 22Q42.71 22.34 42.97 23.32L45.7 31.31Q46.11 32.52 45.95 33.31Q45.8 34.1 44.98 34.43Q44.16 34.73 43.56 34.42Q42.97 34.12 42.44 33.32Q40.71 30.14 38.71 28.31Q36.71 26.48 34.47 25.67Q32.22 24.86 29.84 24.86Q26.35 24.86 24.6 26.33Q22.84 27.8 22.84 30.24Q22.84 31.68 23.58 32.87Q24.31 34.06 26.31 35.06Q28.3 36.05 31.99 36.93Q36.96 38.08 39.85 39.77Q42.73 41.45 43.99 43.8Q45.25 46.15 45.25 49.35Q45.25 52.53 43.61 55.01Q41.97 57.48 39.01 58.87Q36.05 60.25 32.11 60.25Q29.67 60.25 28.16 59.75Q26.65 59.26 25.64 58.77Q24.64 58.28 23.7 58.28Q22.9 58.28 22.39 58.77Q21.87 59.26 21.41 59.75Q20.95 60.25 20.27 60.25Q19.74 60.25 19.39 59.87Q19.04 59.49 18.87 58.61L17.27 50.95Q16.97 49.51 17.14 48.78Q17.31 48.06 18.01 47.81Q18.79 47.5 19.38 47.88Q19.98 48.26 20.62 49.33Q22.9 53.45 25.76 55.23Q28.62 57.01 31.6 57.01Z" fill="var(--surface)"/><circle cx="55.49" cy="53.3" r="6" fill="#c4623f"/></svg>Solipsist</a>
+    <nav aria-label="Sections"><a href="#how">How it works</a><a href="#features">Features</a><a href="https://github.com/pulkitsharma07/solipsist">GitHub</a></nav>
+    <a class="l-btn l-solid" href="#start">Get started</a>
+  </div>
+</header>
+
+<main id="top">
+<section class="l-hero">
+  <div class="l-wrap">
+    <h1>A new way to think with your local agents</h1>
+    <p class="l-lede">Solipsist is a markdown editor for planning, research and writing. Your agents work inside the page, on your machine, with the models you already use.</p>
+    <div class="l-cta"><a class="l-btn l-solid l-lg" href="#start">Get started</a><a class="l-btn l-lg" href="https://github.com/pulkitsharma07/solipsist">View on GitHub</a></div>
+
+    <div class="l-win l-app" id="demo" role="img" aria-label="Demo: the writer asks for the end of a sentence, an agent suggests it, and the writer accepts">
+      <div class="l-winbar">launch-plan.md</div>
+      <div class="l-desk">
+        <article class="sheet" id="d-sheet">
+          <div class="tiptap ProseMirror">
+            <h1>Q3 launch plan</h1>
+            <p>We open the second shop on 14 August. The trial ran for six weeks with 212 customers, and repeat orders rose from 18% to 31%.</p>
+            <p id="d-p"><span id="d-typed"></span><span class="l-caret" id="d-caret"></span><span id="d-pt" class="task-point" hidden></span><span id="d-sug" class="sug-preview sug-inline" hidden></span></p>
+          </div>
+        </article>
+        <div class="l-side" id="d-side">
+          <div class="agent-notes"><div class="agent-note idle" id="d-note" hidden></div></div>
+          <div class="sug-side" id="d-card" hidden><div class="task-card sug-card" data-kind="suggestion"><header>Suggestion</header><p class="sug-note">Named who the trial customers were as the main risk, using the survey, the order data and the numbers above.</p><div class="task-row sug-actions"><button type="button" class="task-btn primary" id="d-acc" tabindex="-1">Accept</button><button type="button" class="task-btn ghost" tabindex="-1">Reject</button><button type="button" class="task-btn" tabindex="-1">Ask again</button><button type="button" class="task-btn ghost" tabindex="-1">Chat</button></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <ol class="l-steps" id="d-steps">
+      <li><button type="button" class="l-step" aria-current="step"><i></i><b>Ask</b><span>Press <kbd>⌘</kbd> <kbd>.</kbd> where something is missing.</span></button></li>
+      <li><button type="button" class="l-step"><i></i><b>An agent works</b><span>It starts on your machine and uses your skills and connected tools. You keep writing.</span></button></li>
+      <li><button type="button" class="l-step"><i></i><b>You decide</b><span>The suggestion waits in green until you accept or reject it.</span></button></li>
+    </ol>
+  </div>
+</section>
+
+<section class="l-wrap l-sec" id="how">
+  <div class="l-head">
+    <h2>How it works</h2>
+    <p>Solipsist runs in the folder your files are in. Its agents are <a href="https://github.com/earendil-works/pi">Pi</a>, an open-source coding agent, built in: you don't need to install it, and an OpenRouter key is enough to start. If you already use Pi, it works here with the same models, logins, skills and connected tools.</p>
+    <p>Like Pi in a terminal, an agent can run commands on your computer. Solipsist doesn't sandbox them.</p>
+  </div>
+  <div class="l-flow" role="img" aria-label="Diagram: on your computer, you start Solipsist in a folder. It serves the editor to your browser and starts Pi agents through the pi-coding-agent SDK. The agents call a model, local or remote.">
+    <div class="l-zone">
+      <span class="l-zone-name">Your computer</span>
+      <div class="l-node l-c-ui">
+        <span class="l-kind">Browser</span>
+        <b>Web UI</b>
+        <code>localhost:3000</code>
+        <p>The editor you write in.</p>
+      </div>
+      <div class="l-link l-back"><span>serves</span></div>
+      <div class="l-node l-main">
+        <span class="l-kind l-mark"><svg class="l-logo" viewBox="0 0 80 80" aria-hidden="true"><rect width="80" height="80" rx="16" fill="var(--ink)"/><path d="M31.6 57.01Q34.39 57.01 35.96 55.58Q37.53 54.15 37.53 51.94Q37.53 50.56 36.9 49.42Q36.28 48.28 34.54 47.36Q32.81 46.44 29.55 45.63Q23.88 44.4 20.7 42.56Q17.52 40.73 16.26 38.33Q15.01 35.93 15.01 33.11Q15.01 27.88 18.7 24.78Q22.4 21.68 29.36 21.68Q31.85 21.68 33.48 22.11Q35.11 22.54 36.17 22.98Q37.24 23.42 38.02 23.42Q38.85 23.42 39.28 22.98Q39.71 22.54 40.13 22.1Q40.55 21.66 41.33 21.66Q41.84 21.66 42.28 22Q42.71 22.34 42.97 23.32L45.7 31.31Q46.11 32.52 45.95 33.31Q45.8 34.1 44.98 34.43Q44.16 34.73 43.56 34.42Q42.97 34.12 42.44 33.32Q40.71 30.14 38.71 28.31Q36.71 26.48 34.47 25.67Q32.22 24.86 29.84 24.86Q26.35 24.86 24.6 26.33Q22.84 27.8 22.84 30.24Q22.84 31.68 23.58 32.87Q24.31 34.06 26.31 35.06Q28.3 36.05 31.99 36.93Q36.96 38.08 39.85 39.77Q42.73 41.45 43.99 43.8Q45.25 46.15 45.25 49.35Q45.25 52.53 43.61 55.01Q41.97 57.48 39.01 58.87Q36.05 60.25 32.11 60.25Q29.67 60.25 28.16 59.75Q26.65 59.26 25.64 58.77Q24.64 58.28 23.7 58.28Q22.9 58.28 22.39 58.77Q21.87 59.26 21.41 59.75Q20.95 60.25 20.27 60.25Q19.74 60.25 19.39 59.87Q19.04 59.49 18.87 58.61L17.27 50.95Q16.97 49.51 17.14 48.78Q17.31 48.06 18.01 47.81Q18.79 47.5 19.38 47.88Q19.98 48.26 20.62 49.33Q22.9 53.45 25.76 55.23Q28.62 57.01 31.6 57.01Z" fill="var(--surface)"/><circle cx="55.49" cy="53.3" r="6" fill="#c4623f"/></svg>Solipsist</span>
+        <b>The server</b>
+        <p>The app, started in any folder. It reads and saves your files there.</p>
+      </div>
+      <div class="l-link"><span>spawns</span></div>
+      <div class="l-node l-c-agent">
+        <span class="l-kind">pi-coding-agent SDK</span>
+        <b><!--PI:16-->Pi agents</b>
+        <div class="l-ags"><span class="l-ag"><!--PI:14-->agent</span><span class="l-ag"><!--PI:14-->agent</span><span class="l-ag"><!--PI:14-->agent</span></div>
+        <p>One per task, with your files, skills and connected tools.</p>
+      </div>
+    </div>
+    <div class="l-link"><span>calls</span></div>
+    <div class="l-node l-out l-c-model">
+      <span class="l-kind">Model</span>
+      <b>Local or remote</b>
+      <p>On your computer or online, whichever your Pi uses.</p>
+    </div>
+  </div>
+</section>
+
+<section class="l-wrap l-sec l-app" id="features">
+  <div class="l-head">
+    <h2>What you can ask for</h2>
+    <p>Plans, research, reports and notes. The agent looks things up, drafts and draws, and you decide what goes in the page.</p>
+  </div>
+
+  <div class="l-row">
+    <div>
+      <h3>Save a task as a button</h3>
+      <p>Keep any task as a button. Press it and the agent does the work again and updates the text in place.</p>
+      <p>Or put it on a schedule, from every minute to once a day. While Solipsist is running, it updates the page whether you have it open or not.</p>
+    </div>
+    <div class="l-shot" id="s-docs">
+      <article class="sheet"><div class="tiptap ProseMirror">
+        <h2>My tasks</h2>
+        <span class="task-button"><button type="button" class="task-btn task-press" tabindex="-1">↻ list what is newly assigned to me</button><span class="task-every">⏱ every day</span><button type="button" class="task-btn ghost task-edit" tabindex="-1" aria-label="Change the instruction">✎</button><button type="button" class="task-btn ghost task-remove" tabindex="-1" aria-label="Remove this button and keep the text">×</button></span>
+        <p class="l-hold"><span class="task-range" data-state="btn" data-r="text"></span><span class="task-range-loader l-hide" data-loader></span></p>
+      </div></article>
+      <div class="agent-notes"><div class="agent-note idle"></div></div>
+    </div>
+  </div>
+
+  <div class="l-row">
+    <div>
+      <h3>Research questions, answered in the page</h3>
+      <p>Ask a question the way you would ask a colleague. The agent searches, reads and writes up what it found, right under your question.</p>
+      <p>Each task gets its own agent, so several can work while you keep writing.</p>
+    </div>
+    <div class="l-shot" id="s-research">
+      <article class="sheet"><div class="tiptap ProseMirror">
+        <h2>Trauma and belief</h2>
+        <p><span data-r="rq">What does recent research say about how trauma changes religious belief?</span><span class="task-range-loader" data-loader></span></p>
+        <div data-r="res"><p>It goes both ways. Some people's faith deepens after a trauma and others lose it, and which way depends more on how they coped than on what happened.</p></div>
+        <p><span data-r="rq">What should I ask in my interviews?</span><span class="task-range-loader" data-loader></span></p>
+        <div data-r="res"><ul><li><p>Did your beliefs change afterwards, and how soon?</p></li><li><p>Who did you talk to about it?</p></li><li><p>What do you no longer believe?</p></li></ul></div>
+      </div></article>
+      <div class="agent-notes"><div class="agent-note idle"></div><div class="agent-note idle"></div></div>
+    </div>
+  </div>
+
+  <div class="l-row">
+    <div>
+      <h3>Use the tools you connected to Pi</h3>
+      <p>A browser, your calendar, your task tracker: the agent can use any skill or tool you have set up in Pi.</p>
+      <p>Ask it to compare a few websites and the screenshots come back in the page, with what it noticed.</p>
+    </div>
+    <div class="l-shot" id="s-tools">
+      <article class="sheet"><div class="tiptap ProseMirror">
+        <p><span data-r="rq">Compare our pricing page with our three closest competitors, with screenshots.</span><span class="task-range-loader" data-loader></span></p>
+        <div data-r="res"><div class="l-thumbs"><figure><svg viewBox="0 0 120 84" aria-hidden="true"><rect class="f" x="0.5" y="0.5" width="119" height="83" rx="5"/><path class="l" d="M0 14H120"/><circle class="d" cx="9" cy="7.5" r="2"/><rect class="b" x="38" y="22" width="44" height="5" rx="2"/><rect class="g" x="12.0" y="36" width="28.0" height="36" rx="3"/><rect class="b" x="46.0" y="36" width="28.0" height="36" rx="3"/><rect class="g" x="80.0" y="36" width="28.0" height="36" rx="3"/></svg><figcaption>Northwind</figcaption></figure><figure><svg viewBox="0 0 120 84" aria-hidden="true"><rect class="f" x="0.5" y="0.5" width="119" height="83" rx="5"/><path class="l" d="M0 14H120"/><circle class="d" cx="9" cy="7.5" r="2"/><rect class="b" x="38" y="22" width="44" height="5" rx="2"/><rect class="b" x="12.0" y="36" width="45.0" height="36" rx="3"/><rect class="g" x="63.0" y="36" width="45.0" height="36" rx="3"/></svg><figcaption>Larkspur</figcaption></figure><figure><svg viewBox="0 0 120 84" aria-hidden="true"><rect class="f" x="0.5" y="0.5" width="119" height="83" rx="5"/><path class="l" d="M0 14H120"/><circle class="d" cx="9" cy="7.5" r="2"/><rect class="b" x="38" y="22" width="44" height="5" rx="2"/><rect class="g" x="12.0" y="36" width="28.0" height="36" rx="3"/><rect class="g" x="46.0" y="36" width="28.0" height="36" rx="3"/><rect class="b" x="80.0" y="36" width="28.0" height="36" rx="3"/></svg><figcaption>Fable & Co</figcaption></figure></div><p>All three offer a free plan and we don't. Two of them put the yearly price first.</p></div>
+      </div></article>
+      <div class="agent-notes"><div class="agent-note idle"></div></div>
+    </div>
+  </div>
+
+  <div class="l-row">
+    <div>
+      <h3>Ask for a picture</h3>
+      <p>Ask for a chart or a diagram and the agent finds the numbers in your files and draws it into the page.</p>
+      <p>Select a picture that is already there to have it changed.</p>
+    </div>
+    <div class="l-shot" id="s-chart">
+      <article class="sheet"><div class="tiptap ProseMirror">
+        <p><span data-r="rq">Signups per month this year, as a chart.</span><span class="task-range-loader" data-loader></span></p>
+        <div data-r="res"><p id="chart"></p></div>
+      </div></article>
+      <div class="agent-notes"><div class="agent-note idle"></div></div>
+    </div>
+  </div>
+
+  <div class="l-row">
+    <div>
+      <h3>Page review</h3>
+      <p>An agent reads the whole page and leaves questions in the margin, wherever something is unclear, missing or doesn't add up.</p>
+      <p>It changes nothing in your text. Open a question to see the reasoning, dismiss it, or ask more.</p>
+    </div>
+    <div class="l-shot" id="s-review">
+      <div class="l-review">
+        <aside class="margin" id="rv-qs" aria-label="Questions"></aside>
+        <article class="sheet"><div class="tiptap ProseMirror">
+          <p>We move to <span id="rv-a">$12 per seat</span> in January, and existing teams keep their price for a year.</p>
+          <p>Most teams <span id="rv-b">will not notice the change</span>, since they already pay for more seats than they use.</p>
+        </div></article>
+      </div>
+      <div class="agent-notes"><div class="agent-note idle"></div></div>
+    </div>
+  </div>
+
+</section>
+
+<section class="l-wrap l-sec l-app" id="paste">
+  <div class="l-head">
+    <h2>Your pages are markdown files</h2>
+    <p>Every page is a markdown file in your own folder, and what the agent adds is ordinary text once you accept it. Copy a page into Google Docs or any editor like it: headings, lists, tables, links and pictures stay as they were.</p>
+  </div>
+  <div class="l-shot l-paste" id="s-paste">
+    <div class="l-panes">
+      <svg class="l-mouse" id="p-mouse" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 3l14 8-6 1.5L10 19z" fill="#1f1d1a" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      <div class="l-pane l-browser"><div class="l-bchrome" aria-hidden="true"><div class="l-tabs"><span class="l-dots"><i></i><i></i><i></i></span><span class="l-tab">Inbox</span><span class="l-tab on"><i></i>Solipsist</span><span class="l-tab">Pricing notes</span></div><div class="l-addr"><span class="l-bnav">‹ ›</span><span class="l-url"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>localhost:3000/launch-report</span></div></div>
+        <div class="l-bbody"><div class="l-winbar l-bar"><span>launch-report.md</span><button type="button" class="btn btn-ghost copy-page" id="p-copy" tabindex="-1" aria-label="Copy page as markdown"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" id="p-ico"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span class="copy-note" id="p-note" hidden>Copied</span></button></div>
+        <article class="sheet"><div class="tiptap ProseMirror" id="p-src"></div></article></div>
+      </div>
+      <div class="l-pane l-browser" aria-label="A document editor, after the paste"><div class="l-bchrome" aria-hidden="true"><div class="l-tabs"><span class="l-dots"><i></i><i></i><i></i></span><span class="l-tab">Docs home</span><span class="l-tab on"><i></i>Signups report</span><span class="l-tab">Calendar</span></div><div class="l-addr"><span class="l-bnav">‹ ›</span><span class="l-url"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>docs.example.com/document/d/1x7Qe/edit</span></div></div>
+        <div class="l-gd">
+        <div class="l-gd-top"><b>Untitled document</b><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><kbd class="l-keys" id="p-keys">⌘ V</kbd></div>
+        <div class="l-gd-tools" aria-hidden="true"><i></i><i></i><i class="w"></i><i></i><i></i><i class="w"></i><i></i><i></i></div>
+        <div class="l-gd-page"><div class="l-gd-doc" id="p-dst"><span class="l-caret" id="p-caret"></span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="l-wrap l-sec" id="more">
+  <div class="l-head"><h2>And the rest</h2></div>
+  <ul class="l-grid">
+    <li><span class="l-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg></span><h3>Any model you already pay for</h3><p>OpenRouter, a subscription you already have, or a model running on your own computer. Choose one for each page.</p></li>
+    <li><span class="l-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></span><h3>Rewrite anything</h3><p>Select some text and say what you want: shorter, friendlier, as a table. The old and new text sit side by side until you choose.</p></li>
+    <li><span class="l-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.7 7L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></svg></span><h3>Chat with the agent</h3><p>Talk to the agent that made a suggestion and it revises the result. There is also a chat about the whole page.</p></li>
+    <li><span class="l-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17v.01"/></svg></span><h3>Ask about a passage</h3><p>The answer appears in a card beside it. Nothing is added to the page.</p></li>
+    <li><span class="l-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg></span><h3>Instructions you can edit</h3><p>Everything the agents are told is written down where you can read it and change it.</p></li>
+    <li><span class="l-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M16.5 7.5C16 6.2 14.3 5.5 12 5.5c-2.5 0-4 1-4 2.6 0 3.6 8 1.6 8 5.4 0 1.7-1.7 3-4 3-2.4 0-4.1-.8-4.5-2.3"/></svg></span><h3>Spending limits</h3><p>Daily and monthly caps stop new runs when they are reached. The defaults are $5 a day and $50 a month.</p></li>
+    <li><span class="l-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14M5 12h14M5 18h9"/></svg></span><h3>A real editor</h3><p>Headings, lists, tables, images and links, with the usual shortcuts. Vim keys if you want them.</p></li>
+    <li><span class="l-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><h3>Private</h3><p>No account, no analytics, no telemetry. Nothing about you or your use is sent anywhere. A task sends the text it needs to your model, and to any tools you connected.</p></li>
+  </ul>
+</section>
+
+<section class="l-end" id="start">
+  <div class="l-wrap">
+    <h2>Open a folder you already have</h2>
+    <p>You need <a href="https://bun.sh">Bun</a>. Solipsist lists the markdown files it finds in the folder. Pick the ones to work on.</p>
+    <div class="l-term"><pre id="cmd"><span class="p">$ </span>git clone https://github.com/pulkitsharma07/solipsist ~/solipsist
+<span class="p">$ </span>cd ~/solipsist &amp;&amp; bun install
+<span class="p">$ </span>cd ~/my-notes &amp;&amp; bun ~/solipsist/src/index.ts</pre><button type="button" class="l-btn" id="copy">Copy</button></div>
+    <p class="l-more">Then open localhost:3000 and connect a model: an OpenRouter key, or a login you saved in Pi. <a href="https://github.com/pulkitsharma07/solipsist">Read the code on GitHub</a></p>
+  </div>
+</section>
+</main>
+
+<footer class="l-foot"><div class="l-wrap"><span>Solipsist <!--VERSION-->. Your files stay on your computer.</span><nav aria-label="Footer"><a href="features.html">Every feature</a><a href="https://github.com/pulkitsharma07/solipsist/blob/main/CONFIGURATION.md">Configuration</a><a href="https://github.com/pulkitsharma07/solipsist/blob/main/LICENSE">Licence (FSL-1.1-MIT)</a><a href="https://github.com/pulkitsharma07/solipsist">GitHub</a></nav></div></footer>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  class Stop extends Error {}
+
+  // The app's own loader faces and margin-note icons (src/app/editor/markers, NoteIcon.tsx).
+  const DOT = `<svg viewBox="0 0 24 24" width="18" height="18" class="gen-dot" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.4s" repeatCount="indefinite"/></circle></svg>`;
+  const SPIN = `<svg viewBox="0 0 24 24" width="18" height="18" class="gen-spinner" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-opacity="0.2" stroke-width="3"/><path d="M12 3a9 9 0 0 1 9 9" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/></path></svg>`;
+  const loader = (state) => `<span class="task-loader" data-state="${state}"><span class="task-face">${state === "pending" ? DOT : SPIN}</span></span>`;
+  const ICON = {
+    wait: `<svg class="note-icon ni-wait" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="8" r="6.25"/><path class="ni-hand" d="M8 8V4.5"/><path d="M8 8l2.5.8"/></svg>`,
+    work: `<!--PIWORK-->`,
+    done: `<svg class="note-icon ni-done" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle class="ni-ring" cx="8" cy="8" r="6.25"/><path class="ni-tick" pathLength="1" d="M5 8.3l2.1 2.1L11 6"/></svg>`,
+  };
+
+  /* ---------- a soft light that follows the pointer over the whole page ---------- */
+  (() => {
+    const spot = $("spot");
+    if (RM || !matchMedia("(hover: hover)").matches) return;
+    let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+    const frame = () => {
+      x += (tx - x) * 0.14; y += (ty - y) * 0.14;
+      spot.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.5 ? requestAnimationFrame(frame) : 0;
+    };
+    addEventListener("pointermove", (e) => {
+      tx = e.clientX; ty = e.clientY;
+      if (!spot.classList.contains("on")) { x = tx; y = ty; spot.classList.add("on"); }
+      if (!raf) raf = requestAnimationFrame(frame);
+    }, { passive: true });
+    document.documentElement.addEventListener("pointerleave", () => spot.classList.remove("on"));
+  })();
+
+  /* ---------- the demo: one task, from the key to the decision ---------- */
+  (() => {
+    const root = $("demo"), side = $("d-side"), p = $("d-p");
+    const typed = $("d-typed"), caret = $("d-caret"), pt = $("d-pt"), sug = $("d-sug"), n = $("d-note"), card = $("d-card"), acc = $("d-acc");
+    const steps = [...document.querySelectorAll("#d-steps .l-step")];
+    const keysEl = [...steps[0].querySelectorAll("kbd")];
+    const LEAD = "The main risk is ";
+    const SUG = "that the 212 trial customers chose to take part: 74% were already newsletter subscribers, so the 31% repeat rate may be higher than a typical customer's.";
+    const TOOLS = [["skill", "research-notes"], ["Read", "launch-plan.md"], ["mcp · survey", "get trial responses"], ["mcp · analytics", "repeat orders by segment"]];
+    const LEN = [4600, 8000, 6400]; // how long each step plays, so its line fills as it does
+
+    function note(cls, icon, html) {
+      n.className = "agent-note " + cls;
+      n.innerHTML = ICON[icon] + `<div class="note-line">${html}</div>`;
+      n.hidden = false;
+    }
+    // The margin's pieces start level with the paragraph they belong to.
+    const align = () => { side.style.paddingTop = Math.max(0, p.getBoundingClientRect().top - side.getBoundingClientRect().top - 4) + "px"; };
+    addEventListener("resize", align);
+    document.fonts?.ready.then(align);
+
+    // The page as it stands when step `i` begins.
+    function frame(i) {
+      typed.textContent = i === 0 ? "" : LEAD;
+      caret.hidden = i !== 0;
+      pt.hidden = i !== 1; if (i === 1) pt.innerHTML = loader("pending");
+      sug.hidden = i < 2; sug.className = "sug-preview sug-inline"; sug.textContent = i < 2 ? "" : SUG;
+      card.hidden = true; acc.classList.remove("is-press"); keysEl.forEach((k) => k.classList.remove("is-press"));
+      if (i === 0) n.hidden = true;
+      else if (i === 1) note("waiting", "wait", "<span>Waiting for agent to pick the task…</span>");
+      else note("idle", "done", "<span>Done</span>");
+      align();
+    }
+
+    let cur = -1, t0 = 0, raf = 0;
+    const fill = (i, pct) => steps[i].querySelector("i").style.setProperty("--p", pct + "%");
+    const tick = () => { if (cur < 0) return; fill(cur, Math.min(100, ((performance.now() - t0) / LEN[cur]) * 100)); raf = requestAnimationFrame(tick); };
+    function enter(i) {
+      cancelAnimationFrame(raf);
+      steps.forEach((s, j) => { j === i ? s.setAttribute("aria-current", "step") : s.removeAttribute("aria-current"); fill(j, j < i ? 100 : 0); });
+      cur = i; t0 = performance.now(); raf = requestAnimationFrame(tick);
+    }
+
+    const scene = [
+      async (wait) => {
+        await wait(900);
+        for (const ch of LEAD) { typed.textContent += ch; await wait(55 + Math.random() * 50); }
+        await wait(700);
+        keysEl.forEach((k) => k.classList.add("is-press"));
+        await wait(450);
+        keysEl.forEach((k) => k.classList.remove("is-press"));
+        caret.hidden = true; pt.hidden = false; pt.innerHTML = loader("pending");
+        note("waiting", "wait", "<span>Waiting for agent to pick the task…</span>");
+        await wait(1300);
+      },
+      async (wait) => {
+        await wait(500);
+        pt.innerHTML = loader("ack");
+        for (const [name, what] of TOOLS) { note("working tool", "work", `<b>${name}</b><span>${what}</span>`); await wait(1500); }
+        pt.hidden = true; sug.textContent = SUG; sug.hidden = false;
+        note("idle", "done", "<span>Done</span>");
+        await wait(1300);
+      },
+      async (wait) => {
+        await wait(500);
+        card.hidden = false;
+        await wait(3000);
+        acc.classList.add("is-press");
+        await wait(350);
+        acc.classList.remove("is-press");
+        card.hidden = true; sug.className = "";
+        note("idle", "done", "<span>Accepted</span>");
+        await wait(2500);
+      },
+    ];
+
+    if (RM) { frame(2); card.hidden = false; steps.forEach((s) => s.setAttribute("aria-current", "step")); return; }
+
+    // The demo plays while it is on screen; a click on a step starts it from there.
+    let gen = 0, visible = false, from = 0;
+    const pending = new Set();
+    const abort = () => { gen++; for (const w of pending) { clearTimeout(w.t); w.rej(new Stop()); } pending.clear(); };
+    async function play() {
+      const my = ++gen;
+      const wait = (ms) => new Promise((res, rej) => {
+        const w = { rej, t: setTimeout(() => { pending.delete(w); my === gen ? res() : rej(new Stop()); }, ms) };
+        pending.add(w);
+      });
+      try {
+        for (;;) {
+          for (let i = from; i < scene.length; i++) { frame(i); enter(i); await scene[i](wait); }
+          from = 0;
+        }
+      } catch (e) { if (!(e instanceof Stop)) throw e; }
+    }
+    frame(0);
+    new IntersectionObserver((es) => {
+      const now = es[0].isIntersecting;
+      if (now === visible) return;
+      visible = now;
+      abort(); cancelAnimationFrame(raf);
+      if (visible) play();
+    }, { threshold: 0.35 }).observe(root);
+    steps.forEach((s, i) => s.addEventListener("click", () => { abort(); from = i; play(); }));
+  })();
+
+  document.querySelectorAll("[data-loader]").forEach((el) => (el.innerHTML = loader("ack")));
+  const setNote = (el, cls, icon, html) => { el.className = "agent-note " + cls; el.innerHTML = ICON[icon] + `<div class="note-line">${html}</div>`; };
+  const tool = (el, name, what) => setNote(el, "working tool", "work", `<b>${name}</b><span>${what}</span>`);
+  const said = (el, text) => setNote(el, "idle", "done", `<span>${text}</span>`);
+
+  // A picture plays its frames while it is on screen, then starts over. Each frame is [what to show, how long].
+  // With reduced motion it shows the last frame and stays there.
+  function cycle(root, frames) {
+    if (RM) { frames.forEach(([show]) => show()); return () => {}; }
+    let timer = 0, on = false, stopped = false, anim = null;
+    const total = frames.reduce((t, f) => t + f[1], 0);
+    const bar = document.createElement("div"); bar.className = "l-prog"; bar.setAttribute("aria-hidden", "true"); bar.innerHTML = "<i></i>"; root.append(bar);
+    const fill = bar.firstChild;
+    const run = (i) => {
+      if (i === 0) { anim?.cancel(); anim = fill.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: total, easing: "linear", fill: "forwards" }); }
+      frames[i][0](); timer = setTimeout(() => run((i + 1) % frames.length), frames[i][1]);
+    };
+    frames.forEach(([show]) => show()); // until it is first seen, the finished page
+    new IntersectionObserver((es) => {
+      if (stopped || es[0].isIntersecting === on) return;
+      on = es[0].isIntersecting; clearTimeout(timer);
+      if (on) run(0); else anim?.cancel();
+    }, { threshold: 0.4 }).observe(root);
+    return () => { stopped = true; clearTimeout(timer); anim?.cancel(); bar.remove(); };
+  }
+
+  // The usual three: a task being worked on, its result suggested in green, the result accepted.
+  function asked(id, tools, hold = 4200) {
+    const root = $(id), q = (r) => [...root.querySelectorAll(`[data-r="${r}"]`)];
+    const rq = q("rq"), res = q("res"), loaders = [...root.querySelectorAll("[data-loader]")], notes = [...root.querySelectorAll(".agent-note")];
+    const mark = (state) => rq.forEach((el) => { el.className = state ? "task-range" : ""; state ? (el.dataset.state = state) : delete el.dataset.state; });
+    cycle(root, [
+      [() => { mark("ack"); loaders.forEach((l) => l.classList.remove("l-hide")); res.forEach((r) => (r.className = "l-hide")); notes.forEach((n, i) => tool(n, ...tools[i][0])); }, 1900],
+      [() => notes.forEach((n, i) => tool(n, ...tools[i][1])), 1900],
+      [() => { mark("sug"); loaders.forEach((l) => l.classList.add("l-hide")); res.forEach((r) => (r.className = "sug-preview sug-blocks")); notes.forEach((n) => said(n, "Done")); }, 2600],
+      [() => { mark(""); res.forEach((r) => (r.className = "")); notes.forEach((n) => said(n, "Accepted")); }, hold],
+    ]);
+  }
+
+  /* ---------- a chart from the numbers in a file ---------- */
+  (() => {
+    const v = [140, 165, 150, 210, 260, 245, 300, 340, 320, 410, 455, 520];
+    const W = 520, H = 180, x0 = 32, y0 = 150, bw = (W - x0 - 8) / v.length, max = 560;
+    let svg = `<svg class="l-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Bar chart: signups per month, rising from 140 in January to 520 in December"><text class="t" x="${x0}" y="14">Signups per month</text>`;
+    v.forEach((n, i) => { const h = (n / max) * (y0 - 30); svg += `<rect class="bar" x="${x0 + i * bw + 3}" y="${y0 - h}" width="${bw - 6}" height="${h}" rx="2"/>`; });
+    svg += `<path class="axis" d="M${x0} ${y0 + 0.5}H${W - 8}"/>`;
+    ["Jan", "Apr", "Jul", "Oct"].forEach((m, i) => { svg += `<text x="${x0 + i * 3 * bw + bw / 2}" y="${y0 + 16}" text-anchor="middle">${m}</text>`; });
+    [0, 250, 500].forEach((n) => { svg += `<text x="${x0 - 6}" y="${y0 - (n / max) * (y0 - 30) + 3}" text-anchor="end">${n}</text>`; });
+    $("chart").innerHTML = svg + "</svg>";
+  })();
+
+  /* ---------- copy a page, paste it into a document editor ---------- */
+  (() => {
+    const chart = $("chart").innerHTML;
+    const body = `<h2>Signups report</h2><p>Signups grew every quarter this year, from 140 in January to 520 in December.</p>${chart}<ul><li><p>Best month: December, 520</p></li><li><p>Slowest: January, 140</p></li></ul>`;
+    $("p-src").innerHTML = body;
+    const dst = $("p-dst"), caret = $("p-caret"), btn = $("p-copy"), note = $("p-note"), keys = $("p-keys"), ico = $("p-ico");
+    const paste = document.createElement("div"); paste.className = "l-pasted"; paste.innerHTML = body; dst.append(paste);
+    const CHECK = '<path d="M5 12.5l4.5 4.5L19 7.5"/>', COPY = '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>';
+    const idle = () => { btn.classList.remove("is-press"); note.hidden = true; ico.innerHTML = COPY; keys.classList.remove("on"); };
+    const mouse = $("p-mouse"), panes = mouse.parentElement;
+    const at = (el, fx, fy, jump) => {
+      const a = panes.getBoundingClientRect(), r = el.getBoundingClientRect();
+      if (jump) mouse.style.transition = "none";
+      mouse.style.transform = `translate(${r.left - a.left + r.width * fx}px, ${r.top - a.top + r.height * fy}px)`;
+      if (jump) { mouse.offsetWidth; mouse.style.transition = ""; }
+    };
+    const src = $("p-src");
+    cycle($("s-paste"), [
+      [() => { idle(); paste.classList.add("l-hide"); caret.hidden = false; at(src, 0.7, 0.8, true); }, 1500],
+      [() => at(btn, 0.5, 0.55), 1100],
+      [() => { btn.classList.add("is-press"); }, 280],
+      [() => { btn.classList.remove("is-press"); note.hidden = false; ico.innerHTML = CHECK; at(dst, 0.4, 0.3); }, 1300],
+      [() => { keys.classList.add("on"); }, 500],
+      [() => { paste.classList.remove("l-hide"); caret.hidden = true; }, 5200],
+    ]);
+  })();
+
+  asked("s-research", [[["search", "trauma and religious belief studies"], ["read", "3 review articles"]], [["read", "interview-notes.md"], ["read", "the research summary above"]]], 5200);
+  asked("s-tools", [[["browser", "open northwind.example/pricing"], ["browser", "screenshot 3 pages"]]]);
+  asked("s-chart", [[["read", "signups.csv"], ["write", "images/signups.svg"]]]);
+
+  /* ---------- a button: pressed, and its text is rewritten in place ---------- */
+  (() => {
+    const root = $("s-docs"), text = root.querySelector('[data-r="text"]'), ld = root.querySelector("[data-loader]"), btn = root.querySelector(".task-press"), n = root.querySelector(".agent-note");
+    const OLD = "Nothing new since Friday. Still open: the autumn budget and the hiring plan.";
+    const NEW = "Two new since yesterday: review the pricing page and book the venue for the offsite. Still open: the autumn budget and the hiring plan.";
+    cycle(root, [
+      [() => { text.textContent = OLD; ld.classList.add("l-hide"); btn.classList.remove("is-press"); said(n, "Last run yesterday, 9:00 AM"); }, 2400],
+      [() => { btn.classList.add("is-press"); }, 280],
+      [() => { btn.classList.remove("is-press"); ld.classList.remove("l-hide"); tool(n, "tasks", "assigned to me, since yesterday"); }, 2600],
+      [() => { text.textContent = NEW; ld.classList.add("l-hide"); said(n, "Last run just now"); }, 4600],
+    ]);
+  })();
+
+  /* ---------- page review: each question level with its passage ---------- */
+  (() => {
+    const root = $("s-review"), qs = $("rv-qs"), n = root.querySelector(".agent-note"), items = [[$("rv-a"), "against what?"], [$("rv-b"), "says who?"]];
+    const cards = items.map(([, gloss]) => { const c = document.createElement("section"); c.className = "card"; c.innerHTML = `<p class="gloss">${gloss}</p>`; qs.append(c); return c; });
+    const place = () => items.forEach(([el], i) => { cards[i].style.top = el.getBoundingClientRect().top - qs.getBoundingClientRect().top - 2 + "px"; });
+    place(); addEventListener("resize", place); document.fonts?.ready.then(place);
+    const ask = (i) => { items[i][0].className = "hl"; cards[i].classList.remove("l-hide"); };
+    cycle(root, [
+      [() => { items.forEach(([el]) => (el.className = "")); cards.forEach((c) => c.classList.add("l-hide")); setNote(n, "working", "work", "<span>Reading the page…</span>"); }, 2600],
+      [() => ask(0), 900],
+      [() => { ask(1); said(n, "2 questions"); }, 4600],
+    ]);
+  })();
+
+  $("copy").addEventListener("click", async (e) => {
+    const btn = e.currentTarget;
+    try { await navigator.clipboard.writeText($("cmd").textContent.replace(/^\$ /gm, "")); btn.textContent = "Copied"; }
+    catch { const r = document.createRange(); r.selectNodeContents($("cmd")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+    setTimeout(() => (btn.textContent = "Copy"), 1500);
+  });
+})();
+</script>

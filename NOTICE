@@ -1,0 +1,25 @@
+Solipsist
+Copyright 2026 Pulkit Sharma
+Licensed under the Functional Source License, Version 1.1, MIT Future License (FSL-1.1-MIT); see LICENSE.
+
+Solipsist includes or depends on the following third-party software, each under its own licence.
+Versions are those pinned in package.json / bun.lock.
+
+MIT
+  @tiptap/* (core, pm, react, markdown, starter-kit and extensions)   https://github.com/ueberdosis/tiptap
+    @tiptap/extension-list is distributed with a local patch (patches/).
+  React, React DOM                                                     https://github.com/facebook/react
+  React Router                                                         https://github.com/remix-run/react-router
+  @earendil-works/pi-coding-agent                                      https://github.com/earendil-works/pi
+  Tailwind CSS, bun-plugin-tailwind                                    https://github.com/tailwindlabs/tailwindcss
+  node-diff3                                                           https://github.com/bhousel/node-diff3
+  Bun (runtime, embedded in compiled binaries)                         https://github.com/oven-sh/bun
+
+ISC
+  yaml                                                                 https://github.com/eemeli/yaml
+
+SIL Open Font License 1.1
+  Fraunces (@fontsource-variable/fraunces)
+  Inter (@fontsource-variable/inter)
+  IBM Plex Mono (@fontsource/ibm-plex-mono)
+

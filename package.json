@@ -1,0 +1,56 @@
+{
+  "name": "solipsist",
+  "private": true,
+  "license": "FSL-1.1-MIT",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot src/index.ts",
+    "start": "NODE_ENV=production bun src/index.ts",
+    "test": "bun test",
+    "test:ui": "bun test ./test/e2e/smoke.e2e.ts ./test/e2e/chat.e2e.ts ./test/e2e/pi.e2e.ts",
+    "typecheck": "bun --bun tsc --noEmit",
+    "features": "bun scripts/features/index.tsx",
+    "site": "bun scripts/site/build.ts",
+    "random-edits": "bun scripts/random-edits.ts"
+  },
+  "dependencies": {
+    "@earendil-works/pi-coding-agent": "1.4.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@tiptap/core": "3.32.0",
+    "@tiptap/extension-code": "3.32.0",
+    "@tiptap/extension-code-block": "3.32.0",
+    "@tiptap/extension-image": "3.32.0",
+    "@tiptap/extension-link": "3.32.0",
+    "@tiptap/extension-list": "3.32.0",
+    "@tiptap/extension-paragraph": "3.32.0",
+    "@tiptap/extension-placeholder": "3.32.0",
+    "@tiptap/extension-table": "3.32.0",
+    "@tiptap/markdown": "3.32.0",
+    "@tiptap/pm": "3.32.0",
+    "@tiptap/react": "3.32.0",
+    "@tiptap/starter-kit": "3.32.0",
+    "bun-plugin-tailwind": "^0.1.2",
+    "node-diff3": "^3.2.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^8.5.0",
+    "tailwindcss": "^4.3.3",
+    "yaml": "^2.9.1"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "1.4.0",
+    "@happy-dom/global-registrator": "^21.0.4",
+    "@types/bun": "^1.4.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "happy-dom": "^21.0.4",
+    "playwright": "1.56.1",
+    "typescript": "^7.0.2"
+  },
+  "patchedDependencies": {
+    "@tiptap/extension-list@3.32.0": "patches/@tiptap%2Fextension-list@3.32.0.patch"
+  }
+}

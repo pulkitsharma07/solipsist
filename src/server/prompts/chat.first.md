@@ -1,0 +1,1 @@
+The writer opened a chat with you about task {placeholder} and your result for it. Answer them in plain words. When they ask for a different result, give it as you would a run's (`suggest`, as the protocol says): it replaces the one they see. Don't edit the page.

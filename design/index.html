@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solipsist Design System</title>
+<link rel="stylesheet" href="../src/app/tokens.css">
+<style>
+/* ==========================================================================
+   2. BASE
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--t-md)/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--ink); }
+code, kbd, .mono { font-family: var(--mono); }
+::selection { background: var(--agent-soft); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-sm); }
+button { font: inherit; color: inherit; }
+
+/* ==========================================================================
+   3. COMPONENTS (the real system; these are what the app should ship)
+   ========================================================================== */
+
+/* Button: three variants. Quiet is the default; primary is rare. */
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: var(--r-md); background: var(--raised); color: var(--ink); font: 500 var(--t-sm)/1 var(--sans); cursor: pointer; transition: background var(--d-fast), border-color var(--d-fast); }
+.btn:hover { border-color: var(--ink-3); }
+.btn-primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn-primary:hover { opacity: 0.88; }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+.btn-ghost:hover { background: var(--sunken); color: var(--ink); }
+.btn kbd { margin-left: 2px; }
+.icon-btn { width: 28px; padding: 0; justify-content: center; }
+
+kbd { display: inline-block; min-width: 18px; padding: 1px 5px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: var(--r-sm); background: var(--surface); color: var(--ink-2); font: 500 10.5px/1.4 var(--mono); text-align: center; }
+.btn-primary kbd { background: transparent; border-color: rgba(255,255,255,0.25); color: inherit; opacity: 0.7; }
+
+/* Status dot: the only animated thing at rest */
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); flex: none; display: inline-block; }
+.dot-live { background: var(--agent); animation: breathe 1.6s ease-in-out infinite; }
+.dot-ok { background: var(--add); }
+.dot-err { background: var(--del); }
+@keyframes breathe { 50% { opacity: 0.35; } }
+
+/* Tag: tiny label, never filled with saturated colour */
+.tag { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border: 1px solid var(--line); border-radius: var(--r-pill); color: var(--ink-2); font: 500 var(--t-xs)/1 var(--sans); white-space: nowrap; }
+.tag-agent { color: var(--agent); border-color: transparent; background: var(--agent-soft); }
+.tag-add { color: var(--add); border-color: transparent; background: var(--add-soft); }
+.tag-del { color: var(--del); border-color: transparent; background: var(--del-soft); }
+
+/* Eyebrow: the label above a block */
+.eyebrow { font: 500 var(--t-xs)/1 var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.meta { font: 400 var(--t-xs)/1.4 var(--mono); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+/* Input */
+.field { width: 100%; padding: 10px 12px; border: 1px solid var(--line-2); border-radius: var(--r-md); background: var(--raised); color: var(--ink); font: var(--t-md)/1.5 var(--sans); outline: none; resize: none; transition: border-color var(--d-fast), box-shadow var(--d-fast); }
+.field::placeholder { color: var(--ink-3); }
+.field:focus { border-color: var(--agent); box-shadow: 0 0 0 3px var(--focus); }
+
+/* ---- The page --------------------------------------------------------- */
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); box-shadow: var(--shadow-1); padding: var(--s8) clamp(24px, 8%, 88px); font: var(--page-font); color: var(--ink); }
+.sheet h1 { font: 500 30px/1.25 var(--serif); letter-spacing: -0.01em; margin: 0 0 var(--s5); }
+.sheet h2 { font: 500 21px/1.35 var(--serif); margin: var(--s6) 0 var(--s3); }
+.sheet p { margin: 0 0 var(--s4); }
+
+/* Placeholder: range over a selection the agent is working on */
+.task-range { background: var(--agent-soft); border-bottom: 1px dashed var(--agent); border-radius: 2px; }
+.task-point { display: inline-flex; width: 14px; height: 14px; vertical-align: -1px; margin: 0 2px; }
+.task-point::before { content: ""; margin: auto; width: 6px; height: 6px; border-radius: 50%; background: var(--agent); animation: breathe 1.6s ease-in-out infinite; }
+
+/* Suggestion preview inside the page */
+.sug-old { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--del); text-decoration-thickness: 1px; }
+.sug-new { background: var(--add-soft); border-bottom: 1px solid var(--add); padding: 0 1px; }
+.sug-block { margin: 0 0 var(--s4); padding: 2px 0 2px var(--s4); border-left: 2px solid var(--add); }
+
+/* Margin note: one line, quiet, expands on hover */
+.note { display: flex; align-items: center; gap: var(--s2); max-width: 100%; padding: 6px 10px; border-radius: var(--r-md); color: var(--ink-2); font: var(--t-sm)/1.35 var(--sans); }
+.note:hover { background: var(--sunken); color: var(--ink); }
+.note-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Suggestion card: sits in the margin next to its placeholder */
+.card { width: 100%; background: var(--raised); border-radius: var(--r-lg); box-shadow: var(--shadow-2); font: var(--t-sm)/1.5 var(--sans); overflow: hidden; }
+.card-head { display: flex; align-items: center; gap: var(--s2); padding: var(--s3) var(--s4) 0; }
+.card-body { padding: var(--s2) var(--s4) var(--s3); color: var(--ink); }
+.card-body p { margin: 0; }
+.card-actions { display: flex; gap: var(--s1); padding: var(--s2) var(--s3); border-top: 1px solid var(--line); }
+.card-actions .spacer { flex: 1; }
+
+/* Status bar: text only. No coloured blocks. */
+.statusbar { display: flex; align-items: center; gap: var(--s1); height: 30px; padding: 0 var(--s3); border-top: 1px solid var(--line); background: var(--bg); font: var(--t-xs)/1 var(--mono); color: var(--ink-3); overflow: hidden; white-space: nowrap; }
+.sb-item { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border: 0; border-radius: var(--r-sm); background: none; color: inherit; font: inherit; cursor: pointer; }
+.sb-item:hover { background: var(--sunken); color: var(--ink); }
+.sb-item b { font-weight: 500; color: var(--ink-2); }
+.sb-mode { color: var(--ink-2); font-weight: 500; letter-spacing: 0.04em; }
+.sb-spacer { flex: 1; }
+.sb-count { color: var(--add); }
+
+/* ---- Chat ------------------------------------------------------------- */
+.chat { display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow-3); overflow: hidden; }
+.chat-head { display: flex; align-items: center; gap: var(--s3); padding: var(--s4) var(--s5); border-bottom: 1px solid var(--line); }
+.chat-title { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.chat-title strong { font: 500 var(--t-md)/1.3 var(--sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-title .meta { display: flex; gap: var(--s2); align-items: center; }
+.chat-log { display: flex; flex-direction: column; gap: var(--s6); padding: var(--s6) var(--s5); max-height: 520px; overflow-y: auto; }
+.turn { display: flex; flex-direction: column; gap: var(--s3); max-width: 62ch; }
+.turn-user { align-self: flex-end; max-width: 46ch; padding: 10px 14px; border-radius: var(--r-lg) var(--r-lg) var(--r-sm) var(--r-lg); background: var(--sunken); }
+.turn p { margin: 0; }
+.turn blockquote { margin: 0; padding-left: var(--s3); border-left: 2px solid var(--line-2); color: var(--ink-2); }
+
+/* Work: thinking + tools collapse into one line */
+.work { align-self: flex-start; }
+.work summary { display: inline-flex; align-items: center; gap: var(--s2); list-style: none; cursor: pointer; padding: 4px 8px 4px 6px; margin-left: -6px; border-radius: var(--r-md); color: var(--ink-3); font: var(--t-sm)/1 var(--sans); }
+.work summary::-webkit-details-marker { display: none; }
+.work summary:hover { background: var(--sunken); color: var(--ink-2); }
+.work summary .chev { transition: transform var(--d-fast); }
+.work[open] summary .chev { transform: rotate(90deg); }
+.work-steps { margin: var(--s2) 0 0; padding: 0 0 0 var(--s3); border-left: 1px solid var(--line); list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.work-steps li { display: flex; gap: var(--s2); align-items: baseline; min-width: 0; font: var(--t-xs)/1.5 var(--mono); color: var(--ink-2); }
+.work-steps li span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.work-steps .ok { color: var(--add); }
+.work-steps .think { font-family: var(--sans); font-style: italic; color: var(--ink-3); }
+
+/* Proposal: the suggestion inside a reply */
+.proposal { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--raised); overflow: hidden; }
+.proposal-body { padding: var(--s3) var(--s4); font: 400 15.5px/1.65 var(--serif); border-left: 2px solid var(--add); }
+.proposal-why { padding: var(--s2) var(--s4); font-size: var(--t-sm); color: var(--ink-2); border-top: 1px solid var(--line); }
+.proposal-actions { display: flex; gap: var(--s1); padding: var(--s2) var(--s3); border-top: 1px solid var(--line); background: var(--surface); }
+
+.compose { padding: var(--s3) var(--s5) var(--s4); border-top: 1px solid var(--line); }
+.compose-box { display: flex; align-items: flex-end; gap: var(--s2); padding: 6px 6px 6px 14px; border: 1px solid var(--line-2); border-radius: var(--r-lg); background: var(--raised); transition: border-color var(--d-fast), box-shadow var(--d-fast); }
+.compose-box:focus-within { border-color: var(--agent); box-shadow: 0 0 0 3px var(--focus); }
+.compose-box textarea { flex: 1; min-height: 28px; padding: 5px 0; border: 0; outline: 0; background: none; color: var(--ink); font: var(--t-md)/1.4 var(--sans); resize: none; }
+.compose-box textarea::placeholder { color: var(--ink-3); }
+.compose-hint { display: flex; gap: var(--s3); margin-top: var(--s2); padding-left: 2px; font-size: var(--t-xs); color: var(--ink-3); }
+
+/* ==========================================================================
+   4. DOC PAGE LAYOUT (this file only, not part of the app)
+   ========================================================================== */
+.shell { max-width: 1120px; margin: 0 auto; padding: 0 var(--s4); }
+.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top .shell { display: flex; align-items: center; gap: var(--s5); height: 52px; }
+.brand { font: 500 17px/1 var(--serif); letter-spacing: -0.01em; text-decoration: none; }
+.brand em { color: var(--ink-3); font-style: italic; font-weight: 400; }
+.top nav { display: flex; gap: var(--s4); flex: 1; overflow-x: auto; scrollbar-width: none; }
+.top nav a { color: var(--ink-2); text-decoration: none; font-size: var(--t-sm); white-space: nowrap; }
+.top nav a:hover { color: var(--ink); }
+
+.hero { padding: var(--s8) 0 var(--s7); max-width: 680px; }
+.hero h1 { font: 400 clamp(34px, 6vw, 52px)/1.08 var(--serif); letter-spacing: -0.025em; margin: var(--s3) 0 var(--s5); }
+.hero h1 em { color: var(--ink-2); }
+.hero p { font-size: var(--t-lg); color: var(--ink-2); line-height: 1.6; margin: 0; }
+
+section.block { padding: var(--s7) 0; border-top: 1px solid var(--line); }
+.sec-head { display: grid; grid-template-columns: 220px 1fr; gap: var(--s5); margin-bottom: var(--s6); }
+.sec-head h2 { font: 400 var(--t-xl)/1.25 var(--serif); margin: 0; letter-spacing: -0.01em; }
+.sec-head p { margin: 0; color: var(--ink-2); max-width: 60ch; }
+.sec-head .num { font: var(--t-xs)/1 var(--mono); color: var(--ink-3); display: block; margin-bottom: var(--s2); }
+
+.principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--s5) var(--s6); }
+.principles h3 { font: 500 var(--t-md)/1.3 var(--sans); margin: 0 0 6px; }
+.principles p { margin: 0; color: var(--ink-2); font-size: var(--t-sm); line-height: 1.6; }
+.principles .n { font: italic 400 var(--t-lg)/1 var(--serif); color: var(--agent); display: block; margin-bottom: var(--s2); }
+
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s3); }
+.swatch { border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; background: var(--surface); }
+.swatch i { display: block; height: 56px; border-bottom: 1px solid var(--line); }
+.swatch div { padding: var(--s2) var(--s3); }
+.swatch b { display: block; font: 500 var(--t-sm)/1.3 var(--mono); }
+.swatch span { font-size: var(--t-xs); color: var(--ink-2); }
+.group-label { margin: var(--s6) 0 var(--s3); }
+.group-label:first-child { margin-top: 0; }
+
+.type-row { display: grid; grid-template-columns: 140px 1fr; gap: var(--s4); align-items: baseline; padding: var(--s4) 0; border-bottom: 1px solid var(--line); }
+.type-row:last-child { border-bottom: 0; }
+.type-row .meta { line-height: 1.6; }
+
+.scale { display: flex; flex-wrap: wrap; gap: var(--s5); align-items: flex-end; }
+.scale figure { margin: 0; display: flex; flex-direction: column; gap: var(--s2); align-items: flex-start; }
+.scale .bar { background: var(--agent-soft); border: 1px solid var(--agent); border-radius: 2px; }
+.radii figure .bar { width: 64px; height: 64px; background: var(--sunken); border: 1px solid var(--line-2); }
+.elev figure .bar { width: 120px; height: 72px; background: var(--raised); border: 0; border-radius: var(--r-md); }
+
+.specimen { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; padding: var(--s5); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+.spec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--s4); }
+.spec-cap { margin-top: var(--s2); font-size: var(--t-sm); color: var(--ink-2); }
+
+/* Reference screen frame */
+.frame { border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: var(--bg); box-shadow: var(--shadow-2); }
+.frame-bar { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 var(--s3); border-bottom: 1px solid var(--line); background: var(--surface); }
+.frame-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--line-2); }
+.frame-bar span { margin-left: var(--s3); font: var(--t-xs)/1 var(--mono); color: var(--ink-3); }
+
+.editor { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: var(--s5); padding: var(--s6) var(--s5) var(--s6); }
+.editor .margin { position: relative; display: flex; flex-direction: column; gap: var(--s3); padding-top: 140px; }
+.editor-top { display: flex; align-items: center; gap: var(--s3); height: 44px; padding: 0 var(--s4); border-bottom: 1px solid var(--line); }
+.editor-top .crumb { font-size: var(--t-sm); color: var(--ink-3); }
+.editor-top .crumb b { color: var(--ink); font-weight: 500; }
+.editor-top .saved { margin-left: auto; font-size: var(--t-xs); color: var(--ink-3); }
+
+.chat-stage { position: relative; padding: var(--s7) var(--s5); background: var(--scrim); }
+.chat-stage .chat { max-width: 760px; margin: 0 auto; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
+.compare > div { padding: var(--s4) var(--s5); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+.compare h4 { margin: 0 0 var(--s3); font: 500 var(--t-sm)/1 var(--sans); display: flex; gap: var(--s2); align-items: center; }
+.compare ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: var(--t-sm); line-height: 1.7; }
+
+.table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+.table th { text-align: left; font: 500 var(--t-xs)/1 var(--sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); padding: 0 var(--s3) var(--s3) 0; border-bottom: 1px solid var(--line); }
+.table td { padding: var(--s3) var(--s3) var(--s3) 0; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+.table td:first-child { color: var(--ink); white-space: nowrap; }
+.table code { font-size: 11.5px; color: var(--ink); background: var(--sunken); padding: 1px 5px; border-radius: var(--r-sm); }
+.table-wrap { overflow-x: auto; }
+
+pre.code { margin: 0; padding: var(--s4) var(--s5); background: var(--sunken); border-radius: var(--r-md); font: 12px/1.65 var(--mono); color: var(--ink-2); overflow-x: auto; }
+pre.code b { color: var(--ink); font-weight: 500; }
+
+footer { padding: var(--s7) 0 var(--s8); border-top: 1px solid var(--line); color: var(--ink-3); font-size: var(--t-sm); }
+
+.theme-toggle { margin-left: auto; }
+
+@media (max-width: 860px) {
+  .sec-head { grid-template-columns: 1fr; gap: var(--s2); }
+  .editor { grid-template-columns: 1fr; }
+  .editor .margin { padding-top: 0; }
+  .compare { grid-template-columns: 1fr; }
+  .type-row { grid-template-columns: 1fr; gap: var(--s1); }
+  .chat-stage { padding: var(--s4) var(--s2); }
+  .chat-log { padding: var(--s5) var(--s4); }
+  .chat-head, .compose { padding-left: var(--s4); padding-right: var(--s4); }
+  .sheet { padding: var(--s6) var(--s5); }
+  .top nav { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="shell">
+    <a class="brand" href="#">Solipsist <em>system</em></a>
+    <nav>
+      <a href="#principles">Principles</a>
+      <a href="#foundations">Foundations</a>
+      <a href="#components">Components</a>
+      <a href="#screens">Screens</a>
+      <a href="#docs">Docs</a>
+    </nav>
+    <button class="btn btn-ghost icon-btn theme-toggle" id="theme" aria-label="Toggle theme" title="Toggle theme">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11" /><path d="M8 2.5a5.5 5.5 0 0 1 0 11z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="shell">
+
+  <div class="hero">
+    <span class="eyebrow">Design system · v0.1</span>
+    <h1>The page is the product. <em>Everything else whispers.</em></h1>
+    <p>A small set of tokens and components for Solipsist: warm paper, one serif for the writing, one sans for the tools, and a single colour reserved for the agent. If a thing on screen isn't the writer's words or the agent's work, it should be hard to notice.</p>
+  </div>
+
+  <!-- ================================================================== -->
+  <section class="block" id="principles">
+    <div class="sec-head">
+      <div><span class="num">01</span><h2>Principles</h2></div>
+      <p>Five rules to settle arguments. When a new piece of UI is proposed, check it against these before picking a colour.</p>
+    </div>
+    <div class="principles">
+      <div><span class="n">i.</span><h3>Writing first, chrome last</h3><p>The sheet uses the serif at reading size. Every bar, badge and panel uses smaller sans in secondary ink. Nothing outside the page is bolder than the page.</p></div>
+      <div><span class="n">ii.</span><h3>One accent, and it's the agent</h3><p>Terracotta means "the agent is here": a pending placeholder, a live run, the chat focus ring. Green and red appear only in diffs. No blue, no filled status blocks.</p></div>
+      <div><span class="n">iii.</span><h3>Show the result, fold the work</h3><p>Thinking, tool calls and token counts are real but secondary. Collapse them into one line the writer can open. The proposal is the headline.</p></div>
+      <div><span class="n">iv.</span><h3>Hairlines over boxes</h3><p>Separate with space first, a 1px line second, a card last. A card inside a card is a smell.</p></div>
+      <div><span class="n">v.</span><h3>Keys are shown, not shouted</h3><p>Shortcuts live in small <kbd>kbd</kbd> chips next to the action, never in placeholder sentences.</p></div>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <section class="block" id="foundations">
+    <div class="sec-head">
+      <div><span class="num">02</span><h2>Foundations</h2></div>
+      <p>Tokens are CSS custom properties on <code>:root</code>. Dark mode keeps the names and swaps the values. Components never use a raw hex.</p>
+    </div>
+
+    <div class="eyebrow group-label">Surfaces</div>
+    <div class="swatches">
+      <div class="swatch"><i style="background:var(--bg)"></i><div><b>--bg</b><span>The desk behind the sheet</span></div></div>
+      <div class="swatch"><i style="background:var(--surface)"></i><div><b>--surface</b><span>Sheet, modal, bars</span></div></div>
+      <div class="swatch"><i style="background:var(--raised)"></i><div><b>--raised</b><span>Cards and popovers</span></div></div>
+      <div class="swatch"><i style="background:var(--sunken)"></i><div><b>--sunken</b><span>Code, wells, hover</span></div></div>
+    </div>
+
+    <div class="eyebrow group-label">Ink & lines</div>
+    <div class="swatches">
+      <div class="swatch"><i style="background:var(--ink)"></i><div><b>--ink</b><span>Body text</span></div></div>
+      <div class="swatch"><i style="background:var(--ink-2)"></i><div><b>--ink-2</b><span>Secondary, meta</span></div></div>
+      <div class="swatch"><i style="background:var(--ink-3)"></i><div><b>--ink-3</b><span>Hints, disabled</span></div></div>
+      <div class="swatch"><i style="background:var(--line)"></i><div><b>--line</b><span>Hairline divider</span></div></div>
+      <div class="swatch"><i style="background:var(--line-2)"></i><div><b>--line-2</b><span>Input borders</span></div></div>
+    </div>
+
+    <div class="eyebrow group-label">Meaning</div>
+    <div class="swatches">
+      <div class="swatch"><i style="background:var(--agent)"></i><div><b>--agent</b><span>The only accent</span></div></div>
+      <div class="swatch"><i style="background:var(--add)"></i><div><b>--add</b><span>Inserted text</span></div></div>
+      <div class="swatch"><i style="background:var(--del)"></i><div><b>--del</b><span>Removed text, errors</span></div></div>
+      <div class="swatch"><i style="background:var(--warn)"></i><div><b>--warn</b><span>Stale, needs a look</span></div></div>
+    </div>
+
+    <div class="eyebrow group-label">Type</div>
+    <div>
+      <div class="type-row"><div class="meta">Page title<br>Fraunces 500 · 30</div><div style="font:500 30px/1.25 var(--serif);letter-spacing:-0.01em">On keeping agents</div></div>
+      <div class="type-row"><div class="meta">Page body<br>Arial 400 · 15 / 1.65</div><div style="font:var(--page-font)">Nothing prunes a conversation the writer is still chatting in, and nothing expires it behind their back.</div></div>
+      <div class="type-row"><div class="meta">UI<br>Inter 400–500 · 14</div><div>Accept the suggestion, reject it, or ask again with a note.</div></div>
+      <div class="type-row"><div class="meta">UI small<br>Inter · 12.5</div><div style="font-size:var(--t-sm);color:var(--ink-2)">Waiting for the page to settle before sending the run.</div></div>
+      <div class="type-row"><div class="meta">Meta<br>Plex Mono · 11</div><div class="meta" style="font-size:12px">deepseek-flash · 13k in · 3.3k out · $0.0054</div></div>
+      <div class="type-row"><div class="meta">Eyebrow<br>Inter 500 · 11 · caps</div><div class="eyebrow">Suggestion</div></div>
+    </div>
+
+    <div class="spec-grid" style="margin-top:var(--s6)">
+      <div>
+        <div class="eyebrow group-label">Space · 4px grid</div>
+        <div class="scale">
+          <figure><span class="bar" style="width:4px;height:4px"></span><span class="meta">s1 4</span></figure>
+          <figure><span class="bar" style="width:8px;height:8px"></span><span class="meta">s2 8</span></figure>
+          <figure><span class="bar" style="width:12px;height:12px"></span><span class="meta">s3 12</span></figure>
+          <figure><span class="bar" style="width:16px;height:16px"></span><span class="meta">s4 16</span></figure>
+          <figure><span class="bar" style="width:24px;height:24px"></span><span class="meta">s5 24</span></figure>
+          <figure><span class="bar" style="width:32px;height:32px"></span><span class="meta">s6 32</span></figure>
+          <figure><span class="bar" style="width:48px;height:48px"></span><span class="meta">s7 48</span></figure>
+        </div>
+      </div>
+      <div>
+        <div class="eyebrow group-label">Radius</div>
+        <div class="scale radii">
+          <figure><span class="bar" style="border-radius:var(--r-sm)"></span><span class="meta">sm 4 · sheet, kbd</span></figure>
+          <figure><span class="bar" style="border-radius:var(--r-md)"></span><span class="meta">md 8 · button</span></figure>
+          <figure><span class="bar" style="border-radius:var(--r-lg)"></span><span class="meta">lg 12 · card</span></figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="eyebrow group-label">Elevation</div>
+    <div class="scale elev">
+      <figure><span class="bar" style="box-shadow:var(--shadow-1);border:1px solid var(--line)"></span><span class="meta">1 · the sheet</span></figure>
+      <figure><span class="bar" style="box-shadow:var(--shadow-2)"></span><span class="meta">2 · cards, popovers</span></figure>
+      <figure><span class="bar" style="box-shadow:var(--shadow-3)"></span><span class="meta">3 · modal</span></figure>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <section class="block" id="components">
+    <div class="sec-head">
+      <div><span class="num">03</span><h2>Components</h2></div>
+      <p>The parts the app is built from. Each one is a single class with at most a couple of modifiers.</p>
+    </div>
+
+    <div class="spec-grid">
+      <div>
+        <div class="specimen">
+          <button class="btn btn-primary">Accept <kbd>↵</kbd></button>
+          <button class="btn">Ask again</button>
+          <button class="btn btn-ghost">Reject</button>
+        </div>
+        <p class="spec-cap"><code>.btn</code>, <code>.btn-primary</code>, <code>.btn-ghost</code>. One primary per surface, at most.</p>
+      </div>
+      <div>
+        <div class="specimen">
+          <span class="tag"><span class="dot"></span>Idle</span>
+          <span class="tag tag-agent"><span class="dot dot-live"></span>Writing</span>
+          <span class="tag tag-add">2 suggestions</span>
+          <span class="tag tag-del">Declined</span>
+        </div>
+        <p class="spec-cap"><code>.tag</code> with <code>.dot</code>. Tinted, never filled.</p>
+      </div>
+      <div>
+        <div class="specimen" style="display:block">
+          <input class="field" placeholder="Make it shorter…">
+        </div>
+        <p class="spec-cap"><code>.field</code>. Focus ring is the agent colour, because typing here talks to it.</p>
+      </div>
+      <div>
+        <div class="specimen" style="display:block;font:var(--page-font)">
+          The page <span class="task-range">was opened in Plannotator</span><span class="task-point"></span> and <span class="sug-old">came back</span> <span class="sug-new">returned one note</span>.
+        </div>
+        <p class="spec-cap"><code>.task-range</code>, <code>.task-point</code>, <code>.sug-old</code>, <code>.sug-new</code>: what the agent marks in the page.</p>
+      </div>
+      <div>
+        <div class="specimen" style="display:block;padding:var(--s3)">
+          <div class="note"><span class="dot dot-live"></span><span class="note-text">Reading the page and the selection…</span></div>
+          <div class="note"><span class="dot"></span><span class="note-text">Waiting · resumes on ask again</span></div>
+          <div class="note"><span class="dot dot-ok"></span><span class="note-text">In chat</span><span class="meta" style="margin-left:auto">⌥⌘C</span></div>
+        </div>
+        <p class="spec-cap"><code>.note</code>: margin notes are one line and borderless.</p>
+      </div>
+      <div>
+        <div class="specimen" style="justify-content:space-between">
+          <span><kbd>⌘</kbd> <kbd>.</kbd></span>
+          <span class="eyebrow">Eyebrow</span>
+          <span class="meta">13k in · $0.0054</span>
+        </div>
+        <p class="spec-cap"><code>kbd</code>, <code>.eyebrow</code>, <code>.meta</code>.</p>
+      </div>
+    </div>
+
+    <div class="eyebrow group-label" style="margin-top:var(--s6)">Suggestion card</div>
+    <div style="max-width:300px">
+      <div class="card">
+        <div class="card-head"><span class="dot dot-ok"></span><span class="eyebrow">Suggestion</span><span class="meta" style="margin-left:auto">sel:a3f</span></div>
+        <div class="card-body"><p>Opened in Plannotator; the review came back with one note at line 3.</p></div>
+        <div class="card-actions">
+          <button class="btn btn-primary">Accept</button>
+          <button class="btn btn-ghost">Reject</button>
+          <span class="spacer"></span>
+          <button class="btn btn-ghost icon-btn" title="Chat (⌥⌘C)" aria-label="Chat">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <section class="block" id="screens">
+    <div class="sec-head">
+      <div><span class="num">04</span><h2>Reference screens</h2></div>
+      <p>The editor and the chat modal from the current build, rebuilt with only the parts above. Same information, less of it at once.</p>
+    </div>
+
+    <div class="eyebrow group-label">Editor</div>
+    <div class="frame">
+      <div class="frame-bar"><i></i><i></i><i></i><span>localhost:3000/d/882c8qb4</span></div>
+      <div class="editor-top">
+        <span class="crumb">Pages / <b>On keeping agents</b></span>
+        <span class="saved">Saved</span>
+      </div>
+      <div class="editor">
+        <article class="sheet">
+          <h1>On keeping agents</h1>
+          <p>An agent that finishes a run doesn't have to die. It can wait beside its placeholder, in case the writer has a question about what it wrote.</p>
+          <p>The page was <span class="task-range">opened in Plannotator, and the review came back before the session closed</span><span class="task-point"></span>.</p>
+          <div class="sug-block">One annotation, at line 3, on the word “even”: rewrite this doc in Bihari.</div>
+          <h2>When it ends</h2>
+          <p>Nothing prunes a conversation the writer is still chatting in, and nothing expires it behind their back.</p>
+        </article>
+        <aside class="margin">
+          <div class="note"><span class="dot dot-live"></span><span class="note-text">Running plannotator review…</span></div>
+          <div class="card">
+            <div class="card-head"><span class="dot dot-ok"></span><span class="eyebrow">Suggestion</span><span class="meta" style="margin-left:auto">after</span></div>
+            <div class="card-body"><p>Adds one paragraph with the review's single note.</p></div>
+            <div class="card-actions">
+              <button class="btn btn-primary">Accept</button>
+              <button class="btn btn-ghost">Reject</button>
+              <span class="spacer"></span>
+              <button class="btn btn-ghost icon-btn" aria-label="Chat"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z" stroke-linejoin="round"/></svg></button>
+            </div>
+          </div>
+        </aside>
+      </div>
+      <div class="statusbar">
+        <span class="sb-item sb-mode">NORMAL</span>
+        <button class="sb-item sb-count">2 suggestions</button>
+        <span class="sb-spacer"></span>
+        <button class="sb-item"><span class="dot dot-live"></span>Agent <b>on</b></button>
+        <button class="sb-item">Auto-merge <b>on</b></button>
+        <button class="sb-item">Debug</button>
+        <span class="sb-item" style="cursor:default">14:146</span>
+        <span class="sb-item" style="cursor:default">634 words</span>
+      </div>
+    </div>
+
+    <div class="eyebrow group-label" style="margin-top:var(--s7)">Chat with a suggestion</div>
+    <div class="frame">
+      <div class="chat-stage">
+        <div class="chat" role="dialog" aria-label="Chat">
+          <div class="chat-head">
+            <div class="chat-title">
+              <strong>Open this file with plannotator</strong>
+              <span class="meta"><span class="dot dot-ok"></span>Ready · deepseek-flash · $0.0054</span>
+            </div>
+            <button class="btn btn-ghost icon-btn" aria-label="Close"><svg width="14" height="14" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+          </div>
+
+          <div class="chat-log">
+            <div class="turn turn-user"><p>Open this file with plannotator and tell me what comes back.</p></div>
+
+            <div class="turn">
+              <details class="work">
+                <summary><svg class="chev" width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M3 1.5l4 3.5-4 3.5z"/></svg>Worked for 41s · 2 tools</summary>
+                <ul class="work-steps">
+                  <li><span class="think">Thought about how to open the review</span></li>
+                  <li><span class="ok">✓</span><span>bash plannotator annotate /docs/882c8qb4.md</span></li>
+                  <li><span class="ok">✓</span><span>bash for i in $(seq 1 30); do if [ -s /tmp/pn-882c8qb4.out ]; then break; fi; …</span></li>
+                </ul>
+              </details>
+
+              <p>The page was opened in Plannotator, and the review came back before the session closed with one annotation, at line 3, on the word “even”:</p>
+              <blockquote>rewrite this doc in Bihari</blockquote>
+              <p>That's a whole-document rewrite, not something this run was asked to do, so I'll put the review outcome after the selected paragraph and leave the writing to you.</p>
+
+              <div class="proposal">
+                <div class="proposal-body">Opened in Plannotator; the review came back with one note at line 3: “rewrite this doc in Bihari”.</div>
+                <div class="proposal-why">Reports the one annotation Plannotator returned.</div>
+                <div class="proposal-actions">
+                  <button class="btn btn-primary">Accept</button>
+                  <button class="btn btn-ghost">Reject</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="compose">
+            <div class="compose-box">
+              <textarea rows="1" placeholder="Ask about this suggestion"></textarea>
+              <button class="btn btn-primary icon-btn" aria-label="Send"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            </div>
+            <div class="compose-hint"><span><kbd>↵</kbd> send</span><span><kbd>⇧</kbd> <kbd>↵</kbd> new line</span><span><kbd>esc</kbd> close</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare" style="margin-top:var(--s5)">
+      <div>
+        <h4><span class="dot dot-err"></span>Was</h4>
+        <ul>
+          <li>Every turn a bordered card, inside a bordered modal</li>
+          <li>“Thinking” toggles and full tool commands at full weight</li>
+          <li>Token and cost counts under every turn and in the header</li>
+          <li>Suggestion and Note as two stacked labelled blocks</li>
+          <li>Instructions written into the input's placeholder</li>
+          <li>Status bar of solid green, red and blue blocks</li>
+        </ul>
+      </div>
+      <div>
+        <h4><span class="dot dot-ok"></span>Now</h4>
+        <ul>
+          <li>Turns separated by space; only the writer's message has a fill</li>
+          <li>Thinking and tools fold into one “Worked for 41s · 2 tools” line</li>
+          <li>One total in the header; per-turn stats inside the fold</li>
+          <li>One proposal block with its reason as a caption and its actions</li>
+          <li>Short placeholder, keys as <kbd>kbd</kbd> chips below</li>
+          <li>Text-only status bar; colour only on the live dot and the count</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <section class="block" id="docs">
+    <div class="sec-head">
+      <div><span class="num">05</span><h2>Using it</h2></div>
+      <p>How to bring this into <code>src/app/app.css</code> without a big-bang rewrite.</p>
+    </div>
+
+    <div class="spec-grid" style="align-items:start">
+      <div>
+        <div class="eyebrow group-label">Adopt in three steps</div>
+        <ol style="margin:0;padding-left:20px;color:var(--ink-2);line-height:1.8;font-size:var(--t-sm)">
+          <li><b style="color:var(--ink);font-weight:500">Tokens.</b> Paste section 1 of this file over the <code>:root</code> blocks in <code>app.css</code>. Alias the old names (<code>--desk</code>, <code>--sheet</code>, <code>--panel</code>) to the new ones so nothing breaks.</li>
+          <li><b style="color:var(--ink);font-weight:500">Raw values.</b> Replace hex colours in rules with tokens. Grep for <code>#</code> and <code>rgba(</code> in <code>app.css</code>; each one maps to a row in the table.</li>
+          <li><b style="color:var(--ink);font-weight:500">Components.</b> Rework one surface at a time: status bar, then chat modal, then margin cards. Run <code>bun run test:ui</code> after each.</li>
+        </ol>
+      </div>
+      <div>
+        <div class="eyebrow group-label">Aliases for step 1</div>
+<pre class="code"><b>:root</b> {
+  --desk:  var(--bg);
+  --sheet: var(--surface);
+  --panel: var(--raised);
+  --bar:   var(--bg);
+  --bar-line: var(--line);
+  --accent: var(--agent);
+}</pre>
+      </div>
+    </div>
+
+    <div class="eyebrow group-label" style="margin-top:var(--s6)">From today's CSS to tokens</div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Where</th><th>Today</th><th>Becomes</th></tr></thead>
+        <tbody>
+          <tr><td>Page font</td><td><code>11pt Arial</code></td><td><code>var(--page-font)</code>: Fraunces 17/1.7</td></tr>
+          <tr><td>Agent orange</td><td><code>#d97757</code>, <code>rgba(217,119,87,…)</code></td><td><code>--agent</code>, <code>--agent-soft</code></td></tr>
+          <tr><td>Suggestion green</td><td><code>#2e9e5b</code>, <code>#8fd4a8</code></td><td><code>--add</code>, <code>--add-soft</code></td></tr>
+          <tr><td>Removal red</td><td><code>#e06c64</code>, <code>#d93025</code>, <code>#b3261e</code></td><td><code>--del</code>, <code>--del-soft</code></td></tr>
+          <tr><td>Accent blue</td><td><code>#1a73e8</code>, <code>#6cb0ff</code></td><td>Gone. Links use <code>--ink</code>; focus uses <code>--focus</code></td></tr>
+          <tr><td><code>.sug-count</code>, <code>.merge-toggle</code></td><td>Solid coloured blocks</td><td><code>.sb-item</code>; colour only on the text of the count</td></tr>
+          <tr><td><code>.mode-pill</code></td><td>Filled blue block</td><td><code>.sb-item.sb-mode</code></td></tr>
+          <tr><td><code>.chat-msg</code> turns</td><td>Bordered cards</td><td><code>.turn</code>; user turns <code>.turn-user</code></td></tr>
+          <tr><td><code>.chat-thinking</code>, <code>.chat-tool</code></td><td>Separate blocks per step</td><td>One <code>.work</code> fold per turn</td></tr>
+          <tr><td><code>.chat-envelope</code></td><td>Labelled “Suggestion” + “Note”</td><td><code>.proposal</code> with <code>.proposal-why</code></td></tr>
+          <tr><td>Shadows</td><td>Six hand-tuned values</td><td><code>--shadow-1</code> … <code>--shadow-3</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="eyebrow group-label" style="margin-top:var(--s6)">Do / don't</div>
+    <div class="compare">
+      <div>
+        <h4><span class="dot dot-ok"></span>Do</h4>
+        <ul>
+          <li>Reach for <code>--ink-2</code> before reaching for a colour</li>
+          <li>Use space to group; a line if space isn't enough</li>
+          <li>Put a number in <code>.meta</code> mono so it lines up</li>
+          <li>Keep one primary button per surface</li>
+        </ul>
+      </div>
+      <div>
+        <h4><span class="dot dot-err"></span>Don't</h4>
+        <ul>
+          <li>Fill a status with a saturated background</li>
+          <li>Nest a bordered card inside a bordered card</li>
+          <li>Write a new hex value in a component rule</li>
+          <li>Use <code>--agent</code> for anything the agent isn't doing</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="shell">Solipsist design system · <span class="mono">design/index.html</span> · open it in a browser, no build step.</div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement, key = "solipsist-ds-theme";
+  try { var saved = localStorage.getItem(key); if (saved) root.dataset.theme = saved; } catch (e) {}
+  document.getElementById("theme").addEventListener("click", function () {
+    var dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem(key, root.dataset.theme); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>

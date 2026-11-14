@@ -1,0 +1,140 @@
+/* Fonts: bundled, latin subsets only, never fetched. */
+@font-face { font-family: "Fraunces"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-normal.woff2") format("woff2"); }
+@font-face { font-family: "Fraunces"; font-style: italic; font-weight: 100 900; font-display: swap;
+  src: url("../../node_modules/@fontsource-variable/fraunces/files/fraunces-latin-wght-italic.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 400; font-display: swap;
+  src: url("../../node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "IBM Plex Mono"; font-style: normal; font-weight: 500; font-display: swap;
+  src: url("../../node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2") format("woff2"); }
+
+/* ==========================================================================
+   2. BASE
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--t-md)/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--ink); }
+code, kbd, .mono { font-family: var(--mono); }
+::selection { background: var(--agent-soft); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-sm); }
+button { font: inherit; color: inherit; }
+/* ==========================================================================
+   1. TOKENS
+   Every colour, size and duration in the app comes from here. Components never
+   use raw values. Light is the default; dark is the same names, new values.
+   ========================================================================== */
+:root {
+  /* Surfaces: warm paper, not grey chrome */
+  --bg:        #f7f5f0;   /* the desk */
+  --surface:   #fcfbf8;   /* the sheet, modals */
+  --raised:    #ffffff;   /* popovers, cards over the sheet */
+  --sunken:    #f0ede6;   /* code, wells, hover fills */
+
+  /* Ink: three steps, that's all */
+  --ink:       #1f1d1a;
+  --ink-2:     #6f6b64;   /* secondary text, meta */
+  --ink-3:     #a8a39a;   /* hints, placeholders, disabled */
+
+  /* Lines: one hairline, one stronger */
+  --line:      #e7e3da;
+  --line-2:    #d6d1c6;
+
+  /* One accent. The agent is the only thing that gets colour. */
+  --agent:     #c4623f;
+  --agent-soft:rgba(196, 98, 63, 0.10);
+  /* A glow around what the agent is doing now (the page chat's button). */
+  --agent-glow:rgba(196, 98, 63, 0.38);
+
+  /* Page review: the reviewer's questions. A cool blue, so a question never reads as the agent's own work
+     (--agent, warm) nor as a diff (--add, --del). The margin, its highlight and the status bar all use it. */
+  --review:     #3f6490;
+  --review-soft:rgba(63, 100, 144, 0.10);
+  /* Edges of an open question: its panel border, the passage underline and glow. Plain colours, not color-mix: the bundler leaves var() inside it unresolved. */
+  --review-edge:rgba(63, 100, 144, 0.26);
+  --review-line:rgba(63, 100, 144, 0.50);
+  --review-glow:rgba(63, 100, 144, 0.32);
+  --add-edge:rgba(63, 125, 85, 0.30);  --agent-edge:rgba(196, 98, 63, 0.32);  --del-edge:rgba(181, 71, 58, 0.30);
+
+  /* One popover for every kind of comment (a question, a suggestion, an answer, a decline): the same surface, a
+     different accent. A kind sets these; `[data-kind]` below (margin.css) picks them. */
+  --pop: var(--add); --pop-edge: var(--add-edge); --pop-soft: var(--add-soft);
+
+  /* Meaning, used only for diff and state, always muted */
+  --add:       #3f7d55;
+  --add-soft:  rgba(63, 125, 85, 0.10);
+  --del:       #b5473a;
+  --del-soft:  rgba(181, 71, 58, 0.09);
+  --warn:      #a86d14;
+
+  --focus:     rgba(196, 98, 63, 0.35);
+  --scrim:     rgba(31, 29, 26, 0.28);
+
+  /* Type */
+  --serif: "Fraunces", Georgia, "Times New Roman", serif;
+  --sans:  "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono:  "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --t-xs: 11px;  --t-sm: 12.5px;  --t-md: 14px;  --t-lg: 17px;  --t-xl: 22px;  --t-2xl: 34px;
+  --page-font: 400 15px/1.65 Arial, "Helvetica Neue", sans-serif;
+
+  /* Space: a 4px grid */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 72px;
+
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-pill: 999px;
+
+  --shadow-1: 0 1px 2px rgba(31, 29, 26, 0.05);
+  --shadow-2: 0 1px 2px rgba(31, 29, 26, 0.04), 0 8px 24px rgba(31, 29, 26, 0.08);
+  --shadow-3: 0 2px 6px rgba(31, 29, 26, 0.05), 0 24px 64px rgba(31, 29, 26, 0.14);
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --d-fast: 120ms; --d-med: 200ms; --d-slow: 320ms;
+
+
+  /* Comment highlights and the vim block cursor */
+  /* A review comment's passage: the review blue, so the highlight, the card and the count are one colour. */
+  --hl:        rgba(63, 100, 144, 0.16);
+  --hl-active: rgba(63, 100, 144, 0.30);
+  --cursor:    var(--ink);
+  --cursor-ink:var(--surface);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151412; --surface: #1b1a17; --raised: #23211e; --sunken: #201e1b;
+    --ink: #e9e5dc; --ink-2: #9a958b; --ink-3: #635f58;
+    --line: #2b2925; --line-2: #3a3732;
+    --agent: #e08a68; --agent-soft: rgba(224, 138, 104, 0.12); --agent-glow: rgba(224, 138, 104, 0.45);
+    --add: #7fbf93; --add-soft: rgba(127, 191, 147, 0.10);
+    --del: #e48a7e; --del-soft: rgba(228, 138, 126, 0.10);
+    --warn: #d9a45a;
+    --review: #8fb0db; --review-soft: rgba(143, 176, 219, 0.14); --review-edge: rgba(143, 176, 219, 0.30); --review-line: rgba(143, 176, 219, 0.55); --review-glow: rgba(143, 176, 219, 0.35); --add-edge: rgba(127, 191, 147, 0.32); --agent-edge: rgba(224, 138, 104, 0.36); --del-edge: rgba(228, 138, 126, 0.34);
+    --focus: rgba(224, 138, 104, 0.4); --scrim: rgba(0, 0, 0, 0.5);
+    --shadow-1: none;
+    --shadow-2: 0 0 0 1px var(--line), 0 12px 32px rgba(0, 0, 0, 0.35);
+    --shadow-3: 0 0 0 1px var(--line), 0 24px 72px rgba(0, 0, 0, 0.55);
+    --hl: rgba(143, 176, 219, 0.20); --hl-active: rgba(143, 176, 219, 0.38);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151412; --surface: #1b1a17; --raised: #23211e; --sunken: #201e1b;
+  --ink: #e9e5dc; --ink-2: #9a958b; --ink-3: #635f58;
+  --line: #2b2925; --line-2: #3a3732;
+  --agent: #e08a68; --agent-soft: rgba(224, 138, 104, 0.12); --agent-glow: rgba(224, 138, 104, 0.45);
+  --add: #7fbf93; --add-soft: rgba(127, 191, 147, 0.10);
+  --del: #e48a7e; --del-soft: rgba(228, 138, 126, 0.10);
+  --warn: #d9a45a;
+  --review: #8fb0db; --review-soft: rgba(143, 176, 219, 0.14); --review-edge: rgba(143, 176, 219, 0.30); --review-line: rgba(143, 176, 219, 0.55); --review-glow: rgba(143, 176, 219, 0.35); --add-edge: rgba(127, 191, 147, 0.32); --agent-edge: rgba(224, 138, 104, 0.36); --del-edge: rgba(228, 138, 126, 0.34);
+  --focus: rgba(224, 138, 104, 0.4); --scrim: rgba(0, 0, 0, 0.5);
+  --shadow-1: none;
+  --shadow-2: 0 0 0 1px var(--line), 0 12px 32px rgba(0, 0, 0, 0.35);
+  --shadow-3: 0 0 0 1px var(--line), 0 24px 72px rgba(0, 0, 0, 0.55);
+  --hl: rgba(143, 176, 219, 0.20); --hl-active: rgba(143, 176, 219, 0.38);
+  color-scheme: dark;
+}

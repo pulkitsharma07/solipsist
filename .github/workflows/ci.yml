@@ -1,0 +1,63 @@
+# Every push to main and every pull request: the whole suite (typecheck and the fake-DOM e2e inside it), then the
+# real-Chrome suite, on Linux. No macOS while the repo is private: its runners cost ten times Linux's, out of a small
+# allowance. Put `macos-latest` back in the matrix when the repo is public (free there).
+# No secrets: test/sandbox.ts blanks every key, and no test reaches a model.
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+  workflow_dispatch:
+permissions: { contents: read }
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix: { os: [ubuntu-latest] }
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with: { bun-version-file: .bun-version }
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+      - run: bun install --frozen-lockfile
+      - run: bun test
+
+  ui:
+    needs: test
+    # Not ubuntu-latest: that is Ubuntu 26.04 now, which Playwright 1.56 can't install its browser deps for. Move on
+    # with a Playwright that lists 26.04.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with: { bun-version-file: .bun-version }
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+      - run: bun install --frozen-lockfile
+      # The suites drive real Chrome (E2E_CHANNEL, default "chrome").
+      - run: bun --bun node_modules/playwright/cli.js install --with-deps chrome
+      - run: bun run test:ui
+        env:
+          E2E_VIDEO: ${{ runner.temp }}/e2e-video
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-video
+          path: ${{ runner.temp }}/e2e-video
+          retention-days: 7
+      # leftovers.ts records every browser and server a suite starts: none may outlive the run.
+      - name: No process left behind
+        if: always()
+        run: |
+          if pgrep -fl 'chrome|bun (test|src/index|test/)' | grep -v pgrep; then echo "processes outlived the suite"; exit 1; fi

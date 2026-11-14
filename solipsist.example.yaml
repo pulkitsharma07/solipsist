@@ -1,0 +1,123 @@
+# Solipsist settings. Copy this file to `solipsist.yaml` (next to where you start the server) or to
+# `~/.config/solipsist/config.yaml`, and keep only what you change. Every key is shown with its default.
+# The environment wins over this file: each setting names its variable. Reference: CONFIGURATION.md.
+
+# Glob patterns for the .md files the file dialog offers. Env: SOLIPSIST_SEARCH_PATHS.
+md_search_paths:
+  - "*.md"
+
+server:
+  # The port of the server. Env: PORT.
+  port: 3000
+  # The address the server listens on. Env: SOLIPSIST_HOST.
+  host: localhost
+
+agent:
+  # The pause before a failed run is retried (ms). Env: AGENT_GAP_MS.
+  gap_ms: 1000
+  # How long the page must stay unchanged before a run starts (ms). Env: AGENT_SETTLE_MS.
+  settle_ms: 2000
+  # One lasting agent per page handles every request, instead of a fresh agent per request. Env:
+  # AGENT_SINGLE_AGENT.
+  single_agent: false
+  # How many runs may work on one page at once. Env: AGENT_CONCURRENCY.
+  concurrency: 3
+  # How many runs may work at once across all pages. Env: AGENT_MAX_RUNS.
+  max_runs: 6
+  # How long one run may take before it is stopped (ms). Env: AGENT_RUN_TIMEOUT_MS.
+  run_timeout_ms: 600000
+  # The most the agents may cost (US dollars) before no new run starts. Env: AGENT_COST_LIMIT_USD.
+  # cost_limit_usd: 2
+  # The most the agents may cost (US dollars) in one day before no new run starts. Env: AGENT_COST_LIMIT_DAY_USD.
+  cost_limit_day_usd: 5
+  # The most the agents may cost (US dollars) in one calendar month before no new run starts. Env:
+  # AGENT_COST_LIMIT_MONTH_USD.
+  cost_limit_month_usd: 50
+  # Runs in one day on engines that report no cost, before no new run starts on them. Env:
+  # AGENT_MAX_UNMETERED_RUNS_DAY.
+  max_unmetered_runs_day: 40
+  # How long a Pi agent waits after its suggestion before it snoozes (ms). Env: AGENT_WAIT_MS.
+  wait_ms: 300000
+  # How many agents may wait on one page at once. Env: AGENT_MAX_WAITING.
+  max_waiting: 6
+  # Failed runs in a row on one request before it is declined. Env: AGENT_MAX_FAILURES.
+  max_failures: 3
+  # The models you prefer, listed first in the picker; the first that can run is the default. Env:
+  # SOLIPSIST_PREFERRED_MODELS.
+  preferred_models:
+    - "pi:openrouter/~deepseek/deepseek-flash-latest"
+
+review:
+  # Whether a page may be read for questions at all. Env: SOLIPSIST_REVIEW.
+  on: true
+  # Who scores the questions a review raised. Env: SOLIPSIST_REVIEW_CURATOR.
+  curator: self
+  # A question scoring below this (0 to 10) is dropped. Env: SOLIPSIST_REVIEW_MIN_SCORE.
+  min_score: 0
+  # The fewest comments a page may hold on screen at once. Env: SOLIPSIST_REVIEW_MIN_KEPT.
+  min_kept: 4
+  # How many more comments a page may hold per non-empty block. Env: SOLIPSIST_REVIEW_PER_BLOCK.
+  kept_per_block: 0.2
+  # The most questions one review may raise. Env: SOLIPSIST_REVIEW_MAX.
+  max_per_review: 3
+  # A margin note longer than this many words is dropped. Env: SOLIPSIST_REVIEW_GLOSS_WORDS.
+  max_gloss_words: 10
+
+suggestions:
+  # The longest suggestion accepted from an agent (characters). Env: SOLIPSIST_MAX_SUGGESTION.
+  max_chars: 20000
+  # The most changes to other blocks one suggestion may carry. Env: SOLIPSIST_MAX_EDITS.
+  max_edits: 20
+
+chat:
+  # The longest message you may send in a chat (characters). Env: SOLIPSIST_MAX_MESSAGE.
+  max_message_chars: 20000
+
+pi:
+  # The models the picker lists at a glance, the first being the default. Env: SOLIPSIST_PI_MODELS.
+  models:
+    - openrouter/~deepseek/deepseek-flash-latest
+    - openrouter/anthropic/claude-haiku-5.5
+    - openrouter/anthropic/claude-sonnet-5.5
+    - openrouter/~z-ai/glm-latest
+    - openrouter/~moonshotai/kimi-latest
+    - openrouter/google/gemini-3.5-flash
+  # The tools a Pi agent may use (Pi's names). Env: SOLIPSIST_PI_TOOLS.
+  tools:
+    - read
+    - grep
+    - find
+    - ls
+    - bash
+    - write
+    - edit
+  # Your OpenRouter API key. Env: SOLIPSIST_OPENROUTER_KEY.
+  # openrouter_key: sk-or-...
+
+prompts:
+  # The folder where your edited prompts are kept, one markdown file per prompt. Env: SOLIPSIST_PROMPTS_DIR.
+  dir: ~/.config/solipsist/prompts
+
+comments:
+  # How long an orphaned comment or a decided suggestion is kept before it is removed (ms). Env: ORPHAN_KEEP_MS.
+  orphan_keep_ms: 30000
+
+support:
+  # After how many days of writing the page asks you to buy a licence. Env: SOLIPSIST_SUPPORT_AFTER_DAYS.
+  after_days: 14
+  # The folder of `support.json`, which keeps that count and your answer. Env: SOLIPSIST_SUPPORT_DIR.
+  dir: ~/.config/solipsist
+
+log:
+  # The server's log of its core actions, one JSON line each: a file path, or `off`. Env: SOLIPSIST_LOG.
+  # file: "off"
+  # The size at which the log is moved aside (bytes). Env: SOLIPSIST_LOG_MAX_BYTES.
+  max_bytes: 10485760
+  # Whether the server shows the agents in a terminal view when it runs in a terminal. Env: SOLIPSIST_TUI.
+  tui: true
+
+dev:
+  # Add a mock comment to every watched page every dev.mock_interval_ms. Env: MOCK_COMMENTS.
+  mock_comments: false
+  # The interval of the mock comments (ms). Env: MOCK_INTERVAL_MS.
+  mock_interval_ms: 5000

@@ -1,0 +1,28 @@
+node_modules
+# Pages live on disk only
+docs/
+docs2/
+.env
+
+# The app's own working folder and settings, where it runs on this repo
+.solipsist/
+images/
+solipsist.yaml
+
+# Builds and test output
+dist/
+website/dist/
+test-results/
+*.log
+
+# Plans, reviews and notes that stay out of the public repo
+internal/
+
+# macOS folder settings
+.DS_Store
+
+# Copied in by the Pages workflow
+site/features.html
+
+# The monkey tester, kept local for now (see AGENTS.md)
+monke/

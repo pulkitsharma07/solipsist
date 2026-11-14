@@ -1,0 +1,139 @@
+/* The page: the sheet, the Tiptap content, placeholders and their loaders, suggestion previews. */
+
+.sheet { position: relative; --pad-x: 80px; width: var(--sheet-w); max-width: 100%; min-height: 1056px; padding: 72px var(--pad-x); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); box-shadow: var(--shadow-1); flex: none; }
+@media (max-width: 700px) { .sheet { padding: var(--s6) 20px; --pad-x: 20px; } }
+
+.tiptap { position: relative; outline: none; font: var(--page-font); color: var(--ink); }
+.tiptap > * + * { margin-top: 0.7em; }
+.tiptap h1 { font: 500 30px/1.25 var(--serif); letter-spacing: -0.01em; }
+.tiptap h2 { font: 500 21px/1.35 var(--serif); margin-top: 1.2em; }
+.tiptap h3 { font: 600 var(--t-lg)/1.4 var(--serif); }
+.tiptap ul { list-style: disc; padding-left: 1.6em; }
+.tiptap ol { list-style: decimal; padding-left: 1.6em; }
+.tiptap ul[data-type="taskList"] { list-style: none; padding-left: 0; }
+.tiptap ul[data-type="taskList"] li { display: flex; gap: var(--s2); }
+.tiptap li > p { margin: 0; }
+.tiptap blockquote { border-left: 2px solid var(--line-2); padding-left: 14px; color: var(--ink-2); }
+.tiptap pre { background: var(--sunken); border-radius: var(--r-md); padding: 10px var(--s3); font: 12.5px/1.6 var(--mono); overflow-x: auto; }
+.tiptap code { background: var(--sunken); border-radius: 3px; padding: 0 3px; font-family: var(--mono); font-size: 0.88em; }
+.tiptap pre code { background: none; padding: 0; }
+.tiptap table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+.tiptap th, .tiptap td { border: 1px solid var(--line); padding: 4px var(--s2); vertical-align: top; }
+.tiptap th { background: var(--sunken); text-align: left; }
+.tiptap img { max-width: 100%; }
+.tiptap a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+.tiptap p.is-editor-empty:first-child::before,
+.tiptap .is-empty::before { content: attr(data-placeholder); color: var(--ink-3); float: left; height: 0; pointer-events: none; }
+.hl { background: var(--hl); border-radius: 2px; cursor: pointer; }
+.hl { transition: background var(--d-med), box-shadow var(--d-med); box-shadow: inset 0 -2px 0 var(--review-line); }
+.hl.active { background: var(--hl-active); box-shadow: inset 0 -2px 0 var(--review), 0 6px 20px -6px var(--review-glow); }
+/* While a question is open, the blocks without its passage step back. */
+.spot > * { transition: opacity var(--d-slow) var(--ease); }
+.spot > *:not(:has(.hl.active)) { opacity: 0.45; }
+
+/* Vim cursor, as in an IDE: a solid block with the character inverted on it; the thin bar while inserting. */
+.tiptap.vim-normal, .tiptap.vim-visual, .tiptap.vim-vline { caret-color: transparent; }
+.tiptap.vim-insert { caret-color: var(--cursor); }
+.vim-cursor { background: var(--cursor); color: var(--cursor-ink); border-radius: 1px; }
+.vim-cursor-empty { display: inline-block; width: 0.55em; }
+.tiptap:not(.ProseMirror-focused) .vim-cursor { background: none; color: inherit; box-shadow: inset 0 0 0 1px var(--cursor); }
+
+/* Text that arrived from the server (a hand edit, the loop): fades in, with a soft wash that clears. */
+.fresh { animation: fresh-in 1.5s ease-out both; border-radius: 2px; }
+@keyframes fresh-in {
+  from { opacity: 0; background: var(--agent-soft); }
+  35% { opacity: 1; background: var(--agent-soft); }
+  to { opacity: 1; background: transparent; }
+}
+
+/* Badge: sits in the margin of the sheet at the spot where changes from outside would land. */
+@keyframes badge-in { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes badge-ping { from { transform: scale(0.8); opacity: 0.7; } to { transform: scale(1.5); opacity: 0; } }
+
+/* ---- Placeholders: waiting (slow blink) → acknowledged (spinning) → done / suggestion ---- */
+.task-range { background: var(--agent-soft); border-bottom: 1px dashed var(--agent); border-radius: 2px; }
+.task-range[data-state="ack"] { border-bottom-style: solid; }
+.task-range[data-state="done"] { background: var(--add-soft); border-bottom: 1px solid var(--add); }
+.task-range[data-state="sug"] { border-bottom: 1px solid var(--add); background: transparent; }
+.task-range[data-state="btn"] { border-bottom: 0; background: transparent; }
+/* A button's text is ordinary text: no loader after it (its button is above), and no gap where one would be. */
+.task-range-loader:has(> .task-loader[data-state="btn"]) { display: none; }
+/* A task's button: on its own line above the text it owns (`taskButtons.ts`). */
+.task-button { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; margin: 0 var(--s2) 2px 0; vertical-align: top; }
+.task-button .task-btn { height: 22px; padding: 0 8px; border-color: var(--line-2); color: var(--ink-2); }
+.task-button .task-press { display: inline-block; max-width: 40ch; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; line-height: 20px; }
+.task-button .task-edit, .task-button .task-schedule, .task-button .task-remove { padding: 0 5px; border-color: transparent; opacity: 0; }
+.task-button:hover :is(.task-edit, .task-schedule, .task-remove), .task-button :is(.task-edit, .task-schedule, .task-remove):focus-visible { opacity: 1; }
+@media (hover: none) { .task-button :is(.task-edit, .task-schedule, .task-remove) { opacity: 1; } }
+/* A button with a schedule says so, without hovering: the page changes on its own. */
+.task-every { margin: 0 4px; font: var(--t-xs)/22px var(--sans); color: var(--ink-3); white-space: nowrap; }
+/* Where an accepted result landed: what its agent's margin note sits level with (`acceptedSpots.ts`). */
+.task-accepted { display: inline-block; width: 0; height: 1em; vertical-align: text-bottom; }
+.task-button-hover { background: var(--agent-soft); border-radius: 2px; }
+.task-range-loader { display: inline-flex; vertical-align: -3px; margin: 0 2px 0 3px; color: var(--agent); }
+.task-point { display: inline-flex; vertical-align: -3px; margin: 0 2px; color: var(--agent); }
+.task-point.ProseMirror-selectednode { outline: 2px solid var(--focus); border-radius: var(--r-sm); }
+.task-loader { position: relative; display: inline-flex; width: 18px; height: 18px; vertical-align: -3px; }
+.task-loader[role="button"] { cursor: pointer; border-radius: 50%; }
+.task-loader[role="button"]:hover { opacity: 0.8; }
+.task-loader[role="button"]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.task-face { position: absolute; inset: 0; display: grid; place-items: center; }
+.task-face.enter { animation: task-in 0.28s var(--ease) both; }
+.task-face.leave { animation: task-out 0.26s ease-in both; pointer-events: none; }
+@keyframes task-in { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: none; } }
+@keyframes task-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(1.4); } }
+.task-loader[data-state="pending"] { color: var(--ink-3); }
+.task-loader[data-state="ack"] { color: var(--agent); }
+.task-loader[data-state="sug"], .task-loader[data-state="done"] { color: var(--add); }
+.task-loader[data-state="sug"] { display: none; } /* the preview shows instead */
+.task-point, .task-range-loader { color: inherit; }
+.task-asking { background: var(--agent-soft); border-radius: 2px; }
+/* An image the selection is on: the request key acts on it, and says so in its corner. */
+.tiptap img.img-target { outline: 2px dashed var(--agent); outline-offset: 3px; border-radius: var(--r-sm); }
+.tiptap img.task-asking, .task-range > img { opacity: 0.92; }
+.tiptap .img-target-block { position: relative; }
+/* Over the image: blurs it and puts the one thing to do in the middle. Only the button takes clicks. */
+.img-hint { position: absolute; z-index: 1; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--surface) 35%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.img-hint-button { pointer-events: auto; height: 34px; padding: 0 var(--s3); box-shadow: var(--shadow-1); }
+.img-hint-button kbd { font: inherit; opacity: 0.7; padding-left: var(--s2); border-left: 1px solid color-mix(in srgb, var(--surface) 40%, transparent); }
+@media (prefers-reduced-motion: no-preference) { .img-hint { animation: task-in 0.18s var(--ease) both; } }
+.task-refused { animation: task-shake 0.32s ease-in-out; }
+@keyframes task-shake { 0%, 100% { transform: none; } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+@media (prefers-reduced-motion: reduce) { .task-face.leave { display: none; } }
+
+/* ---- Suggestions: the agent's result, shown where it would go until the writer accepts or rejects it ---- */
+[data-sug] { cursor: pointer; }
+.sug-preview { cursor: pointer; color: inherit; background: var(--add-soft); border-radius: 2px; }
+.sug-preview:hover { background: color-mix(in srgb, var(--add) 20%, transparent); }
+.sug-inline { padding: 0 2px; border-bottom: 1px solid var(--add); }
+.sug-inline > p { display: inline; margin: 0; }
+.sug-blocks { display: block; margin: 6px 0; padding: 2px var(--s3); border-left: 2px solid var(--add); background: var(--add-soft); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.sug-old { text-decoration: line-through; text-decoration-color: var(--del); text-decoration-thickness: 1px; color: var(--ink-3); background: var(--del-soft); }
+/* An image a suggestion would replace: dimmed and ringed, since a strike-through doesn't show on a picture. */
+.tiptap img.sug-old { opacity: 0.45; outline: 2px solid var(--del); outline-offset: 3px; border-radius: var(--r-sm); }
+.sug-old-block { position: relative; background: var(--del-soft); box-shadow: -12px 0 0 -10px var(--del); opacity: 0.75; }
+.sug-old-block, .sug-old-block * { text-decoration: line-through; text-decoration-color: var(--del); }
+.sug-chip, .sug-declined { display: inline-flex; align-items: center; height: 22px; margin-left: var(--s1); padding: 0 var(--s2); border-radius: var(--r-pill); font: 500 var(--t-xs)/1 var(--sans); cursor: pointer; vertical-align: middle; }
+.sug-chip { color: var(--add); background: var(--add-soft); }
+.sug-chip:hover { background: color-mix(in srgb, var(--add) 20%, transparent); }
+/* an answer to a question about the text: nothing goes in the page, so not green */
+.sug-chip.sug-answer { color: var(--agent); background: color-mix(in srgb, var(--agent) 12%, transparent); }
+.sug-chip.sug-answer:hover { background: color-mix(in srgb, var(--agent) 20%, transparent); }
+.sug-declined { display: inline-block; max-width: 28em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 22px; color: var(--del); background: var(--del-soft); }
+.sug-declined:hover { background: color-mix(in srgb, var(--del) 18%, transparent); }
+
+/* ---- New content from outside: a slim line on the right edge of the page, level with the block ---- */
+/* The line is 3px, drawn in the middle of a 15px strip that the pointer can find; hovering it shows a cross at its
+   top that deletes the block (`newBlocks.ts`). */
+.new-block { position: relative; --new-line: var(--add); }
+.new-block::after { content: ""; position: absolute; top: 0; bottom: 0; right: calc(-5px - var(--pad-x)); width: 15px; background: linear-gradient(to right, transparent 6px, var(--new-line) 6px, var(--new-line) 9px, transparent 9px); animation: new-line-in 0.4s ease-out both; cursor: default; }
+.new-block.new-block-hover::before { content: "×"; position: absolute; top: 0; right: calc(-18px - var(--pad-x)); z-index: 1; width: 16px; height: 16px; border-radius: 50%; background: var(--del); color: var(--surface); font: 600 13px/16px var(--sans); text-align: center; cursor: pointer; }
+@keyframes new-line-in { from { opacity: 0; transform: scaleY(0.6); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .new-block::after { animation: none; } }
+
+/* A hand-written HTML comment in the markdown: a quiet chip, the whole comment in its tooltip. */
+.html-comment { display: inline-flex; vertical-align: 1px; margin: 0 2px; cursor: default; user-select: none; }
+div.html-comment { display: flex; margin: var(--s1) 0; }
+.html-comment-chip { padding: 0 var(--s2); border: 1px dashed var(--line-2); border-radius: var(--r-pill); color: var(--ink-2); font: var(--t-xs)/18px var(--mono); max-width: 40ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.html-comment.ProseMirror-selectednode .html-comment-chip { outline: 2px solid var(--focus); outline-offset: 1px; }

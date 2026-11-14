@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page review: mockup</title>
+<style>
+/* Same tokens as src/app/tokens.css (warm paper + the cool review blue). Added: a second review hue for the glow. */
+:root {
+  --bg:#f7f5f0; --surface:#fcfbf8; --raised:#fff; --sunken:#f0ede6;
+  --ink:#1f1d1a; --ink-2:#6f6b64; --ink-3:#a8a39a; --line:#e7e3da; --line-2:#d6d1c6;
+  --review:#3f6490; --review-2:#6b5fc7;           /* blue -> soft violet, only for the review glow */
+  --review-soft:rgba(63,100,144,.10);
+  --glass:rgba(255,255,255,.72); --glass-edge:rgba(255,255,255,.9);
+  --glow:rgba(88,120,200,.28);
+  --serif:"Fraunces",Georgia,serif; --sans:"Inter",-apple-system,BlinkMacSystemFont,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+:root[data-theme="dark"] {
+  --bg:#151412; --surface:#1b1a17; --raised:#23211e; --sunken:#201e1b;
+  --ink:#e9e5dc; --ink-2:#9a958b; --ink-3:#635f58; --line:#2b2925; --line-2:#3a3732;
+  --review:#8fb0db; --review-2:#a597f0; --review-soft:rgba(143,176,219,.14);
+  --glass:rgba(34,36,46,.66); --glass-edge:rgba(160,185,235,.28);
+  --glow:rgba(120,150,255,.30);
+}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.55 var(--sans);-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+.bar{position:fixed;top:0;left:0;right:0;height:44px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);z-index:5;font-size:12.5px;color:var(--ink-2)}
+.bar b{color:var(--ink);font-weight:600}.bar .sp{flex:1}
+.bar button{border:1px solid var(--line);background:var(--raised);color:var(--ink-2);border-radius:6px;padding:3px 10px;font:inherit;cursor:pointer}
+
+/* Stage: left gutter (review) | sheet */
+.stage{position:relative;width:min(1180px,100%);margin:0 auto;padding:92px 24px 120px;display:grid;grid-template-columns:340px 1fr 120px;gap:0}
+.sheet{grid-column:2;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:56px 64px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 12px 40px rgba(0,0,0,.05);transition:filter .35s var(--ease),opacity .35s var(--ease)}
+.sheet h1{font:500 30px/1.2 var(--serif);margin:0 0 20px}
+.sheet p{font:400 15px/1.75 Arial,"Helvetica Neue",sans-serif;margin:0 0 16px}
+
+/* Spotlight: while a question is open, the rest of the page recedes instead of going black. */
+.dim .sheet p, .dim .sheet h1{opacity:.45;transition:opacity .35s var(--ease)}
+.dim .sheet p.has-hl{opacity:1;filter:none}
+.sheet p, .sheet h1{transition:opacity .35s var(--ease)}
+
+/* The highlighted passage: a wash, a luminous underline and a numbered pin. */
+.hl{position:relative;cursor:pointer;background:color-mix(in srgb,var(--review) 13%,transparent);border-radius:3px;padding:1px 2px;box-shadow:inset 0 -2px 0 color-mix(in srgb,var(--review) 55%,transparent);transition:background .25s,box-shadow .25s}
+.hl:hover{background:color-mix(in srgb,var(--review) 20%,transparent)}
+.hl.active{background:color-mix(in srgb,var(--review) 24%,transparent);box-shadow:inset 0 -2px 0 var(--review),0 0 0 4px color-mix(in srgb,var(--review) 10%,transparent),0 6px 22px -4px var(--glow);animation:breathe 3.2s ease-in-out infinite}
+@keyframes breathe{50%{box-shadow:inset 0 -2px 0 var(--review),0 0 0 6px color-mix(in srgb,var(--review) 6%,transparent),0 8px 30px -2px var(--glow)}}
+.hl .pin{position:absolute;left:-9px;top:-9px;width:16px;height:16px;border-radius:50%;background:var(--review);color:var(--surface);font:600 9px/16px var(--sans);text-align:center;box-shadow:0 0 0 3px var(--surface)}
+
+/* Margin gloss cards (closed state) */
+.gutter{grid-column:1;position:relative;padding-right:28px}
+.card{position:absolute;left:0;right:28px;padding:9px 13px 10px;background:var(--raised);border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:all .25s var(--ease);font-style:italic;color:var(--review);font-size:12.5px}
+.card::before{content:"";position:absolute;left:-1px;top:10px;bottom:10px;width:2px;border-radius:2px;background:var(--review)}
+.card:hover{border-color:color-mix(in srgb,var(--review) 40%,var(--line));transform:translateX(2px)}
+.card.active{border-color:color-mix(in srgb,var(--review) 55%,transparent);background:color-mix(in srgb,var(--review) 8%,var(--raised));box-shadow:0 0 0 3px var(--review-soft)}
+
+/* ---- The popover: anchored, glass, joined to its passage ---- */
+svg.link{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:20}
+svg.link path{fill:none;stroke:url(#lg);stroke-width:1.5;stroke-linecap:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw .55s .05s var(--ease) forwards;filter:drop-shadow(0 0 4px var(--glow))}
+svg.link circle{fill:var(--review);filter:drop-shadow(0 0 6px var(--glow));opacity:0;animation:fade .3s .5s forwards}
+@keyframes draw{to{stroke-dashoffset:0}} @keyframes fade{to{opacity:1}}
+
+.pop{position:absolute;z-index:25;width:330px;border-radius:18px;padding:1px;opacity:0;transform:translateX(-10px) scale(.97);transform-origin:right center;pointer-events:none;transition:opacity .25s var(--ease),transform .3s var(--ease)}
+.pop.open{opacity:1;transform:none;pointer-events:auto}
+/* gradient hairline border */
+.pop::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;background:linear-gradient(140deg,color-mix(in srgb,var(--review) 70%,transparent),var(--glass-edge) 35%,color-mix(in srgb,var(--review-2) 55%,transparent));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.pop::after{content:"";position:absolute;inset:-30px;z-index:-1;border-radius:40px;background:radial-gradient(60% 60% at 70% 30%,var(--glow),transparent 70%);filter:blur(18px);opacity:.55}
+.pop-in{position:relative;border-radius:17px;background:var(--glass);backdrop-filter:blur(22px) saturate(1.5);-webkit-backdrop-filter:blur(22px) saturate(1.5);overflow:hidden;box-shadow:0 18px 50px -12px rgba(40,60,110,.25)}
+/* faint scan-grid, the "futuristic" note, kept very quiet */
+.pop-in::before{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--review-soft) 1px,transparent 1px),linear-gradient(90deg,var(--review-soft) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(180deg,#000,transparent 55%);-webkit-mask-image:linear-gradient(180deg,#000,transparent 55%);opacity:.5;pointer-events:none}
+.pop-in>*{position:relative}
+
+.eyebrow{display:flex;align-items:center;gap:8px;padding:14px 16px 0;font:500 10.5px/1 var(--mono);letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2)}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--review);box-shadow:0 0 0 0 var(--glow);animation:ping 2.4s infinite}
+@keyframes ping{70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.eyebrow .model{margin-left:auto;padding:3px 7px;border-radius:999px;background:var(--review-soft);color:var(--review);letter-spacing:.03em;text-transform:none}
+.x{margin-left:6px;border:0;background:none;color:var(--ink-3);cursor:pointer;font-size:13px;line-height:1;padding:2px}
+.x:hover{color:var(--ink)}
+.pop h2{margin:12px 16px 0;font:500 19px/1.3 var(--serif);letter-spacing:-.005em}
+.quote{margin:12px 16px 0;padding:9px 12px;border-radius:10px;background:color-mix(in srgb,var(--review) 7%,transparent);border:1px solid color-mix(in srgb,var(--review) 16%,transparent);font:italic 12.5px/1.55 var(--serif);color:var(--ink-2)}
+.body{margin:12px 16px 0;font:13.5px/1.65 var(--sans);color:var(--ink)}
+.why{margin:10px 16px 0;padding-top:10px;border-top:1px dashed color-mix(in srgb,var(--review) 22%,transparent);font-size:12.5px;line-height:1.65;color:var(--ink-2)}
+.why b{display:block;margin-bottom:2px;font:500 10px/1.6 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--review)}
+.acts{display:flex;align-items:center;gap:8px;padding:14px 16px 14px;margin-top:6px}
+.btn{border:1px solid var(--line-2);background:color-mix(in srgb,var(--raised) 70%,transparent);color:var(--ink-2);border-radius:9px;padding:6px 12px;font:500 12.5px/1.2 var(--sans);cursor:pointer;transition:all .15s}
+.btn:hover{color:var(--ink);border-color:var(--ink-3)}
+.btn.primary{margin-left:auto;border-color:transparent;color:#fff;background:linear-gradient(135deg,var(--review),var(--review-2));box-shadow:0 4px 14px -3px var(--glow),inset 0 1px 0 rgba(255,255,255,.25)}
+:root[data-theme="dark"] .btn.primary{color:#0f1220}
+.btn.primary:hover{filter:brightness(1.07);transform:translateY(-1px)}
+kbd{font:500 10px var(--mono);padding:1px 5px;margin-left:6px;border-radius:4px;background:rgba(255,255,255,.22);border:0}
+.hint{padding:0 16px 12px;font:10.5px var(--mono);color:var(--ink-3);display:flex;gap:12px}
+@media (max-width:1100px){.stage{grid-template-columns:1fr}.sheet{grid-column:1;padding:32px 24px}.gutter{display:none}.pop{position:fixed;left:12px!important;right:12px;bottom:12px;top:auto!important;width:auto}svg.link{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="bar"><b>Solipsist</b><span>essay.md</span><span class="sp"></span><span>2 questions from Page review</span><button id="theme">Dark</button></div>
+
+<div class="stage" id="stage">
+  <aside class="gutter" id="gutter"></aside>
+  <main class="sheet">
+    <h1>Why small teams ship faster</h1>
+    <p class="has-hl" id="p1">Every team I have worked on believed it needed more people. <span class="hl" data-q="0"><span class="pin">1</span>Adding engineers to a late project makes it later, and yet we keep hiring</span> because headcount is the one lever a manager can pull without being wrong in public.</p>
+    <p>The alternative is duller than it sounds. You cut scope until the thing fits in one head, and you let that head decide. Nobody enjoys this part, which is most of why it works.</p>
+    <p class="has-hl" id="p3">By the time the second quarter arrives, <span class="hl" data-q="1"><span class="pin">2</span>the small team has already shipped twice and learned what the big team is still arguing about</span>. That gap compounds.</p>
+    <p>None of this is new. It is just rarely done, because it feels like doing less.</p>
+  </main>
+  <svg class="link" id="link" aria-hidden="true"><defs><linearGradient id="lg" gradientUnits="userSpaceOnUse" x1="0" x2="1200" y1="0" y2="0"><stop offset="0" stop-color="var(--review-2)"/><stop offset="1" stop-color="var(--review)"/></linearGradient></defs></svg>
+  <div class="pop" id="pop" role="dialog" aria-label="Question">
+    <div class="pop-in">
+      <div class="eyebrow"><span class="dot"></span><span id="who">Reviewer</span><span class="model" id="model">pi · kimi</span><button class="x" id="close" aria-label="Close">✕</button></div>
+      <h2 id="title"></h2>
+      <blockquote class="quote" id="quote"></blockquote>
+      <p class="body" id="body"></p>
+      <p class="why"><b>Reasoning</b><span id="why"></span></p>
+      <div class="acts"><button class="btn">Dismiss</button><button class="btn primary">Ask <kbd>⌘↵</kbd></button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const Q=[
+ {gloss:"Is this claim sourced?",title:"The Brooks claim needs a source",body:"“Adding engineers to a late project makes it later” is Brooks’s law, but it is stated here as a general truth. Readers will want to know it is an observation, not a proof.",why:"The sentence after it explains hiring behaviour, which is the actual argument. Naming Brooks, or softening to “tends to”, keeps that argument from resting on an overstated rule."},
+ {gloss:"Evidence for “twice”?",title:"“Shipped twice” is the strongest claim on the page",body:"This is the payoff of the section and it is asserted, not shown. One concrete example would carry more than the next paragraph does.",why:"Most of the essay’s persuasion lands here. A reader who doubts it will discount the rest."}
+];
+const $=id=>document.getElementById(id),stage=$("stage"),pop=$("pop"),link=$("link"),gutter=$("gutter");
+const hls=[...document.querySelectorAll(".hl")];let cur=-1,cards=[];
+const rel=(el)=>{const a=el.getBoundingClientRect(),s=stage.getBoundingClientRect();return{x:a.left-s.left,y:a.top-s.top,w:a.width,h:a.height}};
+function layoutCards(){cards.forEach(c=>c.remove());cards=Q.map((q,i)=>{const c=document.createElement("div");c.className="card";c.textContent=q.gloss;c.onclick=()=>open(i);gutter.appendChild(c);return c});
+ const g=gutter.getBoundingClientRect(),s=stage.getBoundingClientRect();cards.forEach((c,i)=>{c.style.top=(hls[i].getBoundingClientRect().top-g.top)+"px"})}
+function place(){if(cur<0)return;const h=rel(hls[cur].firstChild.parentElement),gx=gutter.getBoundingClientRect(),s=stage.getBoundingClientRect();
+ // popover sits in the left gutter, vertically centred on the passage's first line, nudged to stay on screen
+ const pw=330,ph=pop.offsetHeight,left=Math.max(16,gx.left-s.left+(gx.width-28-pw)+0);
+ let top=h.y-ph/2+14;top=Math.max(64,top);pop.style.left=left+"px";pop.style.top=top+"px";
+ // connector: from the popover's right edge to the passage start
+ const x1=left+pw,y1=Math.min(Math.max(h.y+10,top+30),top+ph-30),x2=h.x-6,y2=h.y+10,mx=(x1+x2)/2;
+ const d=`M${x1} ${y1} C${mx} ${y1}, ${mx} ${y2}, ${x2} ${y2}`;
+ link.innerHTML=link.querySelector("defs").outerHTML+`<path d="${d}" id="lp"/><circle cx="${x2}" cy="${y2}" r="3.5"/><circle cx="${x1}" cy="${y1}" r="2.5"/>`;
+ const lp=$("lp");lp.style.setProperty("--len",Math.ceil(lp.getTotalLength()))}
+function open(i){cur=i;const q=Q[i];hls.forEach((h,j)=>h.classList.toggle("active",j===i));cards.forEach((c,j)=>c.classList.toggle("active",j===i));
+ document.body.classList.add("dim");$("title").textContent=q.title;$("quote").textContent=hls[i].textContent.replace(/^\d/,"");$("body").textContent=q.body;$("why").textContent=q.why;
+ pop.classList.remove("open");link.innerHTML=link.querySelector("defs").outerHTML;requestAnimationFrame(()=>{place();pop.classList.add("open")})}
+function close(){cur=-1;pop.classList.remove("open");link.innerHTML=link.querySelector("defs").outerHTML;document.body.classList.remove("dim");hls.forEach(h=>h.classList.remove("active"));cards.forEach(c=>c.classList.remove("active"))}
+hls.forEach((h,i)=>h.onclick=()=>open(i));$("close").onclick=close;
+addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+document.addEventListener("click",e=>{if(cur>=0&&!e.target.closest(".pop,.hl,.card,.bar"))close()});
+addEventListener("resize",()=>{layoutCards();place()});
+$("theme").onclick=()=>{const d=document.documentElement.dataset.theme==="dark";document.documentElement.dataset.theme=d?"light":"dark";$("theme").textContent=d?"Dark":"Light"};
+document.fonts.ready.then(()=>{layoutCards();open(0)});
+</script>
+</body>
+</html>

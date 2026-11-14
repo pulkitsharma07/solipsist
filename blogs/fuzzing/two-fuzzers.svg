@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="470" viewBox="0 0 960 470" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#57606a"/></marker>
+  </defs>
+  <rect width="960" height="470" rx="12" fill="#fbfaf7"/>
+
+  <!-- left: pages -->
+  <text x="40" y="44" font-size="18" font-weight="700" fill="#1f2328">1 · Random pages</text>
+  <text x="40" y="66" font-size="13" fill="#57606a">one seed → one page, from a small grammar</text>
+
+  <rect x="40" y="86" width="190" height="150" rx="8" fill="#fff" stroke="#d0d7de"/>
+  <g font-family="Menlo, monospace" font-size="11" fill="#1f2328">
+    <text x="52" y="108">### L3z draft</text>
+    <text x="52" y="126">- [x] L4z plan</text>
+    <text x="52" y="144">  1. L5z <tspan fill="#8250df">&lt;!-- gen:1e5 --&gt;</tspan></text>
+    <text x="52" y="162">| L6z | a \| b |</text>
+    <text x="52" y="180">```md</text>
+    <text x="52" y="198"><tspan fill="#8250df">&lt;!-- gen:abc --&gt;</tspan></text>
+    <text x="52" y="216">```</text>
+  </g>
+  <text x="135" y="256" font-size="12" fill="#57606a" text-anchor="middle">every leaf tagged L&lt;n&gt;z</text>
+
+  <line x1="236" y1="160" x2="282" y2="160" stroke="#57606a" stroke-width="1.5" marker-end="url(#a)"/>
+
+  <rect x="288" y="86" width="190" height="150" rx="8" fill="#eef6ee" stroke="#9fd3a8"/>
+  <text x="383" y="112" font-size="13" font-weight="600" fill="#1a7f37" text-anchor="middle">must hold</text>
+  <g font-size="12" fill="#1f2328">
+    <text x="302" y="136">• stable after one save</text>
+    <text x="302" y="156">• same text, same comments</text>
+    <text x="302" y="176">• file round trip, byte for byte</text>
+    <text x="302" y="196">• each leaf read as written</text>
+    <text x="302" y="216">• highlights survive reload</text>
+  </g>
+
+  <!-- right: edit runs -->
+  <text x="530" y="44" font-size="18" font-weight="700" fill="#1f2328">2 · Random edit runs</text>
+  <text x="530" y="66" font-size="13" fill="#57606a">a real DocSession vs. a file others write to</text>
+
+  <rect x="530" y="86" width="150" height="70" rx="8" fill="#fff" stroke="#d0d7de"/>
+  <text x="605" y="114" font-size="14" font-weight="600" fill="#1f2328" text-anchor="middle">Tab</text>
+  <text x="605" y="134" font-size="11" fill="#57606a" text-anchor="middle">writer types W1w…</text>
+
+  <rect x="770" y="86" width="150" height="70" rx="8" fill="#fff" stroke="#d0d7de"/>
+  <text x="845" y="114" font-size="14" font-weight="600" fill="#1f2328" text-anchor="middle">File on disk</text>
+  <text x="845" y="134" font-size="11" fill="#57606a" text-anchor="middle">hand edits H…, agent F…</text>
+
+  <line x1="684" y1="110" x2="766" y2="110" stroke="#57606a" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="725" y="103" font-size="11" fill="#57606a" text-anchor="middle">save</text>
+  <line x1="766" y1="134" x2="684" y2="134" stroke="#57606a" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="725" y="150" font-size="11" fill="#57606a" text-anchor="middle">receive (late)</text>
+
+  <g font-family="Menlo, monospace" font-size="11">
+    <rect x="530" y="172" width="390" height="30" rx="6" fill="#f6f8fa" stroke="#d0d7de"/>
+    <text x="542" y="191" fill="#1f2328" textLength="366" lengthAdjust="spacingAndGlyphs">type · hand · append · ack · fill · job · save · receive · pause</text>
+  </g>
+  <text x="725" y="220" font-size="11" fill="#57606a" text-anchor="middle">25 ops per run, plain data: replayable, shrinkable</text>
+
+  <rect x="530" y="232" width="390" height="104" rx="8" fill="#eef6ee" stroke="#9fd3a8"/>
+  <text x="725" y="254" font-size="13" font-weight="600" fill="#1a7f37" text-anchor="middle">must hold after every op</text>
+  <g font-size="12" fill="#1f2328">
+    <text x="546" y="276">• no conflict (the sides never touch the same leaf)</text>
+    <text x="546" y="296">• no typed or added word lost · one valid comments block</text>
+    <text x="546" y="316">• a placeholder never goes back · tab = file at the end</text>
+  </g>
+
+  <!-- bottom: shrink -->
+  <line x1="40" y1="372" x2="920" y2="372" stroke="#e4e2dc"/>
+  <g font-size="13" fill="#1f2328">
+    <rect x="40" y="392" width="180" height="48" rx="8" fill="#ffebe9" stroke="#ff8182"/>
+    <text x="130" y="421" text-anchor="middle" font-weight="600" fill="#cf222e">invariant breaks</text>
+    <line x1="224" y1="416" x2="276" y2="416" stroke="#57606a" stroke-width="1.5" marker-end="url(#a)"/>
+    <rect x="280" y="392" width="200" height="48" rx="8" fill="#fff" stroke="#d0d7de"/>
+    <text x="380" y="414" text-anchor="middle" font-weight="600">greedy shrink</text>
+    <text x="380" y="431" text-anchor="middle" font-size="11" fill="#57606a">blocks → lines → ops</text>
+    <line x1="484" y1="416" x2="536" y2="416" stroke="#57606a" stroke-width="1.5" marker-end="url(#a)"/>
+    <rect x="540" y="392" width="170" height="48" rx="8" fill="#fff" stroke="#d0d7de"/>
+    <text x="625" y="414" text-anchor="middle" font-weight="600">seed + tiny case</text>
+    <text x="625" y="431" text-anchor="middle" font-size="11" fill="#57606a">printed in the failure</text>
+    <line x1="714" y1="416" x2="766" y2="416" stroke="#57606a" stroke-width="1.5" marker-end="url(#a)"/>
+    <rect x="770" y="392" width="150" height="48" rx="8" fill="#ddf4ff" stroke="#80ccff"/>
+    <text x="845" y="421" text-anchor="middle" font-weight="600" fill="#0969da">named test / fixture</text>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: A question
+    url: https://github.com/pulkitsharma07/solipsist/discussions/categories/q-a
+    about: Issues are for bugs and requests; ask anything else in Discussions.
+  - name: A security problem
+    url: https://github.com/pulkitsharma07/solipsist/security/advisories/new
+    about: Report it privately, never in a public issue.

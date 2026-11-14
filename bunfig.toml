@@ -1,0 +1,7 @@
+[serve.static]
+plugins = ["bun-plugin-tailwind"]
+
+[test]
+preload = ["./test/setup.ts"]
+# The monkey tester is a project of its own, with its own `bun test`.
+pathIgnorePatterns = ["monke/**"]

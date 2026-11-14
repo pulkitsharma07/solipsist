@@ -1,0 +1,111 @@
+/* The chat with the agent behind a suggestion. */
+
+.chat-backdrop { position: fixed; inset: 0; z-index: 30; background: var(--scrim); animation: fade var(--d-med) ease-out both; }
+.chat-modal { position: fixed; top: 5vh; bottom: 5vh; left: 50%; transform: translateX(-50%); width: min(860px, 92vw); z-index: 31; display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-3); }
+
+/* Head: the title, and one meta line with the state, the model and the cost. */
+.chat-modal header { display: flex; align-items: center; gap: var(--s3); padding: var(--s4) var(--s5); border-bottom: 1px solid var(--line); }
+.chat-new { flex: none; white-space: nowrap; }
+.chat-title { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.chat-modal h2 { font: 500 var(--t-md)/1.3 var(--sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
+.chat-title .meta { display: flex; align-items: center; gap: var(--s2); white-space: nowrap; }
+.chat-modal .model-pick { font-size: var(--t-sm); }
+.chat-modal .model-trigger { max-width: 180px; }
+.chat-status { color: var(--ink-2); }
+.chat-totals { display: inline-flex; gap: var(--s2); }
+.chat-totals span + span::before { content: "·"; margin-right: var(--s2); }
+.chat-totals:not(:empty)::before { content: "·"; margin-right: var(--s2); }
+
+/* Log: no boxes; the writer's turn is the only filled one. */
+.chat-log { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; overflow-anchor: none; padding: var(--s6) var(--s5); display: flex; flex-direction: column; gap: var(--s6); background: var(--surface); }
+.chat-empty { color: var(--ink-3); }
+.chat-error { color: var(--del); }
+.chat-msg { max-width: 100%; }
+.chat-msg.user { align-self: flex-end; max-width: 46ch; padding: 10px 14px; border-radius: var(--r-lg) var(--r-lg) var(--r-sm) var(--r-lg); background: var(--sunken); white-space: pre-wrap; word-break: break-word; }
+.chat-msg.assistant { align-self: flex-start; width: 100%; max-width: 62ch; display: flex; flex-direction: column; gap: var(--s3); }
+.chat-msg.task { align-self: stretch; color: var(--ink-3); font-size: var(--t-xs); }
+.chat-msg.task summary, .chat-thinking summary, .chat-work summary { cursor: pointer; }
+.chat-msg.task pre, .chat-thinking pre { white-space: pre-wrap; word-break: break-word; max-height: 320px; overflow: auto; font: var(--t-xs)/1.5 var(--mono); background: var(--sunken); border-radius: var(--r-md); padding: var(--s2) var(--s3); margin: 6px 0 0; }
+.chat-text { display: flex; flex-direction: column; gap: var(--s2); }
+.chat-text p { margin: 0; white-space: pre-wrap; word-break: break-word; }
+.chat-code { white-space: pre-wrap; word-break: break-word; font: var(--t-xs)/1.6 var(--mono); background: var(--sunken); border-radius: var(--r-md); padding: var(--s2) var(--s3); margin: 0; }
+
+/* Work: thinking and tool calls fold into one line. */
+.chat-work summary { display: inline-flex; align-items: center; gap: 6px; list-style: none; padding: 4px var(--s2) 4px 6px; margin-left: -6px; border-radius: var(--r-md); color: var(--ink-3); font: var(--t-sm)/1 var(--sans); }
+.chat-work summary::-webkit-details-marker { display: none; }
+.chat-work summary:hover { background: var(--sunken); color: var(--ink-2); }
+.chat-work .chev { transition: transform var(--d-fast); }
+.chat-work[open] > summary .chev { transform: rotate(90deg); }
+.chat-work-failed { color: var(--del); }
+.chat-work-body { display: flex; flex-direction: column; gap: 6px; margin: var(--s2) 0 0; padding-left: var(--s3); border-left: 1px solid var(--line); }
+.chat-thinking { color: var(--ink-3); font: italic var(--t-xs)/1.5 var(--sans); }
+.chat-thinking summary { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-thinking summary span { font-style: normal; color: var(--ink-2); }
+.chat-thinking[open] summary i { display: none; }
+.chat-thinking pre { font-style: normal; }
+
+/* A tool call: one mono line, its arguments and result inside. */
+.chat-tool { font: var(--t-xs)/1.5 var(--mono); color: var(--ink-2); }
+.chat-tool summary { display: flex; align-items: center; gap: var(--s2); list-style: none; cursor: pointer; min-width: 0; }
+.chat-tool summary::-webkit-details-marker { display: none; }
+.chat-tool summary b { font-weight: 500; color: var(--ink); }
+.chat-tool-brief { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
+.chat-tool-icon { width: 14px; height: 14px; flex: none; display: inline-flex; align-items: center; justify-content: center; color: var(--add); }
+.chat-tool.error .chat-tool-icon { color: var(--del); }
+.chat-tool.running .chat-tool-icon { border: 2px solid var(--agent); border-right-color: transparent; border-radius: 50%; width: 11px; height: 11px; animation: spin 0.8s linear infinite; }
+.chat-tool pre { white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow: auto; font: inherit; margin: 6px 0 0; padding: var(--s2) var(--s3); background: var(--sunken); border-radius: var(--r-md); }
+.chat-tool.error .chat-tool-result { color: var(--del); }
+.chat-stats { color: var(--ink-3); font: var(--t-xs)/1.4 var(--mono); font-variant-numeric: tabular-nums; }
+.chat-msg-error { margin: 0; color: var(--del); font-size: var(--t-sm); }
+.chat-caret { width: 8px; height: 14px; background: var(--ink-3); animation: breathe 1s ease-in-out infinite; }
+
+/* The proposal: the suggestion in the serif on a raised ground with an add rule; a note after it is its caption. */
+.chat-envelope { padding: var(--s3) var(--s4); background: var(--raised); border-left: 2px solid var(--line-2); border-radius: 0 var(--r-md) var(--r-md) 0; white-space: pre-wrap; }
+.chat-envelope.suggestion { border-color: var(--add); font: 400 15.5px/1.65 var(--serif); }
+.chat-envelope.suggestion + .chat-envelope.note { margin-top: calc(-1 * var(--s2)); padding-top: 0; background: none; border-color: transparent; color: var(--ink-2); font: var(--t-sm)/1.5 var(--sans); }
+.chat-envelope.note { background: none; color: var(--ink-2); }
+.chat-envelope.edit { border-color: var(--add); }
+.chat-envelope.answer { border-color: var(--line-2); font: 400 15.5px/1.65 var(--serif); }
+.chat-edit { margin-top: var(--s2); padding: var(--s2) var(--s3); border-radius: var(--r-sm); font: 400 var(--t-sm)/1.5 var(--mono); }
+.chat-edit.del { border-left: 2px solid var(--del); color: var(--ink-2); }
+.chat-edit.add { border-left: 2px solid var(--add); }
+.chat-envelope.decline { border-color: var(--del); }
+.chat-envelope-label { display: block; margin-bottom: var(--s1); font: 500 var(--t-xs)/1 var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.chat-envelope.note .chat-envelope-label { display: none; }
+
+/* Solipsist's own tools (suggest, answer, decline): what the agent gave back, apart from the work it did. */
+.chat-reply { display: flex; flex-direction: column; gap: var(--s2); padding: var(--s3) var(--s4); border: 1px solid var(--line); border-left: 2px solid var(--agent); border-radius: 0 var(--r-md) var(--r-md) 0; background: var(--raised); }
+.chat-reply.suggest { border-left-color: var(--add); }
+.chat-reply.decline { border-left-color: var(--del); }
+.chat-reply.refused { border-left-color: var(--warn); }
+.chat-reply-head { display: flex; align-items: center; gap: var(--s2); font: 500 var(--t-xs)/1 var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.chat-reply-tag { padding: 2px var(--s2); border-radius: var(--r-pill); background: var(--agent-soft); color: var(--agent); letter-spacing: 0.06em; }
+.chat-reply-label { color: var(--ink-2); }
+.chat-reply-where, .chat-reply-state { letter-spacing: 0; text-transform: none; font: var(--t-xs)/1 var(--mono); }
+.chat-reply.refused .chat-reply-state { color: var(--warn); }
+.chat-reply-body { font: 400 15.5px/1.65 var(--serif); white-space: pre-wrap; word-break: break-word; }
+.chat-reply-reason { color: var(--ink-2); white-space: pre-wrap; }
+.chat-reply-note { margin: 0; color: var(--ink-2); font: var(--t-sm)/1.5 var(--sans); }
+.chat-reply-refused { margin: 0; color: var(--warn); font: var(--t-xs)/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; }
+
+.chat-notice { align-self: center; display: inline-flex; align-items: center; height: 22px; padding: 0 var(--s2); margin: 0; border: 1px solid var(--line); border-radius: var(--r-pill); color: var(--ink-2); font: 500 var(--t-xs)/1 var(--sans); }
+.chat-notice.revised { color: var(--add); border-color: transparent; background: var(--add-soft); }
+.chat-notice.warning { color: var(--warn); }
+/* A message sent mid-reply, waiting for the agent's next step: it may run to a few lines. */
+.chat-notice.queued { height: auto; min-height: 22px; padding: 3px var(--s3); line-height: 1.4; white-space: normal; text-align: center; border-style: dashed; }
+
+/* Compose: one box, the send button inside; the keys below. */
+.chat-compose { padding: var(--s3) var(--s5) var(--s4); border-top: 1px solid var(--line); }
+.chat-compose-box { display: flex; align-items: flex-end; gap: var(--s2); padding: 6px 6px 6px 14px; border: 1px solid var(--line-2); border-radius: var(--r-lg); background: var(--raised); transition: border-color var(--d-fast), box-shadow var(--d-fast); }
+.chat-compose-box:focus-within { border-color: var(--agent); box-shadow: 0 0 0 3px var(--focus); }
+.chat-compose textarea { flex: 1; min-height: 28px; max-height: 200px; padding: 5px 0; border: 0; outline: 0; background: none; color: var(--ink); font: var(--t-md)/1.4 var(--sans); resize: none; }
+.chat-compose textarea::placeholder { color: var(--ink-3); }
+.chat-send { border-radius: 50%; flex: none; }
+.chat-keys { display: flex; gap: var(--s3); margin: var(--s2) 0 0; padding-left: 2px; font-size: var(--t-xs); color: var(--ink-3); }
+
+@media (max-width: 700px) {
+  .chat-modal { inset: 0; transform: none; width: auto; border-radius: 0; }
+  .chat-totals { display: none; }
+  .chat-modal header, .chat-compose { padding-left: var(--s4); padding-right: var(--s4); }
+  .chat-log { padding: var(--s5) var(--s4); }
+}

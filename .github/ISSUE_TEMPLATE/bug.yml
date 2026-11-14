@@ -1,0 +1,52 @@
+name: Bug
+description: Something Solipsist does wrong.
+labels: [bug]
+body:
+  - type: textarea
+    id: did
+    attributes:
+      label: What you did
+      description: The steps, from opening the page. A page that fails to open or save is most useful attached as its `.md` file, with anything private removed.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: saw
+    attributes:
+      label: What happened
+      description: What you saw, and any error from the terminal Solipsist runs in.
+    validations:
+      required: true
+  - type: dropdown
+    id: fresh
+    attributes:
+      label: Does it happen in a fresh folder?
+      description: Run Solipsist in an empty folder with one new `.md` file and try again.
+      options: ["Yes", "No", "Didn't try"]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Solipsist version
+      placeholder: v0.3.0, or the commit if you run it from source
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: macOS 15 (Apple silicon), Ubuntu 24.04, Windows 11
+    validations:
+      required: true
+  - type: input
+    id: engine
+    attributes:
+      label: Model
+      description: The model the page's agent uses, if the bug involves an agent.
+      placeholder: openrouter/deepseek/… or "none"

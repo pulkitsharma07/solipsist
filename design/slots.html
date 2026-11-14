@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solipsist Slots</title>
+<link rel="stylesheet" href="../src/app/tokens.css">
+<style>
+/* Brainstorm: the ⌘. slot selector. Built on design/index.html (same tokens, same components, same doc layout). */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--t-md)/1.55 var(--sans); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+code, kbd, .mono { font-family: var(--mono); }
+::selection { background: var(--agent-soft); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-sm); }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+/* ---- Components carried over from design/index.html ------------------- */
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: var(--r-md); background: var(--raised); color: var(--ink); font: 500 var(--t-sm)/1 var(--sans); cursor: pointer; transition: background var(--d-fast), border-color var(--d-fast); }
+.btn:hover { border-color: var(--ink-3); }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+.btn-ghost:hover { background: var(--sunken); color: var(--ink); }
+.icon-btn { width: 28px; padding: 0; justify-content: center; }
+kbd { display: inline-block; min-width: 18px; padding: 1px 5px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: var(--r-sm); background: var(--surface); color: var(--ink-2); font: 500 10.5px/1.4 var(--mono); text-align: center; }
+.tag { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; border: 1px solid var(--line); border-radius: var(--r-pill); color: var(--ink-2); font: 500 var(--t-xs)/1 var(--sans); white-space: nowrap; background: none; cursor: default; }
+.tag-agent { color: var(--agent); border-color: transparent; background: var(--agent-soft); }
+.eyebrow { font: 500 var(--t-xs)/1 var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+.meta { font: 400 var(--t-xs)/1.4 var(--mono); color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.field { width: 100%; padding: 8px 10px; border: 1px solid var(--line-2); border-radius: var(--r-md); background: var(--raised); color: var(--ink); font: var(--t-sm)/1.5 var(--sans); outline: none; resize: vertical; transition: border-color var(--d-fast), box-shadow var(--d-fast); }
+.field::placeholder { color: var(--ink-3); }
+.field:focus { border-color: var(--agent); box-shadow: 0 0 0 3px var(--focus); }
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-sm); box-shadow: var(--shadow-1); padding: var(--s7) clamp(24px, 8%, 88px); font: var(--page-font); color: var(--ink); }
+.sheet h1 { font: 500 30px/1.25 var(--serif); letter-spacing: -0.01em; margin: 0 0 var(--s5); }
+.sheet p { margin: 0 0 var(--s4); }
+.sheet:focus { outline: none; }
+.task-range { background: var(--agent-soft); border-bottom: 1px dashed var(--agent); border-radius: 2px; }
+@keyframes breathe { 50% { opacity: 0.35; } }
+
+.shell { max-width: 1120px; margin: 0 auto; padding: 0 var(--s4); }
+.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.top .shell { display: flex; align-items: center; gap: var(--s5); height: 52px; }
+.brand { font: 500 17px/1 var(--serif); letter-spacing: -0.01em; text-decoration: none; }
+.brand em { color: var(--ink-3); font-style: italic; font-weight: 400; }
+.top nav { display: flex; gap: var(--s4); flex: 1; overflow-x: auto; scrollbar-width: none; }
+.top nav a { color: var(--ink-2); text-decoration: none; font-size: var(--t-sm); white-space: nowrap; }
+.top nav a:hover { color: var(--ink); }
+.theme-toggle { margin-left: auto; }
+.hero { padding: var(--s8) 0 var(--s7); max-width: 700px; }
+.hero h1 { font: 400 clamp(34px, 6vw, 52px)/1.08 var(--serif); letter-spacing: -0.025em; margin: var(--s3) 0 var(--s5); }
+.hero h1 em { color: var(--ink-2); }
+.hero p { font-size: var(--t-lg); color: var(--ink-2); line-height: 1.6; margin: 0; }
+section.block { padding: var(--s7) 0; border-top: 1px solid var(--line); }
+.sec-head { display: grid; grid-template-columns: 220px 1fr; gap: var(--s5); margin-bottom: var(--s6); }
+.sec-head h2 { font: 400 var(--t-xl)/1.25 var(--serif); margin: 0; letter-spacing: -0.01em; }
+.sec-head p { margin: 0; color: var(--ink-2); max-width: 62ch; }
+.sec-head .num { font: var(--t-xs)/1 var(--mono); color: var(--ink-3); display: block; margin-bottom: var(--s2); }
+.frame { border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; background: var(--bg); box-shadow: var(--shadow-2); }
+.frame-bar { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 var(--s3); border-bottom: 1px solid var(--line); background: var(--surface); }
+.frame-bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--line-2); }
+.frame-bar span { margin-left: var(--s3); font: var(--t-xs)/1 var(--mono); color: var(--ink-3); }
+.table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+.table th { text-align: left; font: 500 var(--t-xs)/1 var(--sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); padding: 0 var(--s3) var(--s3) 0; border-bottom: 1px solid var(--line); }
+.table td { padding: var(--s3) var(--s3) var(--s3) 0; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+.table td:first-child { color: var(--ink); white-space: nowrap; }
+.table code, p code, li code { font-size: 11.5px; color: var(--ink); background: var(--sunken); padding: 1px 5px; border-radius: var(--r-sm); }
+.table-wrap { overflow-x: auto; }
+pre.code { margin: 0; padding: var(--s4) var(--s5); background: var(--sunken); border-radius: var(--r-md); font: 12px/1.65 var(--mono); color: var(--ink-2); overflow-x: auto; white-space: pre; }
+pre.code b { color: var(--ink); font-weight: 500; }
+pre.code i { color: var(--ink-3); font-style: normal; }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); }
+.compare > div { padding: var(--s4) var(--s5); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+.compare h4 { margin: 0 0 var(--s3); font: 500 var(--t-sm)/1 var(--sans); display: flex; gap: var(--s2); align-items: center; }
+.compare ul, .compare p { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: var(--t-sm); line-height: 1.7; }
+.compare p { padding-left: 0; margin-bottom: var(--s2); }
+footer { padding: var(--s7) 0 var(--s8); border-top: 1px solid var(--line); color: var(--ink-3); font-size: var(--t-sm); }
+
+/* ---- New: segmented control ------------------------------------------- */
+.seg { display: inline-flex; padding: 2px; border-radius: var(--r-md); background: var(--sunken); gap: 2px; }
+.seg button { height: 24px; padding: 0 10px; border: 0; border-radius: 6px; background: none; color: var(--ink-2); font: 500 var(--t-xs)/1 var(--sans); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--raised); color: var(--ink); box-shadow: var(--shadow-1); }
+
+/* ---- Demo stage ------------------------------------------------------- */
+.demo-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s3); padding: var(--s2) var(--s3); border-bottom: 1px solid var(--line); background: var(--surface); }
+.demo-bar .hint { font-size: var(--t-xs); color: var(--ink-3); }
+.demo-bar .spacer { flex: 1; }
+.stage { padding: var(--s6) var(--s5); }
+.stage .sheet { max-width: 720px; margin: 0 auto; min-height: 340px; }
+.demo-log { max-width: 720px; margin: var(--s3) auto 0; min-height: 18px; font: var(--t-xs)/1.4 var(--mono); color: var(--ink-3); }
+
+/* Placeholder the selector leaves behind: the slot's glyph, in the agent's colour, breathing */
+.task-slot { display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 20px; min-width: 20px; padding: 0 5px; margin: 0 2px; vertical-align: -4px; border-radius: var(--r-pill); background: var(--agent-soft); color: var(--agent); font: 500 var(--t-xs)/1 var(--sans); user-select: none; }
+.task-slot svg { width: 12px; height: 12px; animation: breathe 1.6s ease-in-out infinite; }
+.task-slot .task-name { letter-spacing: 0.01em; }
+
+/* ==========================================================================
+   THE SELECTOR (the thing this page is about)
+   ========================================================================== */
+.wheel { position: fixed; z-index: 50; display: none; background: var(--raised); box-shadow: var(--shadow-3); color: var(--ink); font: var(--t-sm)/1.45 var(--sans); }
+.wheel.open { display: block; }
+
+/* Strip: a row of numbered slots under the caret, details below */
+.wheel.strip { width: 328px; padding: 6px; border-radius: var(--r-lg); transform-origin: 22px 0; }
+.slots { position: relative; }
+.strip .slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; }
+.slot { position: relative; z-index: 1; display: grid; place-items: center; height: 50px; border: 0; border-radius: var(--r-md); background: none; color: var(--ink-2); cursor: pointer; transition: color var(--d-fast); }
+.slot svg { width: 18px; height: 18px; }
+.slot .n { position: absolute; top: 5px; left: 7px; font: 500 10px/1 var(--mono); color: var(--ink-3); transition: color var(--d-fast); }
+.slot.on { color: var(--agent); }
+.slot.on .n { color: var(--agent); }
+.slot.empty { color: var(--ink-3); }
+.slot.empty svg { width: 14px; height: 14px; }
+.puck { position: absolute; left: 0; top: 0; z-index: 0; border-radius: var(--r-md); background: var(--agent-soft); pointer-events: none; }
+.puck::after { content: ""; position: absolute; left: 50%; bottom: 4px; width: 14px; height: 2px; margin-left: -7px; border-radius: 1px; background: var(--agent); }
+
+.wheel-info { margin-top: 6px; padding: 10px 10px 4px; border-top: 1px solid var(--line); }
+.wi-head { display: flex; align-items: baseline; gap: var(--s2); }
+.wi-name { font: 500 var(--t-md)/1.3 var(--sans); }
+.wi-kind { margin-left: auto; }
+.wi-desc { margin-top: 2px; color: var(--ink-2); min-height: 2.9em; }
+.wheel-foot { display: flex; gap: var(--s3); padding: 6px 10px 4px; color: var(--ink-3); font-size: var(--t-xs); }
+.wheel-foot kbd { font-size: 9.5px; min-width: 15px; padding: 0 4px; }
+.note-row { display: none; padding: 4px 4px 2px; }
+.wheel.noting .note-row { display: block; }
+.wheel.noting .wheel-foot { display: none; }
+/* Held: the menu stays while ⌘ is down and says what letting go does */
+.wheel-foot .free, .wheel-foot .hold { display: flex; align-items: center; gap: var(--s3); }
+.wheel-foot .hold { display: none; color: var(--ink-2); }
+.wheel.held .wheel-foot .free { display: none; }
+.wheel.held .wheel-foot .hold { display: flex; }
+.wheel-foot .hold b { font-weight: 500; color: var(--ink); }
+.dot { width: 6px; height: 6px; border-radius: 50%; flex: none; display: inline-block; }
+.dot-live { background: var(--agent); animation: breathe 1.6s ease-in-out infinite; }
+
+/* Ring: the same slots around the caret, details in the hub */
+.wheel.ring { width: 256px; height: 256px; padding: 0; border-radius: 50%; transform-origin: 50% 50%; }
+.ring .slots { position: absolute; inset: 0; }
+.ring .slot { position: absolute; width: 50px; height: 50px; border-radius: 50%; }
+.ring .slot .n { top: -2px; left: -2px; width: 16px; height: 16px; display: grid; place-items: center; border-radius: 50%; background: var(--raised); font-size: 9.5px; }
+.ring .puck { border-radius: 50%; }
+.ring .puck::after { display: none; }
+.ring .wheel-info { position: absolute; left: 50%; top: 50%; width: 118px; margin: 0; padding: 0; border: 0; transform: translate(-50%, -50%); text-align: center; }
+.ring .wi-head { justify-content: center; }
+.ring .wi-kind, .ring .wheel-foot { display: none; }
+.ring.held .wheel-foot { display: flex; position: absolute; left: 50%; top: calc(100% + 10px); transform: translateX(-50%); padding: 7px 12px; border-radius: var(--r-pill); background: var(--raised); box-shadow: var(--shadow-2); white-space: nowrap; }
+.ring .wi-desc { font-size: var(--t-xs); min-height: 0; }
+.ring .note-row { position: absolute; left: 50%; top: calc(100% + 10px); width: 260px; margin-left: -130px; padding: 6px; border-radius: var(--r-lg); background: var(--raised); box-shadow: var(--shadow-2); }
+.ring::before { content: ""; position: absolute; inset: 62px; border-radius: 50%; border: 1px solid var(--line); pointer-events: none; }
+
+/* ---- Slot editor ------------------------------------------------------ */
+.editor-grid { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--s5); }
+.slot-list { display: flex; flex-direction: column; gap: 2px; }
+.slot-row { display: grid; grid-template-columns: 18px 22px 1fr auto; align-items: center; gap: var(--s2); height: 38px; padding: 0 var(--s2); border: 0; border-radius: var(--r-md); background: none; color: var(--ink-2); text-align: left; cursor: pointer; font-size: var(--t-sm); }
+.slot-row:hover { background: var(--sunken); color: var(--ink); }
+.slot-row[aria-current="true"] { background: var(--raised); color: var(--ink); box-shadow: var(--shadow-2); }
+.slot-row .n { font: 500 10.5px/1 var(--mono); color: var(--ink-3); }
+.slot-row svg { width: 15px; height: 15px; }
+.slot-row.empty { color: var(--ink-3); }
+.slot-row .move { display: flex; gap: 0; opacity: 0; transition: opacity var(--d-fast); }
+.slot-row:hover .move, .slot-row[aria-current="true"] .move { opacity: 1; }
+.move span { width: 18px; height: 18px; display: grid; place-items: center; border-radius: var(--r-sm); color: var(--ink-3); font-size: 10px; }
+.move span:hover { background: var(--sunken); color: var(--ink); }
+.form { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4); padding: var(--s5); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+.form .full { grid-column: 1 / -1; }
+.form label { display: flex; flex-direction: column; gap: 6px; }
+.form label > span:first-child { font: 500 var(--t-xs)/1 var(--sans); color: var(--ink-2); }
+.form textarea.field { min-height: 150px; font: 12px/1.6 var(--mono); }
+.glyphs { display: flex; flex-wrap: wrap; gap: 4px; }
+.glyphs button { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid transparent; border-radius: var(--r-md); background: none; color: var(--ink-2); cursor: pointer; }
+.glyphs button:hover { background: var(--sunken); color: var(--ink); }
+.glyphs button[aria-pressed="true"] { border-color: var(--agent); color: var(--agent); background: var(--agent-soft); }
+.glyphs svg { width: 16px; height: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips .tag { cursor: pointer; }
+.chips .tag[aria-pressed="true"] { color: var(--agent); border-color: transparent; background: var(--agent-soft); }
+.form-actions { display: flex; gap: var(--s2); align-items: center; }
+.form-actions .spacer { flex: 1; }
+.empty-state { grid-column: 1 / -1; padding: var(--s6) 0; text-align: center; color: var(--ink-2); }
+.empty-state p { margin: 0 0 var(--s3); }
+
+.questions { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--s5) var(--s6); }
+.questions h3 { font: 500 var(--t-md)/1.35 var(--sans); margin: 0 0 6px; }
+.questions p { margin: 0; color: var(--ink-2); font-size: var(--t-sm); line-height: 1.6; }
+.questions .n { font: italic 400 var(--t-lg)/1 var(--serif); color: var(--agent); display: block; margin-bottom: var(--s2); }
+.questions .lean { display: block; margin-top: 6px; color: var(--ink); }
+
+@media (max-width: 860px) {
+  .sec-head { grid-template-columns: 1fr; gap: var(--s2); }
+  .compare, .editor-grid, .form { grid-template-columns: 1fr; }
+  .sheet { padding: var(--s6) var(--s5); }
+  .stage { padding: var(--s4) var(--s2); }
+  .top nav { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="shell">
+    <a class="brand" href="index.html">Solipsist <em>slots</em></a>
+    <nav>
+      <a href="#try">Try it</a>
+      <a href="#keys">Keys</a>
+      <a href="#shapes">Strip or ring</a>
+      <a href="#personas">Personas</a>
+      <a href="#underneath">Underneath</a>
+      <a href="#questions">Open questions</a>
+    </nav>
+    <button class="btn btn-ghost icon-btn theme-toggle" id="theme" aria-label="Toggle theme" title="Toggle theme">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="5.5"/><path d="M8 2.5v11" /><path d="M8 2.5a5.5 5.5 0 0 1 0 11z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="shell">
+
+  <div class="hero">
+    <span class="eyebrow">Brainstorm · interaction · not built</span>
+    <h1>⌘. opens a loadout. <em>Pick who goes in.</em></h1>
+    <p>Today <kbd>⌘</kbd><kbd>.</kbd> drops one kind of placeholder. This page tries a slot selector instead: a small numbered row at the caret, each slot a different agent with its own job, glyph and system prompt. Keep holding <kbd>⌘</kbd> and the menu stays open: tap <kbd>.</kbd> to cycle, let go of <kbd>⌘</kbd> to place, like switching weapons. Tap <kbd>⌘</kbd><kbd>.</kbd> quickly instead and it stays open for the number keys. <code>gen</code> stays on slot 1, so <kbd>⌘</kbd><kbd>.</kbd><kbd>1</kbd> does what <kbd>⌘</kbd><kbd>.</kbd> does now.</p>
+  </div>
+
+  <!-- ================================================================== -->
+  <section class="block" id="try">
+    <div class="sec-head">
+      <div><span class="num">01</span><h2>Try it</h2></div>
+      <p>Click into the page and press <kbd>⌘</kbd><kbd>.</kbd> (or <kbd>Ctrl</kbd><kbd>.</kbd>). With text selected you get the selection slots instead. Slots you edit under <a href="#personas">Personas</a> show up here straight away.</p>
+    </div>
+
+    <div class="frame">
+      <div class="frame-bar"><i></i><i></i><i></i><span>localhost · the-slow-train.md</span></div>
+      <div class="demo-bar">
+        <div class="seg" role="group" aria-label="Layout">
+          <button type="button" data-layout="strip" aria-pressed="true">Strip</button>
+          <button type="button" data-layout="ring" aria-pressed="false">Ring</button>
+        </div>
+        <span class="hint">Hold ⌘: it stays open, . cycles, letting go places. A quick tap keeps it open for 1–6.</span>
+        <span class="spacer"></span>
+        <button class="btn" type="button" id="open-btn">Open at caret <kbd>⌘.</kbd></button>
+        <button class="btn btn-ghost" type="button" id="reset-btn">Reset page</button>
+      </div>
+      <div class="stage">
+        <div class="sheet" id="sheet" contenteditable="true" spellcheck="false"></div>
+        <div class="demo-log" id="log" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <section class="block" id="keys">
+    <div class="sec-head">
+      <div><span class="num">02</span><h2>Keys</h2></div>
+      <p>Built for one hand on the keyboard. While the selector is open it takes the keys, so number keys and vim counts don't clash. It never takes focus away from the page unless you open the note.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Keys</th><th>What happens</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>hold <kbd>⌘</kbd><kbd>.</kbd></td><td>Opens on the slot you used last and stays open while <kbd>⌘</kbd> is down; the footer says <em>Release ⌘ to place</em>. Letting go places the highlighted slot.</td><td>Holding <kbd>⌘</kbd> a beat and letting go repeats the last agent, close to today's single keystroke.</td></tr>
+          <tr><td>tap <kbd>⌘</kbd><kbd>.</kbd></td><td>Let go within 300ms without cycling and it stays open, ready for <kbd>1</kbd>–<kbd>6</kbd>.</td><td>Chrome takes <kbd>⌘</kbd><kbd>1</kbd>–<kbd>9</kbd> for tabs, so the number keys only work once <kbd>⌘</kbd> is up.</td></tr>
+          <tr><td><kbd>1</kbd>–<kbd>6</kbd></td><td>Places that slot straight away.</td><td>The fastest path. <code>gen</code> on 1 keeps today's habit one key away.</td></tr>
+          <tr><td>hold <kbd>⌘</kbd>, tap <kbd>.</kbd> <kbd>.</kbd></td><td>Each tap moves one slot (<kbd>⇧</kbd> goes back). Letting go of <kbd>⌘</kbd> places it; <kbd>esc</kbd> while holding cancels.</td><td>The weapon-switch move: cycle and place without lifting your hand.</td></tr>
+          <tr><td><kbd>←</kbd><kbd>→</kbd> / <kbd>h</kbd><kbd>l</kbd></td><td>Move between slots. <kbd>⏎</kbd> places.</td><td>Browse without placing, and read each description.</td></tr>
+          <tr><td><kbd>⇥</kbd></td><td>Opens a note line for this slot. <kbd>⏎</kbd> places it with the note.</td><td>Every slot can take an instruction, written into the comment like <code>sel</code>'s.</td></tr>
+          <tr><td><kbd>esc</kbd></td><td>Closes. The page is unchanged.</td><td></td></tr>
+          <tr><td>click / hover</td><td>Hover moves the highlight; a click places.</td><td>Mouse support for people who don't use shortcuts.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <section class="block" id="shapes">
+    <div class="sec-head">
+      <div><span class="num">03</span><h2>Strip or ring</h2></div>
+      <p>Both are in the demo (the toggle above the page). Same slots, same keys, same motion: a spring on open, slots appearing one after another, a highlight that slides to the active slot, and on placing, the selector shrinks into a chip at the caret.</p>
+    </div>
+    <div class="compare">
+      <div>
+        <h4>Strip <span class="tag tag-agent">lean</span></h4>
+        <ul>
+          <li>Sits under the line like an autocomplete, so the sentence stays readable</li>
+          <li>Numbers read left to right, matching the number row</li>
+          <li>Has room for the description, kind and model</li>
+          <li>Small: about 330 × 150, and it never covers the caret</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Ring</h4>
+        <ul>
+          <li>Feels most like a game weapon wheel; works well with a mouse flick</li>
+          <li>Covers the text you're writing around, which is what you need to see</li>
+          <li>The hub only has room for a short description</li>
+          <li>Past 8 slots it gets crowded. Keep it as a mouse-only mode?</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <section class="block" id="personas">
+    <div class="sec-head">
+      <div><span class="num">04</span><h2>Personas</h2></div>
+      <p>Each slot is a persona: a name, a glyph, one line for the selector, a model, what it may return, and a system prompt. Edit one here and press <kbd>⌘</kbd><kbd>.</kbd> on the page above to see it. Below the form is the file it would save as.</p>
+    </div>
+
+    <div class="editor-grid">
+      <div>
+        <div class="seg" role="group" aria-label="Slot set" style="margin-bottom:var(--s3)">
+          <button type="button" data-set="point" aria-pressed="true">At the caret</button>
+          <button type="button" data-set="range" aria-pressed="false">On a selection</button>
+        </div>
+        <div class="slot-list" id="slot-list"></div>
+      </div>
+      <div>
+        <div class="form" id="form"></div>
+        <div style="margin-top:var(--s4)">
+          <div class="eyebrow" style="margin-bottom:var(--s2)">Saved as</div>
+          <pre class="code" id="file-preview"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================== -->
+  <section class="block" id="underneath">
+    <div class="sec-head">
+      <div><span class="num">05</span><h2>Underneath</h2></div>
+      <p>How this could map onto what exists. Plugins (<code>gen</code>, <code>sel</code>) are code: a shape, keys, phases, the protocol. Personas would be data on top: a prompt and a few settings, held in files the writer can edit and share. A persona picks a kind; it doesn't become one.</p>
+    </div>
+
+    <div class="compare" style="margin-bottom:var(--s5)">
+      <div>
+        <h4>A. Persona on the comment <span class="tag tag-agent">lean</span></h4>
+        <p>The kind stays <code>gen</code>/<code>sel</code>; the comment names who it's for.</p>
+<pre class="code"><b>&lt;!-- gen:k3f @research --&gt;</b>
+<b>&lt;!-- sel:p9a @tighten "keep the joke" --&gt;</b>…<b>&lt;!-- /sel:p9a --&gt;</b></pre>
+        <ul style="margin-top:var(--s3)">
+          <li>The merge, states, loaders and suggestion flow are unchanged</li>
+          <li>An unknown <code>@name</code> (a page from someone else) still works: it falls back to the kind's default</li>
+          <li>Needs a grammar change in the dialect, plus a test in <code>dialect.test.ts</code></li>
+        </ul>
+      </div>
+      <div>
+        <h4>B. Every persona is a kind</h4>
+        <p>Each persona registers as a plugin of its own.</p>
+<pre class="code"><b>&lt;!-- research:k3f --&gt;</b>
+<b>&lt;!-- tighten:p9a "keep the joke" --&gt;</b>…<b>&lt;!-- /tighten:p9a --&gt;</b></pre>
+        <ul style="margin-top:var(--s3)">
+          <li>No grammar change; <code>registerPlugin</code> at runtime</li>
+          <li>A page that uses a persona you don't have stops being a placeholder (an unregistered kind is just a comment)</li>
+          <li>Kind names would become user-chosen and could clash</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="eyebrow" style="margin-bottom:var(--s2)">How the prompt is built (A)</div>
+<pre class="code"><i>system</i>  engine's own prompt
+        + <b>protocol.md</b>                     <i>fixed: envelope, modes, decline. A persona can't change it.</i>
+        + <b>persona body</b>                    <i>the voice and the job: "you are a research assistant…"</i>
+<i>run</i>     PROMPT + <b>plugins/&lt;kind&gt;/prompt.md</b> + page + the placeholder's note
+<i>limits</i>  <b>returns</b> narrows checkRunReply: a persona that only answers gets &lt;suggestion&gt; refused, fixed in the same turn</pre>
+
+    <div class="eyebrow" style="margin:var(--s5) 0 var(--s2)">Where personas live</div>
+<pre class="code"><b>~/.solipsist/slots/*.md</b>          <i>yours, every page</i>
+<b>&lt;project&gt;/.solipsist/slots/*.md</b>  <i>this folder's, override by name; can go in git and be shared</i>
+<i>built-ins (continue, rewrite) ship in src/plugins/&lt;kind&gt;/ as the fallback</i></pre>
+  </section>
+
+  <!-- ================================================================== -->
+  <section class="block" id="questions">
+    <div class="sec-head">
+      <div><span class="num">06</span><h2>Open questions</h2></div>
+      <p>Each question has the answer I lean towards underneath it.</p>
+    </div>
+    <div class="questions">
+      <div><span class="n">i.</span><h3>Does ⌘. still place something by itself?</h3><p>Today it's one keystroke. Adding a second key costs something for people who only ever use <code>gen</code>.</p><span class="lean">Lean: hold ⌘. and let go places the last-used slot, so it's still one gesture. Is 300ms the right line between a tap and a hold?</span></div>
+      <div><span class="n">ii.</span><h3>Do personas get their own colours?</h3><p>Principle ii says the agent is the only accent. Six tints would make the margin noisy.</p><span class="lean">Lean: no. Glyph and name only; the margin note reads "Research · waiting".</span></div>
+      <div><span class="n">iii.</span><h3>Editing a persona while its agent is kept</h3><p>A kept Pi agent has its prompt in its conversation. If the prompt changes, the agent still remembers the old one.</p><span class="lean">Lean: record a hash of the persona with the snooze; a changed hash starts a fresh agent on ask-again.</span></div>
+      <div><span class="n">iv.</span><h3>Per page loadouts</h3><p>A novel draft and a research note want different slots.</p><span class="lean">Lean: later. Project folder overrides first; page frontmatter (<code>slots: [continue, critic]</code>) if people ask for it.</span></div>
+      <div><span class="n">v.</span><h3>Different shapes in one selector</h3><p>Should a point-only persona (Figure) appear when text is selected, placed after the selection?</p><span class="lean">Lean: two separate sets, as in the demo. Fewer slots each, and each number keeps one meaning.</span></div>
+      <div><span class="n">vi.</span><h3>Where it opens in vim</h3><p>Normal mode has no caret between characters.</p><span class="lean">Lean: <code>g.</code> in normal mode opens it after the cursor; in visual mode it uses the selection set.</span></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="shell">Brainstorm · <span class="mono">design/slots.html</span> · built on <a href="index.html">the design system</a>. Animations use Motion from a CDN; offline, the selector opens without animation.</div>
+</footer>
+
+<!-- The selector. One element, re-filled per open. -->
+<div class="wheel strip" id="wheel" role="listbox" aria-label="Choose an agent">
+  <div class="slots" id="slots"><div class="puck" id="puck"></div></div>
+  <div class="wheel-info"><div class="wi-inner" id="wi">
+    <div class="wi-head"><span class="wi-name" id="wi-name"></span><span class="meta wi-kind" id="wi-kind"></span></div>
+    <div class="wi-desc" id="wi-desc"></div>
+  </div></div>
+  <div class="note-row"><input class="field" id="note" placeholder="A note for this agent…" autocomplete="off"></div>
+  <div class="wheel-foot">
+    <span class="free"><span><kbd>1</kbd>–<kbd>6</kbd> place</span><span><kbd>⇥</kbd> note</span><span><kbd>esc</kbd> close</span></span>
+    <span class="hold"><span class="dot dot-live"></span><span>Release <kbd>⌘</kbd> to place <b id="hold-name"></b></span><span><kbd>.</kbd> next</span><span><kbd>esc</kbd></span></span>
+  </div>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement, key = "solipsist-ds-theme";
+  try { var saved = localStorage.getItem(key); if (saved) root.dataset.theme = saved; } catch (e) {}
+  document.getElementById("theme").addEventListener("click", function () {
+    var dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem(key, root.dataset.theme); } catch (e) {}
+  });
+})();
+</script>
+
+<script type="module">
+// ---- Motion, with a no-animation fallback -------------------------------------------------------------
+let M = null;
+try { M = await import("https://cdn.jsdelivr.net/npm/motion@11.18.2/+esm"); } catch (e) { console.warn("Motion not loaded; no animation", e); }
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SPRING = { type: "spring", stiffness: 520, damping: 34, mass: 0.8 };
+const QUICK = { type: "tween", duration: 0.16, ease: [0.2, 0.8, 0.2, 1] };
+
+function anim(el, kf, opts = {}) {
+  if (M && !reduced) return M.animate(el, kf, { ...SPRING, ...opts });
+  const els = el instanceof Element ? [el] : [...el];
+  for (const e of els) {
+    const t = [];
+    for (const [k, v] of Object.entries(kf)) {
+      const end = Array.isArray(v) ? v[v.length - 1] : v;
+      if (k === "x") t.push(`translateX(${end}px)`);
+      else if (k === "y") t.push(`translateY(${end}px)`);
+      else if (k === "scale") t.push(`scale(${end})`);
+      else e.style[k] = typeof end === "number" && k !== "opacity" ? end + "px" : end;
+    }
+    e.style.transform = t.join(" ");
+  }
+  return Promise.resolve();
+}
+const jump = (el, kf) => anim(el, kf, { type: "tween", duration: 0 });
+const stagger = (s) => (M && M.stagger ? M.stagger(s) : 0);
+
+// ---- Glyphs: 16px line icons, currentColor --------------------------------------------------------------
+const G = {
+  pen:     '<path d="M10.5 2.5l3 3L6 13H3v-3z"/><path d="M9 4l3 3"/>',
+  search:  '<circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/>',
+  outline: '<path d="M6 4h7.5M6 8h7.5M8.5 12h5"/><circle cx="3" cy="4" r=".6" fill="currentColor"/><circle cx="3" cy="8" r=".6" fill="currentColor"/><circle cx="5.5" cy="12" r=".6" fill="currentColor"/>',
+  chart:   '<path d="M2.5 13.5h11"/><path d="M5 11V8.5M8 11V4.5M11 11V7"/>',
+  bubble:  '<path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z"/>',
+  cycle:   '<path d="M3 6.5a5 5 0 0 1 9-2"/><path d="M13 9.5a5 5 0 0 1-9 2"/><path d="M12 2v2.6H9.4M4 14v-2.6h2.6"/>',
+  squeeze: '<path d="M2 8h3.5M10.5 8H14"/><path d="M4 5.5 6.5 8 4 10.5M12 5.5 9.5 8l2.5 2.5"/>',
+  check:   '<circle cx="8" cy="8" r="5.5"/><path d="m5.6 8.2 1.7 1.7 3.2-3.6"/>',
+  book:    '<path d="M2.5 3.5h4A1.5 1.5 0 0 1 8 5v8.5A1.5 1.5 0 0 0 6.5 12h-4z"/><path d="M13.5 3.5h-4A1.5 1.5 0 0 0 8 5v8.5A1.5 1.5 0 0 1 9.5 12h4z"/>',
+  quote:   '<path d="M3 11.5c0-3 1-5 3.5-6M9 11.5c0-3 1-5 3.5-6"/><circle cx="4.5" cy="11" r="1.5"/><circle cx="10.5" cy="11" r="1.5"/>',
+  bulb:    '<path d="M6 12.5h4M6.5 14.5h3"/><path d="M5.5 10.5a4 4 0 1 1 5 0c-.6.5-.8 1-.8 1.5H6.3c0-.5-.2-1-.8-1.5z"/>',
+  globe:   '<circle cx="8" cy="8" r="5.5"/><path d="M2.5 8h11M8 2.5c1.6 1.6 2.3 3.5 2.3 5.5S9.6 11.9 8 13.5C6.4 11.9 5.7 10 5.7 8S6.4 4.1 8 2.5z"/>',
+  scissors:'<circle cx="4.5" cy="4.5" r="2"/><circle cx="4.5" cy="11.5" r="2"/><path d="M6.2 5.6 13.5 12M6.2 10.4 13.5 4"/>',
+  star:    '<path d="M8 2.5l1.7 3.6 3.8.4-2.9 2.6.9 3.9L8 11l-3.5 2 .9-3.9-2.9-2.6 3.8-.4z"/>',
+  plus:    '<path d="M8 3.5v9M3.5 8h9"/>',
+};
+const svg = (g) => `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${G[g] || G.star}</svg>`;
+
+// ---- Slots: six per set, null is empty -----------------------------------------------------------------
+const SETS = {
+  point: [
+    { name: "Continue", glyph: "pen", kind: "gen", engine: "pi:kimi-latest", returns: ["text", "blocks"], note: "none",
+      desc: "Writes what comes next, in your voice. Today's ⌘.",
+      prompt: "You continue the writer's draft at the marked spot.\nMatch their voice, tense and rhythm. Write the least that makes the gap close: a sentence if a sentence will do.\nNever summarise what came before." },
+    { name: "Research", glyph: "search", kind: "gen", engine: "pi:kimi-latest", returns: ["text", "blocks", "answer"], note: "optional",
+      desc: "Looks it up on the web and writes it in, with sources.",
+      prompt: "You are a research assistant. Find what belongs at the marked spot: facts, figures, a quote.\nSearch before you write. Every claim gets a source as a markdown link.\nIf the sources disagree, say so in one line instead of picking one." },
+    { name: "Outline", glyph: "outline", kind: "gen", engine: "pi:deepseek-flash", returns: ["blocks"], note: "optional",
+      desc: "Sketches the next section as a nested list, ready to fill in.",
+      prompt: "You outline what the writer should write next, from where the page stops.\nReply with a nested list, at most two levels, one line per point, no prose." },
+    { name: "Figure", glyph: "chart", kind: "gen", engine: "pi:kimi-latest", returns: ["blocks"], note: "optional",
+      desc: "Makes a chart, diagram or image for this spot from what the page says.",
+      prompt: "You make one figure for the marked spot: a chart, diagram or image saved in the page's image folder.\nUse the numbers and claims on the page only. Caption it in one line." },
+    { name: "Critic", glyph: "bubble", kind: "gen", engine: "pi:deepseek-flash", returns: ["answer"], note: "optional",
+      desc: "Reads the page up to here and says what's weakest. Never edits.",
+      prompt: "You are a blunt, kind editor. Read the page up to the marked spot.\nAnswer with the two weakest points and why, each in one or two sentences. Do not propose text." },
+    null,
+  ],
+  range: [
+    { name: "Rewrite", glyph: "cycle", kind: "sel", engine: "pi:kimi-latest", returns: ["text", "blocks", "answer"], note: "optional",
+      desc: "Does what your note says, or its best guess. Today's ⌘. on a selection.",
+      prompt: "The writer selected this text. Do what their note asks; without a note, make it better at what it is already trying to do." },
+    { name: "Tighten", glyph: "squeeze", kind: "sel", engine: "pi:deepseek-flash", returns: ["text"], note: "none",
+      desc: "Same meaning, fewer words. Keeps the voice.",
+      prompt: "Cut the selected text by about a third without losing meaning or voice. Replace it; never add." },
+    { name: "Fact-check", glyph: "check", kind: "sel", engine: "pi:kimi-latest", returns: ["answer"], note: "none",
+      desc: "Checks each claim against sources. Answers; the page is untouched.",
+      prompt: "Check every factual claim in the selection. Answer with a short list: claim, verdict, source link." },
+    { name: "Explain", glyph: "book", kind: "sel", engine: "pi:deepseek-flash", returns: ["answer"], note: "optional",
+      desc: "Tells you what this says, or what a term means here.",
+      prompt: "Explain the selected text plainly, in the context of the page. Two short paragraphs at most." },
+    null, null,
+  ],
+};
+const ENGINES = ["pi:kimi-latest", "pi:deepseek-flash", "pi:glm-latest"];
+const RETURNS = { text: "Inline text", blocks: "Blocks", answer: "Answer only" };
+const slug = (s) => (s || "slot").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "slot";
+
+// ---- The demo page --------------------------------------------------------------------------------------
+const sheet = document.getElementById("sheet");
+const PAGE = `<h1>The slow train to Kandy</h1>
+<p>The carriage smelled of diesel and jasmine. A man two seats down was peeling a mango with a penknife, turning it in one long ribbon, and nobody watched him do it except me.</p>
+<p>By Rambukkana the line starts to climb. The engine drops to a walk, and the tea begins: rows of it, combed across hills so steep it seems impossible anyone picks them. </p>
+<p>I had been told the journey takes three hours. It took five, and I didn't mind any of them.</p>`;
+const resetPage = () => { sheet.innerHTML = PAGE; };
+resetPage();
+document.getElementById("reset-btn").addEventListener("click", () => { resetPage(); say(""); });
+
+const logEl = document.getElementById("log");
+const say = (s) => { logEl.textContent = s; };
+
+function caretInSheet() {
+  const sel = getSelection();
+  if (!sel.rangeCount) return null;
+  const r = sel.getRangeAt(0);
+  return sheet.contains(r.commonAncestorContainer) ? r : null;
+}
+function defaultCaret() {
+  const p = sheet.querySelectorAll("p")[1];
+  const r = document.createRange();
+  r.selectNodeContents(p); r.collapse(false);
+  const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  sheet.focus({ preventScroll: true });
+  return r;
+}
+function rectOf(range) {
+  const rects = range.getClientRects();
+  let rect = rects.length ? rects[rects.length - 1] : range.getBoundingClientRect();
+  if (!rect || (rect.width === 0 && rect.height === 0 && rect.x === 0)) {
+    const probe = document.createElement("span"); probe.textContent = "​";
+    const r2 = range.cloneRange(); r2.collapse(false); r2.insertNode(probe);
+    rect = probe.getBoundingClientRect(); probe.remove();
+  }
+  return rect;
+}
+
+// ---- The selector ---------------------------------------------------------------------------------------
+const wheel = document.getElementById("wheel");
+const slotsEl = document.getElementById("slots");
+const puck = document.getElementById("puck");
+const wi = document.getElementById("wi"), wiName = document.getElementById("wi-name"), wiKind = document.getElementById("wi-kind"), wiDesc = document.getElementById("wi-desc");
+const noteEl = document.getElementById("note");
+
+let layout = "strip";
+let state = null; // { set, slots, active, range, cycled, held, openedAt }
+const TAP_MS = 300; // ⌘ up sooner than this, without cycling: a tap, the menu stays open
+function setHeld(on) {
+  if (!state) return;
+  state.held = on;
+  wheel.classList.toggle("held", on);
+  anim(wheel.querySelector(on ? ".hold" : ".free"), { opacity: [0, 1] }, QUICK);
+}
+const lastUsed = { point: 0, range: 0 };
+
+document.querySelectorAll("[data-layout]").forEach((b) => b.addEventListener("click", () => {
+  layout = b.dataset.layout;
+  document.querySelectorAll("[data-layout]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+}));
+
+function buildSlots(list) {
+  slotsEl.querySelectorAll(".slot").forEach((s) => s.remove());
+  list.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "slot" + (s ? "" : " empty");
+    b.setAttribute("role", "option");
+    b.setAttribute("aria-label", s ? `${i + 1}: ${s.name}` : `${i + 1}: empty`);
+    b.innerHTML = `<span class="n">${i + 1}</span>${svg(s ? s.glyph : "plus")}`;
+    b.addEventListener("mouseenter", () => setActive(i));
+    b.addEventListener("mousedown", (e) => e.preventDefault()); // keep the page's caret
+    b.addEventListener("click", () => commit(i));
+    slotsEl.appendChild(b);
+  });
+  if (layout === "ring") {
+    const R = 92, C = 128, S = 50;
+    [...slotsEl.querySelectorAll(".slot")].forEach((b, i, all) => {
+      const a = -Math.PI / 2 + (i * 2 * Math.PI) / all.length;
+      b.style.left = `${C + R * Math.cos(a) - S / 2}px`;
+      b.style.top = `${C + R * Math.sin(a) - S / 2}px`;
+    });
+  }
+}
+
+function placePuck(i, animate) {
+  const b = slotsEl.querySelectorAll(".slot")[i];
+  const kf = { x: b.offsetLeft, y: b.offsetTop, width: b.offsetWidth, height: b.offsetHeight };
+  return animate ? anim(puck, kf, { stiffness: 700, damping: 40 }) : jump(puck, kf);
+}
+
+function showInfo(i, animate) {
+  const s = state.slots[i];
+  wiName.textContent = s ? s.name : "Empty slot";
+  wiKind.textContent = s ? `${s.kind} · ${s.engine}` : "";
+  wiDesc.textContent = s ? s.desc : "Give this number a persona. Opens the editor.";
+  document.getElementById("hold-name").textContent = s ? s.name : "nothing (opens the editor)";
+  if (animate) anim(wi, { opacity: [0.2, 1], y: [3, 0] }, QUICK);
+}
+
+function setActive(i, animate = true) {
+  if (!state) return;
+  const n = state.slots.length;
+  i = ((i % n) + n) % n;
+  if (i === state.active && animate) return;
+  state.active = i;
+  slotsEl.querySelectorAll(".slot").forEach((b, j) => { b.classList.toggle("on", j === i); b.setAttribute("aria-selected", String(j === i)); });
+  placePuck(i, animate);
+  showInfo(i, animate);
+}
+
+function position(rect) {
+  const w = wheel.offsetWidth, h = wheel.offsetHeight, pad = 12;
+  let left, top;
+  if (layout === "ring") { left = rect.left - w / 2; top = rect.top + rect.height / 2 - h / 2; }
+  else { left = rect.left - 22; top = rect.bottom + 8; if (top + h > innerHeight - pad) top = rect.top - h - 8; }
+  left = Math.max(pad, Math.min(left, innerWidth - w - pad));
+  top = Math.max(pad, Math.min(top, innerHeight - h - pad));
+  wheel.style.left = left + "px"; wheel.style.top = top + "px";
+}
+
+function openWheel(held = false) {
+  let range = caretInSheet() || defaultCaret();
+  const set = range.collapsed ? "point" : "range";
+  state = { set, slots: SETS[set], active: -1, range: range.cloneRange(), cycled: false, held, openedAt: performance.now() };
+  wheel.className = `wheel ${layout} open${held ? " held" : ""}`;
+  buildSlots(state.slots);
+  position(rectOf(range));
+  setActive(lastUsed[set], false);
+  anim(wheel, { opacity: [0, 1], scale: [0.9, 1], y: [layout === "strip" ? -6 : 0, 0] });
+  anim(slotsEl.querySelectorAll(".slot"), { opacity: [0, 1], scale: [0.6, 1] }, { delay: stagger(0.028) });
+  anim(puck, { opacity: [0, 1] }, { ...QUICK, delay: 0.08 });
+  say(set === "point" ? "At the caret: point slots." : "On the selection: range slots.");
+}
+
+async function closeWheel() {
+  if (!state) return;
+  wheel.classList.remove("noting");
+  noteEl.value = "";
+  state = null;
+  await anim(wheel, { opacity: 0, scale: 0.94 }, { type: "tween", duration: 0.12 });
+  if (!state) wheel.classList.remove("open");
+}
+
+async function commit(i = state && state.active) {
+  if (!state) return;
+  const s = state.slots[i];
+  if (!s) { await closeWheel(); configure(state ? state.set : null, i); return; }
+  const { set, range } = state;
+  const note = noteEl.value.trim();
+  lastUsed[set] = i;
+  setActive(i);
+  const b = slotsEl.querySelectorAll(".slot")[i];
+  await anim(b, { scale: [1, 0.86, 1.04, 1] }, { type: "tween", duration: 0.26 });
+  // Shrink into the caret
+  const r = rectOf(range), wr = wheel.getBoundingClientRect();
+  const dx = (layout === "ring" ? r.left - (wr.left + wr.width / 2) : r.left - wr.left - 22) * 0.5;
+  state = null;
+  wheel.classList.remove("noting"); noteEl.value = "";
+  anim(wheel, { opacity: 0, scale: 0.4, x: [0, dx], y: [0, (layout === "ring" ? 0 : -24)] }, { type: "tween", duration: 0.2, ease: [0.4, 0, 1, 1] })
+    .then(() => { wheel.classList.remove("open"); jump(wheel, { x: 0 }); });
+  place(s, set, range, note);
+}
+
+function place(s, set, range, note) {
+  const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+  sheet.focus({ preventScroll: true });
+  const chip = document.createElement("span");
+  chip.className = "task-slot";
+  chip.contentEditable = "false";
+  chip.title = `${s.name} · waiting to be picked up${note ? ` · “${note}”` : ""}`;
+  chip.innerHTML = svg(s.glyph) + (set === "point" ? `<span class="task-name">${s.name}</span>` : "");
+  if (set === "range") {
+    const wrap = document.createElement("span"); wrap.className = "task-range";
+    try { range.surroundContents(wrap); } catch { wrap.appendChild(range.extractContents()); range.insertNode(wrap); }
+    wrap.after(chip);
+  } else {
+    range.insertNode(chip);
+  }
+  const after = document.createRange(); after.setStartAfter(chip); after.collapse(true);
+  sel.removeAllRanges(); sel.addRange(after);
+  anim(chip, { scale: [0.3, 1], opacity: [0, 1] }, { stiffness: 600, damping: 22 });
+  const id = Math.random().toString(36).slice(2, 5);
+  const attr = ` @${slug(s.name)}${note ? ` "${note.replace(/"/g, "\\\"")}"` : ""}`;
+  say(set === "point" ? `<!-- ${s.kind}:${id}${attr} -->` : `<!-- ${s.kind}:${id}${attr} -->…<!-- /${s.kind}:${id} -->`);
+}
+
+function openNote() {
+  if (!state) return;
+  setHeld(false);
+  wheel.classList.add("noting");
+  const s = state.slots[state.active];
+  noteEl.placeholder = s ? `A note for ${s.name}…` : "A note…";
+  if (layout === "strip") position(rectOf(state.range));
+  noteEl.focus();
+  anim(noteEl, { opacity: [0, 1], y: [-4, 0] }, QUICK);
+}
+
+document.getElementById("open-btn").addEventListener("mousedown", (e) => e.preventDefault());
+document.getElementById("open-btn").addEventListener("click", () => (state ? closeWheel() : openWheel()));
+wheel.addEventListener("mousedown", (e) => { if (e.target !== noteEl) e.preventDefault(); });
+document.addEventListener("mousedown", (e) => { if (state && !wheel.contains(e.target)) closeWheel(); });
+addEventListener("scroll", () => { if (state) closeWheel(); }, { passive: true });
+addEventListener("blur", () => setHeld(false)); // ⌘ let go in another window: keep it open, don't place
+
+document.addEventListener("keydown", (e) => {
+  const mod = e.metaKey || e.ctrlKey;
+  if (mod && (e.key === "." || e.code === "Period")) {
+    if (!state && !sheet.contains(document.activeElement) && document.activeElement !== sheet) return;
+    e.preventDefault();
+    if (!state) openWheel(true);
+    else { state.cycled = true; if (!state.held) setHeld(true); setActive(state.active + (e.shiftKey ? -1 : 1)); }
+    return;
+  }
+  if (!state) return;
+  if (document.activeElement === noteEl) {
+    if (e.key === "Enter") { e.preventDefault(); commit(); }
+    else if (e.key === "Escape") { e.preventDefault(); wheel.classList.remove("noting"); noteEl.value = ""; sheet.focus({ preventScroll: true }); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(state.range); }
+    return;
+  }
+  const k = e.key;
+  if (/^[1-9]$/.test(k)) { e.preventDefault(); const i = +k - 1; if (i < state.slots.length) commit(i); return; }
+  if (k === "ArrowRight" || k === "ArrowDown" || k === "l" || k === "j") { e.preventDefault(); setActive(state.active + 1); return; }
+  if (k === "ArrowLeft" || k === "ArrowUp" || k === "h" || k === "k") { e.preventDefault(); setActive(state.active - 1); return; }
+  if (k === "Enter") { e.preventDefault(); commit(); return; }
+  if (k === "Tab") { e.preventDefault(); openNote(); return; }
+  if (k === "Escape") { e.preventDefault(); closeWheel(); return; }
+  if (k.length === 1 || k === "Backspace") { e.preventDefault(); } // the page stays as it was while choosing
+}, true);
+
+document.addEventListener("keyup", (e) => {
+  if (!state || !state.held || (e.key !== "Meta" && e.key !== "Control")) return;
+  if (!state.cycled && performance.now() - state.openedAt < TAP_MS) { setHeld(false); return; } // a tap: stay open
+  commit();
+}, true);
+
+// ---- Persona editor -------------------------------------------------------------------------------------
+let edSet = "point", edIndex = 0;
+const listEl = document.getElementById("slot-list");
+const formEl = document.getElementById("form");
+const fileEl = document.getElementById("file-preview");
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+document.querySelectorAll("[data-set]").forEach((b) => b.addEventListener("click", () => { edSet = b.dataset.set; edIndex = 0; renderEditor(); }));
+
+function configure(set, i) {
+  if (set) { edSet = set; edIndex = i; renderEditor(); }
+  document.getElementById("personas").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+}
+
+function renderList() {
+  document.querySelectorAll("[data-set]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.set === edSet)));
+  const list = SETS[edSet];
+  listEl.innerHTML = "";
+  list.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "slot-row" + (s ? "" : " empty");
+    b.setAttribute("aria-current", String(i === edIndex));
+    b.innerHTML = `<span class="n">${i + 1}</span>${svg(s ? s.glyph : "plus")}<span>${s ? esc(s.name) : "Empty"}</span><span class="move"><span data-mv="-1" title="Move up">▲</span><span data-mv="1" title="Move down">▼</span></span>`;
+    b.addEventListener("click", (e) => {
+      const mv = e.target.closest("[data-mv]");
+      if (mv) {
+        const j = i + +mv.dataset.mv;
+        if (j < 0 || j >= list.length) return;
+        [list[i], list[j]] = [list[j], list[i]];
+        if (lastUsed[edSet] === i) lastUsed[edSet] = j; else if (lastUsed[edSet] === j) lastUsed[edSet] = i;
+        edIndex = j; renderEditor(); return;
+      }
+      edIndex = i; renderEditor();
+    });
+    listEl.appendChild(b);
+  });
+}
+
+function renderForm() {
+  const s = SETS[edSet][edIndex];
+  if (!s) {
+    formEl.innerHTML = `<div class="empty-state"><p>Slot ${edIndex + 1} is empty. <kbd>${edIndex + 1}</kbd> in the selector opens this.</p><button class="btn" type="button" id="fill">Add a persona</button></div>`;
+    formEl.querySelector("#fill").addEventListener("click", () => {
+      SETS[edSet][edIndex] = { name: "New persona", glyph: "star", kind: edSet === "point" ? "gen" : "sel", engine: "pi:kimi-latest", returns: edSet === "point" ? ["text"] : ["text", "answer"], note: "optional", desc: "One line for the selector.", prompt: "Who you are and what you do here." };
+      renderEditor();
+    });
+    renderFile();
+    return;
+  }
+  formEl.innerHTML = `
+    <label><span>Name</span><input class="field" data-k="name" value="${esc(s.name)}"></label>
+    <label><span>Model</span><select class="field" data-k="engine">${ENGINES.map((e) => `<option${e === s.engine ? " selected" : ""}>${e}</option>`).join("")}</select></label>
+    <label class="full"><span>One line in the selector</span><input class="field" data-k="desc" value="${esc(s.desc)}"></label>
+    <div class="full"><label><span>Glyph</span></label><div class="glyphs" style="margin-top:6px">${Object.keys(G).filter((g) => g !== "plus").map((g) => `<button type="button" data-glyph="${g}" aria-pressed="${g === s.glyph}" title="${g}">${svg(g)}</button>`).join("")}</div></div>
+    <div><label><span>May return</span></label><div class="chips" style="margin-top:6px">${Object.entries(RETURNS).map(([k, v]) => `<button type="button" class="tag" data-ret="${k}" aria-pressed="${s.returns.includes(k)}">${v}</button>`).join("")}</div></div>
+    <label><span>Note</span><select class="field" data-k="note">${["none", "optional", "required"].map((n) => `<option${n === s.note ? " selected" : ""}>${n}</option>`).join("")}</select></label>
+    <label class="full"><span>System prompt</span><textarea class="field" data-k="prompt" spellcheck="false">${esc(s.prompt)}</textarea></label>
+    <div class="full form-actions"><span class="meta">Places a <b style="font-weight:500;color:var(--ink-2)">${s.kind}</b> placeholder · slot ${edIndex + 1}</span><span class="spacer"></span><button class="btn btn-ghost" type="button" id="clear">Empty this slot</button></div>`;
+  formEl.querySelectorAll("[data-k]").forEach((el) => el.addEventListener("input", () => {
+    s[el.dataset.k] = el.value;
+    if (el.dataset.k === "name") renderList();
+    renderFile();
+  }));
+  formEl.querySelectorAll("[data-glyph]").forEach((el) => el.addEventListener("click", () => {
+    s.glyph = el.dataset.glyph;
+    formEl.querySelectorAll("[data-glyph]").forEach((x) => x.setAttribute("aria-pressed", String(x === el)));
+    anim(el, { scale: [0.8, 1] }, { stiffness: 700, damping: 18 });
+    renderList(); renderFile();
+  }));
+  formEl.querySelectorAll("[data-ret]").forEach((el) => el.addEventListener("click", () => {
+    const k = el.dataset.ret, on = s.returns.includes(k);
+    if (on && s.returns.length === 1) return; // at least one
+    s.returns = on ? s.returns.filter((x) => x !== k) : [...s.returns, k];
+    el.setAttribute("aria-pressed", String(!on));
+    renderFile();
+  }));
+  formEl.querySelector("#clear").addEventListener("click", () => { SETS[edSet][edIndex] = null; renderEditor(); });
+  renderFile();
+}
+
+function renderFile() {
+  const s = SETS[edSet][edIndex];
+  if (!s) { fileEl.innerHTML = `<i># slot ${edIndex + 1} is empty: no file</i>`; return; }
+  fileEl.innerHTML =
+`<i>~/.solipsist/slots/</i><b>${esc(slug(s.name))}.md</b>
+---
+name: ${esc(s.name)}
+slot: ${edIndex + 1}
+where: ${edSet === "point" ? "caret" : "selection"}
+kind: ${s.kind}
+glyph: ${s.glyph}
+engine: ${esc(s.engine)}
+returns: [${s.returns.join(", ")}]
+note: ${s.note}
+description: ${esc(s.desc)}
+---
+<b>${esc(s.prompt)}</b>`;
+}
+
+function renderEditor() { renderList(); renderForm(); }
+renderEditor();
+</script>
+</body>
+</html>

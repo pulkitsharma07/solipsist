@@ -1,0 +1,199 @@
+/* The margin: comment cards, the agent's notes, the suggestion card and the popups that hang off the page. */
+
+/*
+ * The review's questions, left of the page; the right is the agent's (its notes, the suggestion card). Nothing can
+ * scroll to what overflows on the left, so the column is the room there is, up to its full width.
+ */
+.margin { --card-w: min(var(--margin-w), calc((100vw - var(--sheet-w)) / 2 - 32px)); position: absolute; right: 100%; top: 0; bottom: 0; margin-right: var(--s4); width: var(--card-w); }
+.app.debug-open .margin { --card-w: min(var(--margin-w), calc((100vw - 412px - var(--sheet-w)) / 2 - 16px)); }
+/*
+ * The cards go only when a column would be under about 140px, too narrow for a gloss. The cards and not the column:
+ * a question opened from its highlighted passage has its window in there, and the status bar still counts them.
+ */
+@media (max-width: 1140px) { .margin .card { display: none; } }
+@media (max-width: 1530px) { .app.debug-open .margin .card { display: none; } }
+
+/* Comment cards */
+/* The left edge carries the review colour, so a card is a question at a glance. After the shorthand, not before it. */
+.card { position: absolute; left: 0; right: 0; background: var(--raised); border: 1px solid var(--line); border-left: 2px solid var(--review); border-radius: var(--r-lg); padding: 10px 14px; cursor: pointer; transition: top 0.15s, opacity var(--d-med), box-shadow 0.15s; }
+.card.active { box-shadow: var(--shadow-2); border-color: transparent; border-left-color: var(--review); }
+.card h3 { font: 600 var(--t-sm)/1.4 var(--sans); }
+.card p { margin-top: var(--s1); color: var(--ink-2); font-size: var(--t-sm); }
+/* Closed, the card is the gloss alone: a pencil note beside the passage, not a heading. */
+.card .gloss { margin-top: 0; font-style: italic; color: var(--review); }
+/* The reviewer's own drawing, when it made one: plain, and never wider than the card. */
+.card-image { display: block; width: 100%; height: auto; margin-top: var(--s2); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+.card .why { color: var(--ink-3); }
+.card .acts { display: flex; gap: var(--s2); margin-top: var(--s2); }
+.card .acts button { padding: 2px 8px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); color: var(--ink-2); font: var(--t-xs)/1.6 var(--sans); cursor: pointer; }
+.card .acts button:hover { color: var(--ink); border-color: var(--line-2); }
+
+/* ---- popups and the suggestion card ---- */
+.task-popup { border: 1px solid var(--line); position: absolute; z-index: 40; width: 320px; max-width: calc(100vw - 16px); background: var(--raised); color: var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow-2); font: var(--t-sm)/1.5 var(--sans); animation: task-pop 0.18s var(--ease) both; }
+@keyframes task-pop { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
+.task-card { display: flex; flex-direction: column; gap: 10px; padding: 14px; }
+/* The suggestion card, in the margin beside its diff, kept in view as the page scrolls (sideCard.ts). */
+.sug-side { border: 1px solid var(--pop-edge); position: fixed; z-index: 15; width: 280px; max-width: calc(100vw - 16px); max-height: calc(100vh - 80px); overflow-y: auto; background: var(--raised); color: var(--ink); border-radius: var(--r-lg); box-shadow: var(--shadow-2); font: var(--t-sm)/1.5 var(--sans); animation: task-pop 0.18s var(--ease) both; }
+.sug-side .task-card { padding: var(--s3); }
+/* The kinds of comment and their accent. Everything below that says --pop is the same in all of them. */
+[data-kind="review"] { --pop: var(--review); --pop-edge: var(--review-edge); --pop-soft: var(--review-soft); }
+[data-kind="suggestion"] { --pop: var(--add); --pop-edge: var(--add-edge); --pop-soft: var(--add-soft); }
+[data-kind="answer"] { --pop: var(--agent); --pop-edge: var(--agent-edge); --pop-soft: var(--agent-soft); }
+[data-kind="declined"] { --pop: var(--del); --pop-edge: var(--del-edge); --pop-soft: var(--del-soft); }
+/* The eyebrow of a popover: what it is, with a quietly pulsing dot in its accent. */
+.task-card header, .pop-eyebrow { display: flex; align-items: center; gap: var(--s2); margin: 0; font: 500 10.5px/1 var(--mono); letter-spacing: 0.09em; text-transform: uppercase; color: var(--ink-2); }
+.task-card header::before, .pop-eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--pop); flex: none; }
+@media (prefers-reduced-motion: no-preference) { .task-card header::before, .pop-eyebrow::before { animation: pop-ping 2.4s infinite; } }
+@keyframes pop-ping { 0% { box-shadow: 0 0 0 0 var(--pop-edge); } 70%, 100% { box-shadow: 0 0 0 7px transparent; } }
+.task-id { margin-left: auto; color: var(--ink-3); font: var(--t-xs) var(--mono); }
+.task-card blockquote { margin: 0; padding: var(--s2) 10px; background: var(--pop-soft); border-radius: var(--r-md); }
+.task-card fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--s1); }
+.task-card legend { color: var(--ink-2); font-size: var(--t-xs); margin-bottom: 2px; }
+.task-choice { display: flex; align-items: center; gap: var(--s2); cursor: pointer; }
+.task-row { display: flex; align-items: center; gap: var(--s2); justify-content: space-between; }
+.task-row.ask { gap: 6px; }
+.task-card select, .task-card input[type="text"] { background: var(--raised); color: var(--ink); border: 1px solid var(--line-2); border-radius: var(--r-sm); padding: 5px var(--s2); font: inherit; }
+.task-card input[type="text"] { flex: 1; min-width: 0; }
+.task-card input:focus, .task-card select:focus { outline: 2px solid var(--focus); outline-offset: -1px; }
+.task-status { min-height: 1em; color: var(--ink-2); font-size: var(--t-xs); }
+.task-card footer { display: flex; justify-content: flex-end; gap: var(--s2); }
+.sug-note { margin: 0; color: var(--ink); }
+.sug-edits { margin: 0; padding-left: 18px; color: var(--ink); }
+.sug-edits li.gone { color: var(--warn); }
+.sug-stale { margin: 0; color: var(--warn); font-size: var(--t-xs); }
+/* actions: a hairline above; Accept the one primary */
+.sug-actions { flex-wrap: wrap; justify-content: flex-start; gap: 6px; padding-top: var(--s2); border-top: 1px solid var(--line); }
+.task-btn { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: var(--r-md); background: var(--raised); color: var(--ink); cursor: pointer; font: 500 var(--t-xs)/1 var(--sans); transition: background var(--d-fast), border-color var(--d-fast); }
+.task-btn:hover { border-color: var(--ink-3); }
+.task-btn.primary { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+/* In a comment's popover the main action is the comment's own colour, not black. */
+.sug-side .task-btn.primary { background: var(--pop); border-color: transparent; }
+/* A decline is not good news: its main action is the red outline, not a red slab. */
+.sug-side[data-kind="declined"] .task-btn.primary { background: var(--pop-soft); color: var(--pop); border-color: var(--pop-edge); }
+.task-btn.primary:hover { opacity: 0.88; }
+.task-btn.ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+.task-btn.ghost:hover { background: var(--sunken); color: var(--ink); }
+.task-btn[data-action="chat"] { margin-left: auto; }
+.sug-accept { display: inline-flex; gap: 1px; }
+.sug-accept .task-btn:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.sug-accept-more { padding: 0 6px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+/* Accept ▾'s dropdown: a small menu floating under the button (a .task-popup). */
+.task-popup:has(> .sug-more) { width: 280px; }
+.sug-more { display: flex; flex-direction: column; gap: 2px; padding: 4px; }
+.sug-menu-item { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; padding: 8px 10px; border: 0; border-radius: var(--r-md); background: transparent; color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
+.sug-menu-item:hover, .sug-menu-item:focus-visible { background: var(--sunken); }
+.sug-menu-label { font: 500 var(--t-sm)/1.3 var(--sans); }
+.sug-menu-note { font: var(--t-xs)/1.45 var(--sans); color: var(--ink-2); }
+.task-schedule-note { margin: 4px 10px 6px; }
+.sug-button-confirm { width: 280px; max-width: calc(100vw - 32px); }
+.task-btn:disabled { opacity: 0.45; cursor: default; }
+/* the instruction of a range: one line that grows, under the selection or the range's loader */
+.task-ask { padding: var(--s2); }
+.task-ask textarea { display: block; width: 100%; resize: none; overflow: hidden; background: var(--raised); color: var(--ink); border: 1px solid var(--line-2); border-radius: var(--r-md); padding: 6px 10px; font: inherit; line-height: 1.4; outline: none; transition: border-color var(--d-fast), box-shadow var(--d-fast); }
+.task-ask textarea:focus { border-color: var(--agent); box-shadow: 0 0 0 3px var(--focus); }
+.task-ask.read-only textarea { background: transparent; border-color: transparent; box-shadow: none; cursor: default; }
+/* the agent's answer in a card: the page's own type, scrolling when long */
+.sug-answer-text { max-height: 50vh; overflow-y: auto; font-family: var(--serif, inherit); }
+.sug-answer-text > :first-child { margin-top: 0; }
+.sug-answer-text > :last-child { margin-bottom: 0; }
+/* why a selection can't be asked about (Mod-. on code, or on text already in a request) */
+.task-refusal { margin: 0; padding: var(--s2) var(--s3); color: var(--warn); }
+@media (prefers-reduced-motion: reduce) { .task-popup, .sug-side { animation: none; } }
+
+/* ---- The agent's progress, in the right margin outside the page, level with each loader: only the current step ---- */
+/* The column is whatever room is left right of the page (up to the comments' width); the text wraps to fit it. */
+.agent-notes { --note-w: min(var(--margin-w), calc((100vw - var(--sheet-w)) / 2 - 32px)); position: absolute; left: 100%; top: 0; margin-left: var(--s4); width: var(--note-w); pointer-events: none; }
+.app.debug-open .agent-notes { --note-w: min(var(--margin-w), calc((100vw - 412px - var(--sheet-w)) / 2 - 16px)); }
+/* Too little room beside the page: the note sits inside its right edge instead, on the same line. */
+@media (max-width: 1130px) { .agent-notes { --note-w: min(240px, 45%); left: auto; right: 12px; margin-left: 0; } .agent-note { left: auto; right: 0; background: var(--raised); box-shadow: var(--shadow-2); } }
+@media (max-width: 1530px) { .app.debug-open .agent-notes { --note-w: min(240px, 45%); left: auto; right: 12px; margin-left: 0; } .app.debug-open .agent-note { left: auto; right: 0; background: var(--raised); box-shadow: var(--shadow-2); } }
+.agent-note { position: absolute; left: 0; max-width: 100%; transform: translateY(-50%); display: flex; align-items: flex-start; gap: var(--s2); padding: 4px 10px 4px var(--s2); border-radius: var(--r-md); color: var(--ink-2); font: var(--t-sm)/18px var(--sans); pointer-events: auto; outline: none; cursor: default; transition: top 0.15s, background var(--d-fast); animation: note-fade 0.3s ease-out both; }
+.agent-note:hover, .agent-note:focus-visible { background: var(--sunken); color: var(--ink); }
+/* Under the suggestion card (sideCard.ts): gone until it closes, not poking out from behind it. */
+.agent-note[data-covered] { visibility: hidden; }
+.agent-note .note-icon { margin-top: 2px; }
+/* The icon says where the agent stands (NoteIcon.tsx): the engine's mark breathes while it works; the rest are drawn. */
+.agent-note .note-icon { transform-box: fill-box; transform-origin: center; }
+.agent-note.working .ni-work { animation: breathe 1s ease-in-out infinite; }
+.note-icon.ni-wait { color: var(--ink-3); }
+.note-icon .ni-hand { transform-box: view-box; transform-origin: 8px 8px; animation: ni-turn 4s linear infinite; }
+.note-icon.ni-done { color: var(--add); }
+.note-icon .ni-ring { transform-box: view-box; transform-origin: 8px 8px; animation: ni-pop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both; }
+.note-icon .ni-tick { stroke-dasharray: 1; animation: ni-draw 0.4s 0.15s ease-out both; }
+.agent-note.snoozed { opacity: 0.7; }
+.note-icon.ni-sleep { color: var(--ink-3); }
+.note-icon .ni-z { animation: ni-float 3.2s ease-in-out infinite; }
+.note-icon.ni-chat { color: var(--agent); }
+.note-icon .ni-dot { fill: currentColor; stroke-width: 1.2; animation: ni-rise 1.2s ease-in-out infinite; }
+.note-icon .ni-d2 { animation-delay: 0.15s; }
+.note-icon .ni-d3 { animation-delay: 0.3s; }
+.note-icon.ni-warn { color: var(--del); }
+@keyframes ni-turn { to { transform: rotate(360deg); } }
+@keyframes ni-pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+@keyframes ni-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes ni-float { 0%, 100% { opacity: 0.25; transform: translateY(1px); } 50% { opacity: 1; transform: translateY(-1px); } }
+@keyframes ni-rise { 0%, 100% { transform: translateY(0); opacity: 0.5; } 40% { transform: translateY(-1.2px); opacity: 1; } }
+.note-line { min-width: 0; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; animation: note-in 0.3s ease-out both; }
+.note-line b { margin-right: 6px; font: 500 var(--t-xs)/18px var(--mono); color: var(--agent); }
+.agent-note.tool .note-line span, .agent-note.tool_result .note-line span { font: var(--t-xs)/18px var(--mono); }
+.agent-note.text .note-line span { color: var(--ink); }
+.agent-note.error .note-line b { color: var(--del); }
+.agent-note.declined .note-line b, .note-icon.ni-declined { color: var(--del); }
+/* the whole step, on hover (or keyboard focus) */
+.note-detail { display: none; position: absolute; z-index: 1; right: 0; width: max(100%, var(--note-w)); top: calc(100% + 4px); max-height: 50vh; overflow: auto; margin: 0; padding: 10px var(--s3); background: var(--raised); color: var(--ink); border-radius: var(--r-md); box-shadow: var(--shadow-2); font: var(--t-xs)/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; animation: note-in 0.15s ease-out both; }
+.agent-note:hover .note-detail, .agent-note:focus-visible .note-detail { display: block; }
+@keyframes note-fade { from { opacity: 0; } }
+@keyframes note-in { from { opacity: 0; transform: translateX(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .agent-note, .note-line, .note-detail, .note-icon, .note-icon * { animation: none; transition: none; } .note-icon .ni-tick { stroke-dasharray: none; } }
+.agent-note.clickable { cursor: pointer; }
+
+/* ---- a question, opened in full (CommentModal) ----
+   The margin card is only the gloss, so the question, the reviewer's reasoning and its picture open over the page.
+   It borrows the chat's backdrop and shadow so both windows feel like the same thing. */
+/* Centred over the page when there is no room beside the passage: with the old dim behind it. */
+.comment-scrim { position: fixed; inset: 0; z-index: 30; background: var(--scrim); animation: fade var(--d-med) ease-out both; }
+.comment-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(560px, 92vw); max-height: 86vh; z-index: 31; display: flex; flex-direction: column; background: var(--surface); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow-3); border-top: 2px solid var(--review); }
+/*
+ * With room, it hangs in the margin beside its passage: a quiet panel (almost opaque, a hairline edge tinted with the
+ * review blue, one soft shadow) joined to the passage by a thin line. Nothing dims but the other blocks (`.spot`).
+ */
+.comment-modal.anchored { position: absolute; right: 0; left: auto; transform: none; width: 320px; max-height: none; border-top: 0; overflow: hidden;
+  background: var(--raised);
+  border: 1px solid var(--pop-edge); border-radius: var(--r-lg); box-shadow: var(--shadow-2);
+  animation: task-pop 0.22s var(--ease) both; transform-origin: right top; }
+.comment-scrim:has(+ .comment-link) { background: transparent; animation: none; }
+/* On a laptop the margin is too narrow: the popover opens under the passage, at the position and width the code sets. */
+.comment-modal.anchored.below { right: auto; transform-origin: left top; }
+/* The card's line to its diff: fixed, like the card, so it follows the page as the card does (sideCard.ts). */
+.sug-link { position: fixed; left: 0; top: 0; width: 1px; height: 1px; overflow: visible; z-index: 14; pointer-events: none; }
+.sug-link path { fill: none; stroke: var(--pop); stroke-width: 1.25; stroke-linecap: round; opacity: 0.7; }
+.sug-link circle { fill: var(--pop); }
+.comment-link { position: absolute; left: 0; width: 1px; height: 1px; overflow: visible; z-index: 31; pointer-events: none; }
+.comment-link path { fill: none; stroke: var(--pop); stroke-width: 1.25; stroke-linecap: round; opacity: 0.7; }
+.comment-link circle { fill: var(--pop); }
+.comment-modal.anchored header { padding: var(--s3) var(--s4) var(--s2); border-bottom: 0; }
+.comment-modal.anchored h2 { font-size: 17px; }
+.comment-modal.anchored .comment-body { padding: 0 var(--s4) var(--s3); }
+.comment-modal.anchored footer { padding: var(--s2) var(--s4) var(--s3); border-top: 1px solid var(--line); }
+.comment-modal.anchored .comment-passage { background: var(--pop-soft); border-left: 0; border-radius: var(--r-md); padding: var(--s2) var(--s3); }
+.comment-modal .ask { margin-left: auto; background: var(--pop); color: var(--surface); border-color: transparent; }
+.comment-modal .ask:hover { filter: brightness(1.08); color: var(--surface); }
+.comment-modal header { display: flex; align-items: flex-start; gap: var(--s3); padding: var(--s4) var(--s5); border-bottom: 1px solid var(--line); }
+.comment-modal h2 { margin: 0; flex: 1; font: 500 var(--t-lg)/1.35 var(--serif); }
+.comment-modal .comment-body { padding: var(--s4) var(--s5); overflow-y: auto; }
+/* The writer's own words, so they can see what is being asked about without hunting for the highlight. */
+.comment-modal .comment-passage { margin: 0 0 var(--s4); padding-left: var(--s3); border-left: 2px solid var(--review); color: var(--ink-2); font: var(--t-sm)/1.6 var(--serif); font-style: italic; }
+.comment-modal .comment-point { margin: 0 0 var(--s3); font: var(--t-md)/1.6 var(--sans); }
+.comment-modal .comment-why { margin: var(--s3) 0 0; color: var(--ink-2); font: var(--t-sm)/1.7 var(--sans); }
+.comment-modal .comment-image { display: block; width: 100%; height: auto; margin: var(--s3) 0; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); }
+.comment-modal footer { display: flex; gap: var(--s2); padding: var(--s3) var(--s5) var(--s4); border-top: 1px solid var(--line); }
+@media (max-width: 640px) {
+  .comment-modal { inset: 0; transform: none; width: auto; max-height: none; border-radius: 0; }
+  .comment-modal header, .comment-modal .comment-body, .comment-modal footer { padding-left: var(--s4); padding-right: var(--s4); }
+}
+/* A card whose question carries a picture says so, without showing it in the margin. */
+.card-has-image { display: inline-block; width: 6px; height: 6px; margin-left: 6px; border-radius: 1px; background: var(--review); vertical-align: middle; }
+.comment-modal .comment-head { flex: 1; min-width: 0; }
+/* Who asked, under the question: the reviewer and the model it ran on. */
+.comment-modal .comment-head h2 { margin-top: 10px; }
+.comment-modal .comment-by { display: flex; align-items: center; gap: 6px; margin: var(--s1) 0 0; color: var(--ink-3); font: var(--t-xs)/1.5 var(--sans); }
