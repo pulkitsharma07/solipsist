@@ -96,6 +96,12 @@ test("a save is refused when it is empty or leaves out a required slot", () => {
   expect(existsSync(file("run"))).toBe(false);
 });
 
+test("the run prompt names the folder an image is linked from: the page's file name, not its whole id", () => {
+  const out = promptFor("test_docs/init", { id: "abc", taskType: "gen" });
+  expect(out).toContain("linked from the page as `images/init/<name>.svg`");
+  expect(out).not.toMatch(/\{imageLink\}/);
+});
+
 test("slots are filled in one pass; unknown words in braces are kept as written", () => {
   savePrompt("run.again", "Was: {was} {unknown} {prompt}");
   expect(renderPrompt("run.again", { was: "a {was} b" })).toBe("Was: a {was} b {unknown} {prompt}");

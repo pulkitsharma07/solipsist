@@ -187,7 +187,7 @@ function builtinFile(d: Def): string {
 export function renderPrompt(id: string, vars: Record<string, string>): string {
   const d = find(id);
   const names = new Set(d?.slots.map((s) => s.name));
-  return promptText(id).replace(/\{([a-z]+)\}/g, (all, k: string) => (names.has(k) && k in vars ? vars[k]! : all));
+  return promptText(id).replace(/\{([A-Za-z]+)\}/g, (all, k: string) => (names.has(k) && k in vars ? vars[k]! : all));
 }
 
 export interface PromptView {

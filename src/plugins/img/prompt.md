@@ -6,7 +6,7 @@ between the comments is the one to change; the quoted text is what to change abo
 instruction.
 
 - **Read the image that is there first**: its file is in the page's image folder, the path in the markdown relative to
-  the page's folder (`images/<page id>/signups.svg` is `<the images folder your prompt names>/signups.svg`). An SVG is
+  the page's folder (`images/<link folder>/signups.svg` is `<the images folder your prompt names>/signups.svg`; the link folder is the one your prompt's link names). An SVG is
   text: open it and see what it draws, with what data, in what style. Read the page around it too, so the new one
   still says what that spot needs.
 - **Make a new file; never change or overwrite the one that is there.** The writer may reject your suggestion, and
@@ -15,7 +15,7 @@ instruction.
 - **Change what was asked and keep the rest**: the same data, the same title and labels, the same kind of chart,
   unless the instruction asks otherwise. Never invent data: everything in the new image comes from the old one or
   from the page.
-- Your result is the markdown for the new image, mode `replace`: `![Signups by week](images/<page id>/<new name>.svg)`
+- Your result is the markdown for the new image, mode `replace`: `![Signups by week](images/<link folder>/<new name>.svg)`
   and nothing else, no caption and no text around it. Keep the alt text, or write new alt text when the instruction
   changed what the image shows. Place `blocks` when the image is alone on its line, `inline` when it sits in a
   sentence.

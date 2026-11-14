@@ -9,8 +9,9 @@ Make the image with a one-off script: Python 3 (`python3 - <<'EOF' … EOF`) or 
 only place you can write. Don't save the script anywhere. There is no network, so install nothing: use the standard
 library and write the SVG markup yourself (a chart is a few rects, lines and text, with the scales computed in the
 script). Give the file a short descriptive name in kebab-case (`signup-funnel.svg`); never overwrite a file that is
-already there, so pick a new name. Then link it as your prompt shows
-(`![Signups by week, rising from 120 to 310](images/<the folder your prompt names>/signups-by-week.svg)`).
+already there, so pick a new name. Then link it exactly as your prompt shows: `images/`, the link folder it names, and the file name
+(`![Signups by week, rising from 120 to 310](images/<link folder>/signups-by-week.svg)`). The link folder is the page's
+file name; it is not the end of the path you write the file to, so copy it from the prompt's link, not from that path.
 
 Draw only what the page supports: never invent data for a chart. If you can't make a good one, write text or a table
 instead.
