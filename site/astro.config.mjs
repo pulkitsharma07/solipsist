@@ -8,7 +8,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Solipsist",
-      description: "A markdown editor for the files in a folder, with agents that suggest and never write the page themselves.",
+      description: "Think and work with AI agents in your markdown docs. They suggest; you decide.",
       logo: { light: "./src/assets/logo.svg", dark: "./src/assets/logo-dark.svg", replacesTitle: true },
       favicon: "/favicon.svg",
       social: [{ icon: "github", label: "GitHub", href: "https://github.com/pulkitsharma07/solipsist" }],

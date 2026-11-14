@@ -6,7 +6,7 @@
 </h1>
 
 <p align="center">
-  A writing app for the markdown files in your folder. Agents suggest; they never write your page.
+  Think and work with AI agents in your markdown docs. They suggest; you decide.
 </p>
 
 <p align="center">

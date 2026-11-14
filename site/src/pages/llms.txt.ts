@@ -14,7 +14,7 @@ export const GET: APIRoute = async () => {
 
   const text = `# Solipsist
 
-> A writing app for the markdown files in your folder. Agents suggest; they never write your page.
+> Think and work with AI agents in your markdown docs. They suggest; you decide.
 
 Solipsist is a local markdown editor that runs on a folder of \`.md\` files. You work on copies in \`.solipsist/\`, and
 **Sync to file** writes back only what you changed. AI agents (Pi, built in) work on requests in the background and
