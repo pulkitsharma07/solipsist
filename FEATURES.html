@@ -425,7 +425,8 @@ button.sb-item:hover { background: var(--sunken); color: var(--ink); }
 .tiptap table { border-collapse: collapse; width: 100%; table-layout: fixed; }
 .tiptap th, .tiptap td { border: 1px solid var(--line); padding: 4px var(--s2); vertical-align: top; }
 .tiptap th { background: var(--sunken); text-align: left; }
-.tiptap img { max-width: 100%; }
+/* Inline, as the schema has them: the reset makes images blocks, and an image alone in its paragraph then leaves an empty line above and below it (ProseMirror's separator and trailing break). */
+.tiptap img { display: inline; max-width: 100%; }
 .tiptap a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
 .tiptap p.is-editor-empty:first-child::before,
 .tiptap .is-empty::before { content: attr(data-placeholder); color: var(--ink-3); float: left; height: 0; pointer-events: none; }
