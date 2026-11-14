@@ -169,6 +169,9 @@ export interface App {
   requests: string[];
   /** Makes the page's saves fail as a dropped connection would, until called with `false`. */
   blockSaves(id: string, on?: boolean): void;
+  /** Holds the page's saves on their way to the server (sent, no reply yet) until the gate is released. A save waits on
+   * the gate in place when it is sent: calling it again holds the next ones on a new gate. */
+  holdSaves(id: string): Gate;
   /** Waits until `ok()` holds, polling; fails naming `what` (and showing `detail()`) after `ms`. */
   until(what: string, ok: () => boolean | Promise<boolean>, ms?: number, detail?: () => string): Promise<void>;
   close(): Promise<void>;
@@ -210,10 +213,13 @@ export async function startApp(env: Record<string, string> = {}, opts: AppOption
   // The page asks for `/api/...`, as from its own origin.
   const requests: string[] = [];
   const blocked = new Set<string>();
+  const held = new Map<string, Gate>();
   globalThis.fetch = ((input: any, init?: any) => {
     const path = new URL(String(input?.url ?? input), base).pathname;
     requests.push(path);
     if (init?.method === "PUT" && blocked.has(path)) return Promise.reject(new TypeError("Failed to fetch"));
+    const gate = init?.method === "PUT" ? held.get(path) : undefined;
+    if (gate && !gate.open) return gate.wait().then(() => natives.fetch(typeof input === "string" && input.startsWith("/") ? base + input : input, init));
     return natives.fetch(typeof input === "string" && input.startsWith("/") ? base + input : input, init);
   }) as typeof fetch;
   (globalThis as any).IS_REACT_ACT_ENVIRONMENT = false;
@@ -239,6 +245,7 @@ export async function startApp(env: Record<string, string> = {}, opts: AppOption
   const app: App = {
     root, docs, base, model, until, errors, requests,
     blockSaves: (id, on = true) => { if (on) blocked.add(`/api/pages/${id}`); else blocked.delete(`/api/pages/${id}`); },
+    holdSaves: (id) => { const g = new Gate(); held.set(`/api/pages/${id}`, g); return g; },
     write: (id, markdown) => { writeFileSync(join(docs, `${id}.md`), markdown); pageChanged(id); },
     file: (id) => readFileSync(join(docs, `${id}.md`), "utf8"),
     body: (id) => parseFile(app.file(id)).markdown,

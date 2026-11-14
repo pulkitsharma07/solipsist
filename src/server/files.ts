@@ -1,5 +1,6 @@
 import { isPageId } from "../shared/ids";
-import { mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { readFileSync, renameSync } from "node:fs";
 import { dirname, join, sep } from "node:path";
 import { blockSizes, emptyBlock, FORMAT, formatOf, parseFile, serializeFile, type CommentsBlock } from "../shared/docfile";
 import { recordDiskEdit } from "./put";
@@ -40,6 +41,15 @@ export async function readPage(id: string): Promise<string | null> {
   }
 }
 
+function readPageSync(id: string): string | null {
+  try {
+    return readFileSync(pathOf(id), "utf8");
+  } catch (e: any) {
+    if (e.code === "ENOENT") return null;
+    throw e;
+  }
+}
+
 /** Tests only: runs between writing the temp file and the rename, to play an outside writer racing the server. */
 export const testHooks: { beforeRename?: (id: string) => void | Promise<void> } = {};
 
@@ -53,14 +63,16 @@ export async function writePage(id: string, src: string, expected?: string | nul
   const tmp = `${pathOf(id)}.${process.pid}.tmp`;
   await writeFile(tmp, src);
   await testHooks.beforeRename?.(id);
-  if (expected !== undefined && (await readPage(id)) !== expected) {
+  const { block, problem } = parseFile(src);
+  // The check and the rename back to back, with nothing awaited between: while either awaited, an outside write could
+  // land after the check and be renamed over (the DOM fuzz saw one). Now only one between two system calls can.
+  if (expected !== undefined && readPageSync(id) !== expected) {
     await rm(tmp, { force: true });
     return false;
   }
   written.set(id, hash(src));
-  const { block, problem } = parseFile(src);
   if (!problem) goodBlocks.set(id, block);
-  await rename(tmp, pathOf(id));
+  renameSync(tmp, pathOf(id));
   // Said at once: the watcher would say it too, a moment later (and only while it runs).
   pageChanged(id);
   return true;

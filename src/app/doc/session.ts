@@ -22,6 +22,8 @@ const PAUSE_MS = 700;
 /** How long newly arrived text keeps its fade-in highlight. */
 const FRESH_MS = 1600;
 const RETRY_MS = [1000, 2000, 4000, 8000, 16000, 30000];
+/** How often a page already left merges a refused save into the newer file and sends it again. */
+const LEFT_MERGES = 5;
 
 export interface Snapshot {
   comments: CommentEntry[];
@@ -144,11 +146,17 @@ export class DocSession {
 
   /** Set once the page is gone: a save still in flight then finishes on the server, and its reply is dropped. */
   private destroyed = false;
+  /** Typing done after the save in flight was sent, taken as the page went: `save` sends it once that save returns. */
+  private leftover: PutRequest | null = null;
 
   destroy() {
     // Leaving the page inside the app (All pages) fires no pagehide: typing not yet saved goes now, as on a tab close.
-    // The request is built before the page goes; its reply is dropped (`destroyed`).
-    if (this.snap.save !== "saved") void this.save(true);
+    // The request is built before the page goes; its reply is dropped (`destroyed`). With a save already out, the
+    // machine sends nothing more until its reply, which comes after the page has gone: what was typed since is built
+    // now, while the editor is here, and sent by that save.
+    if (this.m.sending) {
+      if (this.m.awaiting && this.m.awaiting.version !== this.m.version) this.leftover = this.buildPut();
+    } else if (this.snap.save !== "saved") void this.save(true);
     this.destroyed = true;
     this.closeEvents?.();
     clearTimeout(this.saveTimer);
@@ -496,15 +504,31 @@ export class DocSession {
       reply = null;
     }
     // The writer left the page while it saved: nothing is left to update, but typing refused because the file changed
-    // meanwhile (a 409) is merged into it here, as a live page would, and sent once more. A real conflict (both changed
-    // the same block) can't be settled without the writer, and is left.
+    // meanwhile (a 409) is merged into it here, as a live page would, and sent again: the agents write in bursts (an
+    // ack, then the suggestion), so the merged save can be refused too, and is merged again. A real conflict (both
+    // changed the same block) can't be settled without the writer, and is left.
     if (this.destroyed) {
-      if (reply && !reply.ok && reply.file) {
+      let base = this.base;
+      let last = req;
+      if (this.leftover) {
+        // What was typed after this save went: on top of it when it landed (its decisions are recorded by then), else
+        // in its place, since it holds everything this one did.
+        last = this.leftover;
+        this.leftover = null;
+        if (reply?.ok) {
+          base = parseFile(reply.file).markdown;
+          const decisions = Object.entries(last.decisions ?? {}).filter(([id, d]) => req.decisions?.[id] !== d);
+          const { decisions: _, ...rest } = last;
+          last = { ...rest, base_rev: reply.rev, ...(decisions.length && { decisions: Object.fromEntries(decisions) }) };
+          reply = await putPage(this.id, last, keepalive).catch(() => null);
+        } else if (!reply?.file) reply = await putPage(this.id, last, keepalive).catch(() => null);
+      }
+      for (let tries = 0; tries < LEFT_MERGES && reply && !reply.ok && reply.file; tries++) {
         const { markdown: theirs, block } = parseFile(reply.file);
-        const merged = this.merge3(this.base, req.markdown, theirs);
-        if (merged !== null && !this.same(merged, theirs)) {
-          reply = await putPage(this.id, { ...req, base_rev: block.meta.rev, markdown: canonicalBody(withStatesFrom(merged, theirs, new Map([...taskStates(req.markdown)].filter(([id]) => id in (req.decisions ?? {}))))) }, keepalive).catch(() => null);
-        }
+        const merged = this.merge3(base, last.markdown, theirs);
+        if (merged === null || this.same(merged, theirs)) break;
+        const states = new Map([...taskStates(last.markdown)].filter(([id]) => id in (last.decisions ?? {})));
+        reply = await putPage(this.id, { ...last, base_rev: block.meta.rev, markdown: canonicalBody(withStatesFrom(merged, theirs, states)) }, keepalive).catch(() => null);
       }
       return reply;
     }

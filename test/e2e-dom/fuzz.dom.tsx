@@ -100,7 +100,9 @@ for (const seed of seeds) {
         const pick = r.pick(s);
         const yes = r.next() < 0.6;
         say(step, yes ? "accept" : "reject", pick.task, proposals.get(pick.task));
-        p.editor.view.dispatch(p.editor.state.tr.setSelection(TextSelection.create(p.editor.state.doc, pick.pos)));
+        // Just after its marker, where the app's own keys put the caret (`goToSuggestion`): just before it is also the
+        // end of a marker right beside it, and the keys take that one.
+        p.editor.view.dispatch(p.editor.state.tr.setSelection(TextSelection.create(p.editor.state.doc, pick.pos + 1)));
         p.press(yes ? "Mod-Alt-y" : "Mod-Alt-n");
         (yes ? accepted : rejected).push(proposals.get(pick.task)!.trim());
       } else if (roll < 0.76) {

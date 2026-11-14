@@ -113,6 +113,17 @@ test("leaving the page right after typing (All pages, inside the app): the last 
   await app.until("the last words on disk", () => body(p) === "# A\n\nOne. Last words.");
 });
 
+test("leaving while a save is on its way, with words typed since: those go too, once it is back", async () => {
+  const p = await page("# A\n\nOne.");
+  const gate = app.holdSaves(p.id);
+  p.typeAfter("One.", " First.");
+  await p.until("the save sent", () => p.saveLabel === "Saving…");
+  p.typeAfter("First.", " Second.");
+  await p.close();
+  gate.release();
+  await app.until("both on disk", () => body(p) === "# A\n\nOne. First. Second.", 4000, () => body(p));
+});
+
 test("leaving right after typing while the file was changed from outside: the last save is merged, not refused and lost", async () => {
   const p = await page("# A\n\nOne.\n\nTwo.");
   p.typeAfter("One.", " Mine.");
@@ -120,6 +131,22 @@ test("leaving right after typing while the file was changed from outside: the la
   await Bun.sleep(150); // the server has their edit; the page hasn't merged it yet
   await p.close();
   await app.until("both on disk", () => body(p) === "# A\n\nOne. Mine.\n\nTwo, theirs.", 4000, () => body(p));
+});
+
+test("leaving right after typing while the file changes twice from outside (an ack, then a suggestion): merged until it lands", async () => {
+  const p = await page("# A\n\nOne.\n\nTwo.\n\nThree.");
+  const first = app.holdSaves(p.id);
+  p.typeAfter("One.", " Mine.");
+  await p.close(); // the last save goes, and waits
+  outside(p, (b) => b.replace("Two.", "Two, theirs."));
+  const second = app.holdSaves(p.id);
+  const asked = () => app.requests.filter((r) => r === `/api/pages/${p.id}`).length;
+  const before = asked();
+  first.release(); // refused: merged and sent again, and that waits
+  await app.until("the merged save sent", () => asked() > before);
+  outside(p, (b) => b.replace("Three.", "Three, theirs."));
+  second.release(); // refused again: merged once more
+  await app.until("all three on disk", () => body(p) === "# A\n\nOne. Mine.\n\nTwo, theirs.\n\nThree, theirs.", 4000, () => body(p));
 });
 
 test("closed and opened again, the page is as the writer left it, nothing doubled", async () => {
