@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/pulkitsharma07/solipsist/actions/workflows/ci.yml"><img src="https://github.com/pulkitsharma07/solipsist/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/pulkitsharma07/solipsist/actions/workflows/ci.yml"><img src="https://github.com/pulkitsharma07/solipsist/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/licence-FSL--1.1--MIT-blue" alt="Licence: FSL-1.1-MIT"></a>
 </p>
 
