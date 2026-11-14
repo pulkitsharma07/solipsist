@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="https://solipsist.sh/launch.mp4">▶ Watch the 50-second film</a>
+  <a href="site/public/launch.mp4">▶ Watch the 50-second film</a>
 </p>
 
 <p align="center">
