@@ -26,3 +26,9 @@ test("no checkout leaves its token in .git/config for the steps after it", () =>
   const kept = [...steps()].filter(({ step }) => step.uses?.startsWith("actions/checkout@") && step.with?.["persist-credentials"] !== false);
   expect(kept.map(({ file, job }) => `${file} (${job})`)).toEqual([]);
 });
+
+test("what a release ships is built without a restored cache, which any run on main can fill", () => {
+  const release = workflows["release.yml"]!;
+  const cached = Object.entries(release.jobs).filter(([, j]) => (j.steps ?? []).some((s) => s.uses?.startsWith("actions/cache@")));
+  expect(cached.map(([name]) => name)).toEqual([]);
+});
