@@ -42,9 +42,14 @@ test("--version says which build: the number, and from source the commit", () =>
 });
 
 test("--help and --version answer without starting a server", () => {
-  for (const [flag, out] of [["--help", "Usage: solipsist"], ["--version", versionLine()]] as const) {
+  // `.dirty` either way: this process asked git once, maybe long ago, and the working tree may have changed since (an
+  // edit by anyone while the suite runs). What `.dirty` means is tested above, through describe().
+  const escape = (s: string) => s.replaceAll(/[.+()]/g, "\\$&");
+  const [name, rest] = versionLine().replace(".dirty", "").split(" (") as [string, string];
+  const version = new RegExp(`${escape(name)}(\\.dirty)? \\(${escape(rest)}`);
+  for (const [flag, out] of [["--help", /Usage: solipsist/], ["--version", version]] as const) {
     const r = Bun.spawnSync(["bun", "src/index.ts", flag], { env: { ...process.env, PORT: "1" } });
-    expect([flag, r.exitCode, r.stdout.toString()]).toEqual([flag, 0, expect.stringContaining(out)]);
+    expect([flag, r.exitCode, r.stdout.toString()]).toEqual([flag, 0, expect.stringMatching(out)]);
   }
   const bad = Bun.spawnSync(["bun", "src/index.ts", "--nope"], { env: { ...process.env, PORT: "1" } });
   expect(bad.exitCode).toBe(2);

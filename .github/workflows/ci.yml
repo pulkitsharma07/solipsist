@@ -1,10 +1,54 @@
-# Every push to main and every pull request: the whole suite (typecheck and the fake-DOM e2e inside it) on Linux and
-# macOS, then the real-Chrome suite on Linux.
+# Every push to main and every pull request that changes the app (its code, tests, scripts, dependencies, or a file a
+# test checks against them): the whole suite (typecheck and the fake-DOM e2e inside it) on Linux and macOS, then the
+# real-Chrome suite on Linux. A change to the website, the docs or the other Markdown alone doesn't run it; the
+# pre-commit hook still runs the fast suite (which scans every file for private notes and names) on every commit.
+# Started by hand or by the release workflow, it always runs.
 # No secrets: test/sandbox.ts blanks every key, and no test reaches a model.
 name: CI
 on:
-  push: { branches: [main] }
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "test/**"
+      - "scripts/**"
+      - "patches/**"
+      - "design/**"
+      - "package.json"
+      - "bun.lock"
+      - "bunfig.toml"
+      - "tsconfig.json"
+      - ".bun-version"
+      - ".env.example"
+      - ".github/workflows/ci.yml"
+      # Files outside the app that tests read and check against it.
+      - "CONFIGURATION.md"
+      - "solipsist.example.yaml"
+      - "FEATURES.html"
+      - "NOTICE"
+      - "site/public/install*"
+      - "site/src/content/docs/docs/engines/overview.mdx"
   pull_request:
+    paths:
+      - "src/**"
+      - "test/**"
+      - "scripts/**"
+      - "patches/**"
+      - "design/**"
+      - "package.json"
+      - "bun.lock"
+      - "bunfig.toml"
+      - "tsconfig.json"
+      - ".bun-version"
+      - ".env.example"
+      - ".github/workflows/ci.yml"
+      # Files outside the app that tests read and check against it.
+      - "CONFIGURATION.md"
+      - "solipsist.example.yaml"
+      - "FEATURES.html"
+      - "NOTICE"
+      - "site/public/install*"
+      - "site/src/content/docs/docs/engines/overview.mdx"
   workflow_dispatch:
   workflow_call: # the release workflow runs the same suite before it builds
     inputs:
