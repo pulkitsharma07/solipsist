@@ -43,9 +43,11 @@ cd dist/release && shasum -a 256 -c SHA256SUMS
 ```
 
 The archives are `solipsist-<os>-<arch>.tar.gz` (`.zip` on Windows) for `linux-x64`, `linux-arm64`, `darwin-x64`,
-`darwin-arm64` and `windows-x64`, with no version in the name, so `releases/latest/download/<name>` stays one URL. The build is reproducible: the same commit
-gives the same `SHA256SUMS` (on the same kind of machine; the times in it are the commit's), so a local build can be
-compared with the release's.
+`darwin-arm64` and `windows-x64`, with no version in the name, so `releases/latest/download/<name>` stays one URL.
+Beside them are `install.sh` and `install.ps1`, copied from `scripts/`: `get.solipsist.sh` redirects to
+`releases/latest/download/install.sh` (and `/install.ps1` to that one), so what the install command runs changes only
+with a release. `SHA256SUMS` covers all seven. The build is reproducible: the same commit gives the same `SHA256SUMS` (on
+the same kind of machine; the times in it are the commit's), so a local build can be compared with the release's.
 Unpack the one for your machine, run `./solipsist --version` (it must print the number you are releasing) and start it in
 an empty folder: the page opens, a page saves, stopping it leaves no process behind. The macOS and Windows builds are
 not run anywhere automatically: try them on those systems before a release that matters.
@@ -65,7 +67,7 @@ If the workflow can't be used, make the draft by hand:
 
 ```sh
 bun scripts/release-notes.ts x.y.z --prev vPREVIOUS --sums dist/release/SHA256SUMS > dist/release/notes.md
-gh release create vx.y.z --draft --notes-file dist/release/notes.md dist/release/solipsist-* dist/release/SHA256SUMS
+gh release create vx.y.z --draft --notes-file dist/release/notes.md dist/release/solipsist-* dist/release/install.sh dist/release/install.ps1 dist/release/SHA256SUMS
 ```
 
 Add `--prerelease` for a beta or rc.

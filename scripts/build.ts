@@ -11,7 +11,8 @@
  * number is `package.json`'s, inlined by the bundler.
  *
  * Files, named as the install scripts expect: `solipsist-<os>-<arch>.tar.gz` (`.zip` for windows), no version in the
- * name, holding a folder with `solipsist` (`solipsist.exe`), `LICENSE`, `NOTICE` and `README.md`.
+ * name, holding a folder with `solipsist` (`solipsist.exe`), `LICENSE`, `NOTICE` and `README.md`. Beside them the
+ * install scripts themselves (`INSTALLERS`), so the install command can fetch the released one, and `SHA256SUMS` of all.
  *
  * Reproducible: the same commit builds the same archives on the same kind of machine. The time in them (file times and
  * the `--version` date) is the commit's, or `SOURCE_DATE_EPOCH`; files go in sorted, owned by 0, with fixed modes, and
@@ -137,6 +138,18 @@ export async function buildTarget(t: Target, o: { out: string; commit: string; b
 
 export const sha256 = (path: string) => createHash("sha256").update(readFileSync(path)).digest("hex");
 
+/** The install scripts, released beside the archives: `releases/latest/download/install.sh` is the released one. */
+export const INSTALLERS = ["install.sh", "install.ps1"] as const;
+
+/** Copies the install scripts into `out`; returns their paths there. */
+export function copyInstallers(out: string): string[] {
+  return INSTALLERS.map((f) => {
+    const to = join(out, f);
+    cpSync(join(root, "scripts", f), to);
+    return to;
+  });
+}
+
 /** `SHA256SUMS` in the format `shasum -a 256 -c` reads. */
 export const sumsText = (archives: string[]) => archives.map((a) => `${sha256(a)}  ${basename(a)}\n`).join("");
 
@@ -159,8 +172,8 @@ if (import.meta.main) {
     console.log(`${t.padEnd(13)} ${(r.bytes / 1e6).toFixed(1)} MB  ${basename(r.archive)}`);
     results.push(r);
   }
-  writeFileSync(join(out, "SHA256SUMS"), sumsText(results.map((r) => r.archive)));
+  writeFileSync(join(out, "SHA256SUMS"), sumsText([...results.map((r) => r.archive), ...copyInstallers(out)]));
   for (const r of results) rmSync(join(out, `stage-${r.target}`), { recursive: true, force: true });
-  console.log(`\n${results.length} archive(s) and SHA256SUMS in ${out}`);
+  console.log(`\n${results.length} archive(s), ${INSTALLERS.join(", ")} and SHA256SUMS in ${out}`);
   if (!existsSync(join(out, "SHA256SUMS"))) process.exit(1);
 }

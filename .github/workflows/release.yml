@@ -129,6 +129,8 @@ jobs:
         with:
           subject-path: |
             release/solipsist-*
+            release/install.sh
+            release/install.ps1
             release/SHA256SUMS
       - name: Draft the release
         shell: bash
@@ -141,5 +143,5 @@ jobs:
           bun scripts/release-notes.ts "$VERSION" ${prev:+--prev "$prev"} --sums release/SHA256SUMS --repo "$GITHUB_REPOSITORY" > notes.md
           flags=(--draft --verify-tag --title "Solipsist $VERSION" --notes-file notes.md)
           case "$VERSION" in *-*) flags+=(--prerelease);; esac
-          gh release create "$GITHUB_REF_NAME" "${flags[@]}" release/solipsist-* release/SHA256SUMS
+          gh release create "$GITHUB_REF_NAME" "${flags[@]}" release/solipsist-* release/install.sh release/install.ps1 release/SHA256SUMS
           echo "Draft release for $GITHUB_REF_NAME: read it, then publish it." >> "$GITHUB_STEP_SUMMARY"

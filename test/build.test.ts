@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
-import { archive, archiveName, buildTime, compileOptions, pickTargets, sha256, sumsText, TARGETS } from "../scripts/build";
+import { archive, archiveName, buildTime, compileOptions, copyInstallers, pickTargets, sha256, sumsText, TARGETS } from "../scripts/build";
 
 test("every target is named as --version prints it", () => {
   expect([...TARGETS]).toEqual(["linux-x64", "linux-arm64", "darwin-x64", "darwin-arm64", "windows-x64"]);
@@ -80,4 +80,11 @@ test("the binary reads no bunfig.toml, tsconfig.json or package.json from the fo
   // A `preload` in a folder's bunfig.toml ran that folder's code when the binary started there.
   const o = compileOptions("linux-x64", "/x/solipsist");
   expect(o).toMatchObject({ target: "bun-linux-x64", outfile: "/x/solipsist", autoloadBunfig: false, autoloadTsconfig: false, autoloadPackageJson: false });
+});
+
+test("the install scripts are released beside the archives, as they are in the repo", () => {
+  const out = mkdtempSync(join(tmpdir(), "installers-"));
+  const paths = copyInstallers(out);
+  expect(paths.map((p) => basename(p))).toEqual(["install.sh", "install.ps1"]);
+  for (const p of paths) expect(readFileSync(p, "utf8")).toBe(readFileSync(join(import.meta.dir, "..", "scripts", basename(p)), "utf8"));
 });

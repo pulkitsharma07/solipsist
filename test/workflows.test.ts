@@ -80,3 +80,13 @@ test("the release's smoke run starts the binary in a folder with a planted bunfi
   expect(smoke).toContain("preload = [");
   expect(smoke).toContain("the binary ran the folder's bunfig.toml preload");
 });
+
+test("the release attests and uploads the install scripts with the archives and SHA256SUMS", () => {
+  const publish = workflows["release.yml"]!.jobs.publish!.steps!;
+  const attest = String(publish.find((s) => s.uses?.startsWith("actions/attest-build-provenance@"))!.with!["subject-path"]);
+  const create = publish.map((s) => s.run ?? "").join("\n");
+  for (const f of ["release/install.sh", "release/install.ps1", "release/SHA256SUMS"]) {
+    expect(attest).toContain(f);
+    expect(create).toContain(f);
+  }
+});
