@@ -6,6 +6,8 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-11-15
+
 ### Changed
 
 - The install command is now `curl -fsSL https://solipsist.sh/install | sh` (on Windows, `irm https://solipsist.sh/install.ps1 | iex`), which starts in well under a second instead of waiting several seconds on a redirect.
