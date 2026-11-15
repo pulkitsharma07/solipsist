@@ -31,3 +31,6 @@ site/public/features.html
 
 # The monkey tester, kept local for now (see AGENTS.md)
 monke/
+
+# Blog drafts, kept local
+blogs/
