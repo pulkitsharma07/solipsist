@@ -107,6 +107,8 @@ jobs:
     needs: [verify, smoke]
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Waits for the maintainer's approval (the environment's required reviewer, RELEASING.md) before it attests and drafts.
+    environment: release
     permissions:
       contents: write # the draft release
       id-token: write # the attestation's signing identity
