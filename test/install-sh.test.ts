@@ -124,3 +124,35 @@ test("piped in and cut off at any line, the script runs nothing", () => {
   expect(existsSync(dir)).toBe(false);
 });
 
+/** Runs the script with only `tools` on the PATH (plus a fake uname) and a fake `curl` or `wget` that records its arguments and fails. */
+function recordFetch(fetcher: "curl" | "wget", env: Record<string, string>) {
+  const bin = mkdtempSync(join(root, `only-${fetcher}-`));
+  const log = join(bin, "args");
+  writeFileSync(join(bin, fetcher), `#!/bin/sh\nprintf '%s\\n' "$*" >> '${log}'\nexit 22\n`);
+  writeFileSync(join(bin, "uname"), `#!/bin/sh\ncase "$1" in -s) echo Linux;; -m) echo x86_64;; esac\n`);
+  chmodSync(join(bin, fetcher), 0o755);
+  chmodSync(join(bin, "uname"), 0o755);
+  for (const tool of ["mktemp", "rm", "grep", "sh"]) {
+    const where = Bun.which(tool);
+    if (where) Bun.spawnSync(["ln", "-s", where, join(bin, tool)]);
+  }
+  const r = Bun.spawnSync(["/bin/sh", script], { env: { PATH: bin, HOME: join(root, "home"), TMPDIR: root, ...env }, stdout: "pipe", stderr: "pipe" });
+  return { code: r.exitCode, args: existsSync(log) ? readFileSync(log, "utf8") : "" };
+}
+
+test("from GitHub, curl and wget fetch over HTTPS only (no redirect to http)", () => {
+  const c = recordFetch("curl", {});
+  expect(c.code).toBe(1);
+  expect(c.args).toContain("--proto =https --tlsv1.2");
+  expect(c.args).toContain("https://github.com/pulkitsharma07/solipsist/releases/latest/download/solipsist-linux-x64.tar.gz");
+  const w = recordFetch("wget", { SOLIPSIST_VERSION: "v1.2.3" });
+  expect(w.code).toBe(1);
+  expect(w.args).toContain("--https-only");
+  expect(w.args).toContain("/releases/download/v1.2.3/solipsist-linux-x64.tar.gz");
+});
+
+test("SOLIPSIST_BASE_URL is fetched as given (a mirror or a test may be http or file)", () => {
+  const c = recordFetch("curl", { SOLIPSIST_BASE_URL: "http://mirror.test/rel" });
+  expect(c.args).not.toContain("--proto");
+  expect(c.args).toContain("http://mirror.test/rel/solipsist-linux-x64.tar.gz");
+});

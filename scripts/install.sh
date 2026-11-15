@@ -41,9 +41,15 @@ detect() {
   printf '%s-%s' "$os" "$arch"
 }
 
-fetch() { # fetch <url> <file>
-  if command -v curl >/dev/null 2>&1; then curl -fsSL "$1" -o "$2"
-  elif command -v wget >/dev/null 2>&1; then wget -q "$1" -O "$2"
+# fetch <url> <file>. From GitHub (no SOLIPSIST_BASE_URL) only over HTTPS, redirects included: curl and wget would
+# otherwise follow a redirect to plain http.
+fetch() {
+  if command -v curl >/dev/null 2>&1; then
+    if [ "$https_only" = 1 ]; then curl --proto '=https' --tlsv1.2 -fsSL "$1" -o "$2"
+    else curl -fsSL "$1" -o "$2"; fi
+  elif command -v wget >/dev/null 2>&1; then
+    if [ "$https_only" = 1 ]; then wget -q --https-only "$1" -O "$2"
+    else wget -q "$1" -O "$2"; fi
   else die 1 "curl or wget is needed"; fi
 }
 
@@ -56,8 +62,10 @@ sha256_of() {
 main() {
   target=$(detect)
   asset="solipsist-$target.tar.gz"
+  https_only=1
   if [ -n "${SOLIPSIST_BASE_URL:-}" ]; then
     base=$SOLIPSIST_BASE_URL
+    https_only=0
   elif [ -n "${SOLIPSIST_VERSION:-}" ]; then
     base="https://github.com/$REPO/releases/download/v${SOLIPSIST_VERSION#v}"
   else
