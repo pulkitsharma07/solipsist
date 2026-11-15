@@ -3,7 +3,7 @@
 // doesn't exist fails the build.
 import { getCollection, type CollectionEntry } from "astro:content";
 
-export const SITE = "https://solipsist.work";
+export const SITE = "https://solipsist.sh";
 
 type Doc = CollectionEntry<"docs">;
 

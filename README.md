@@ -23,9 +23,9 @@
 </p>
 
 <p align="center">
-  <a href="https://solipsist.work">Website</a> ·
-  <a href="https://solipsist.work/docs/">Docs</a> ·
-  <a href="https://solipsist.work/features.html">Every feature</a> ·
+  <a href="https://solipsist.sh">Website</a> ·
+  <a href="https://solipsist.sh/docs/">Docs</a> ·
+  <a href="https://solipsist.sh/features.html">Every feature</a> ·
   <a href="CONFIGURATION.md">Configuration</a> ·
   <a href="https://github.com/pulkitsharma07/solipsist/discussions">Discussions</a>
 </p>
@@ -42,7 +42,7 @@ cd ~/my-notes && bun ~/solipsist/src/index.ts
 
 Open <http://localhost:3000>. The first launch lists the markdown files in that folder. Pick the ones to work on.
 To update, run `git pull && bun install` in `~/solipsist` and restart. More in
-[Install and run](https://solipsist.work/docs/start/install/).
+[Install and run](https://solipsist.sh/docs/start/install/).
 
 ## What it does
 
@@ -86,14 +86,14 @@ install it.
   `/login`, to add one). That includes subscriptions you already pay for and models running on your own computer.
 
 Like Pi in a terminal, an agent can run commands on your computer. Solipsist doesn't sandbox them. More in
-[Connect a model](https://solipsist.work/docs/start/connect-a-model/).
+[Connect a model](https://solipsist.sh/docs/start/connect-a-model/).
 
 ## Privacy
 
 Solipsist sends nothing about you or your use of it anywhere: no account, no analytics, no telemetry, no update
 check. Your pages stay on disk. When you ask an agent for something, the text it needs goes to the model you connect,
 under that provider's terms, and to any tools you connected to Pi (a search, a browser, your calendar) if the agent
-uses them. More in [Privacy](https://solipsist.work/docs/reference/privacy/).
+uses them. More in [Privacy](https://solipsist.sh/docs/reference/privacy/).
 
 ## Development
 

@@ -4,7 +4,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 
 export default defineConfig({
-  site: "https://solipsist.work",
+  site: "https://solipsist.sh",
   integrations: [
     starlight({
       title: "Solipsist",
