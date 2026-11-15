@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync,
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { parseFile, serializeFile } from "../src/shared/docfile";
-import { addFiles, syncPage } from "../src/server/project";
+import { addFiles, findFiles, syncPage } from "../src/server/project";
 import { projectDir } from "./project-dir";
 import { apiRoutes } from "../src/server/routes";
 import { hostAllowed } from "../src/server/guard";
@@ -244,5 +244,35 @@ describe("the dev routes are on only when asked for (S13)", () => {
     process.env.NODE_ENV = "test";
     expect((await call("/api/dev/changed/README", { method: "POST" })).status).toBe(204);
     expect((await call(`/api/dev/changed/${encodeURIComponent("../x")}`, { method: "POST" })).status).toBe(400);
+  });
+});
+
+describe("a folder's own .git/config runs nothing when the file dialog looks (A2)", () => {
+  let dir = "";
+  beforeAll(() => {
+    dir = realpathSync(mkdtempSync(join(tmpdir(), "solip-a2-")));
+    // No GIT_* of ours: under the pre-commit hook GIT_INDEX_FILE is the commit's own index, and an `add` here would
+    // write this repo's files into it.
+    const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")));
+    const git = (...a: string[]) => Bun.spawnSync(["git", ...a], { cwd: dir, env, stdout: "ignore", stderr: "ignore" });
+    git("init", "-q", ".");
+    writeFileSync(join(dir, ".gitignore"), "hidden.md\n");
+    writeFileSync(join(dir, "a.md"), "# A\n");
+    writeFileSync(join(dir, "hidden.md"), "# Hidden\n");
+    git("add", ".gitignore");
+    git("-c", "user.email=t@example.com", "-c", "user.name=t", "commit", "-qm", "init");
+    git("config", "core.fsmonitor", `touch ${join(dir, "RAN")}; false`);
+    process.env.SOLIPSIST_PROJECT_ROOT = dir;
+  });
+  afterAll(() => {
+    P.enter();
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("core.fsmonitor isn't run, and what git ignores is still left out", async () => {
+    const found = await findFiles();
+    expect(existsSync(join(dir, "RAN"))).toBe(false);
+    expect(found.files).toContain("a.md");
+    expect(found.files).not.toContain("hidden.md");
   });
 });

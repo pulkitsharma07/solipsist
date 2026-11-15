@@ -23,6 +23,7 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 - The `public/` folder of your project is no longer served.
 - The routes kept for testing are off unless Solipsist runs under `bun test` or `bun run dev`.
 - Updated two libraries the agents use, `undici` and `minimatch`, past their known vulnerabilities.
+- Opening Solipsist in a folder that holds its own git settings no longer runs a command they name.
 
 ## [0.1.0] — first public build
 
