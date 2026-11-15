@@ -28,7 +28,7 @@ export const TABLE: Setting[] = [...PAGE_ROWS, ...AGENT_ROWS, ...ENGINE_ROWS, ..
 /** Plain environment variables that are not ours or not a user setting, and so stay outside the table. */
 export const ENV_ONLY: { name: string; why: string }[] = [
   { name: "SOLIPSIST_CONFIG", why: "The path of the config file, the same as `--config <path>` on the command line." },
-  { name: "NODE_ENV", why: "Bun's and every tool's. `development` (`bun run dev`) turns on hot reload and the dev routes, `test` (`bun test`) the dev routes and the test stand-in; anything else, or unset, is neither." },
+  { name: "NODE_ENV", why: "Bun's and every tool's. `development` (`bun run dev`) turns on hot reload and the dev routes, `test` (`bun test`) the dev routes and the test stand-in; anything else, or unset, is neither. Set by a `.env` in the folder Solipsist runs in, it counts as unset." },
   { name: "AGENT_CMD", why: "The test fake: a JSON argv that stands in for an engine. Read only when `NODE_ENV` is `test`, and never when a `.env` in the folder sets it. Never a user setting." },
   { name: "PI_CODING_AGENT_DIR", why: "Pi's own: where it keeps its configuration." },
   { name: "OPENROUTER_API_KEY", why: "Pi reads it itself. A fallback behind `pi.openrouter_key`." },

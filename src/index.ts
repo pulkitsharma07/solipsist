@@ -13,6 +13,7 @@ import { log, logFile, why } from "./server/log";
 import { startTui, wantsTui } from "./server/tui";
 import { parseArgs, USAGE } from "./server/cli";
 import { versionInfo, versionLine } from "./server/version";
+import { bunDevServer } from "./server/devMode";
 import { doctor } from "./server/doctor";
 
 /** Which build is serving, on the log's start line: a bug report's log says which code wrote it. */
@@ -59,7 +60,7 @@ function start() {
         "/*": index,
       },
       // Bun's dev server (hot reload, the browser's console in the terminal) only when asked: `bun run dev`.
-      development: process.env.NODE_ENV === "development" && { hmr: true, console: true },
+      development: bunDevServer() && { hmr: true, console: true },
     });
   } catch (e: any) {
     if (e?.code !== "EADDRINUSE") throw e;

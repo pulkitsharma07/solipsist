@@ -240,6 +240,24 @@ describe("the dev routes are on only when asked for (S13)", () => {
     }
   });
 
+  test("NODE_ENV set by the folder's .env doesn't count: the folder is someone else's", async () => {
+    const cwd = process.cwd();
+    const dir = realpathSync(mkdtempSync(join(tmpdir(), "solip-s13-")));
+    try {
+      process.chdir(dir);
+      process.env.NODE_ENV = "test";
+      writeFileSync(join(dir, ".env"), "NODE_ENV=test\n");
+      expect((await call("/api/dev/changed/README", { method: "POST" })).status).toBe(404);
+      const { bunDevServer } = await import("../src/server/devMode");
+      process.env.NODE_ENV = "development";
+      writeFileSync(join(dir, ".env"), "NODE_ENV=development\n");
+      expect(bunDevServer()).toBe(false);
+    } finally {
+      process.chdir(cwd);
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   test("in a test they answer, and a bad id is refused", async () => {
     process.env.NODE_ENV = "test";
     expect((await call("/api/dev/changed/README", { method: "POST" })).status).toBe(204);

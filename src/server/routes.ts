@@ -4,6 +4,7 @@ import * as api from "./api";
 import { events } from "./live";
 import { NewerPageError } from "./files";
 import { refuseRequest } from "./guard";
+import { devRoutesOn } from "./devMode";
 
 type Handler = (req: any, srv: any) => unknown;
 /**
@@ -29,8 +30,6 @@ const refusingNewer = (h: Handler): Handler => {
   }
   return w;
 };
-/** Whether the dev routes are on: only when asked for, by `NODE_ENV` (`bun test` sets `test`, `bun run dev` `development`). */
-export const devRoutesOn = () => process.env.NODE_ENV === "test" || process.env.NODE_ENV === "development";
 const devOnly = <H extends (req: any, srv?: any) => Response | Promise<Response>>(h: H): H =>
   ((req: any, srv: any) => (devRoutesOn() ? h(req, srv) : Response.json({ error: { code: "not_found", message: "Dev only." } }, { status: 404 }))) as H;
 const guard = <T,>(route: T): T =>

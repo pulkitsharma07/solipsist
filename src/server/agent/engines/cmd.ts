@@ -1,8 +1,7 @@
 import type { AgentEngine, AgentSession, AgentStep, RunResult, StartOptions } from "../engine";
 import { brief, clip, DETAIL } from "../engine";
 import { track } from "../leftovers";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { isTest, setByFolder } from "../../devMode";
 
 /**
  * The test stand-in for an engine: `AGENT_CMD` (a JSON argv) is a process that speaks a stream-json protocol on its
@@ -10,21 +9,15 @@ import { join } from "node:path";
  * `engines/index.ts`); it is named `fake`, so a test's saved choice reads `fake:small`.
  */
 
-/** `.env` files Bun loads from the working directory by itself, before any of our code runs. */
-const DOTENV = [".env", ".env.local", ".env.test", ".env.development", ".env.production"];
-const namesIn = (file: string) => { try { return readFileSync(file, "utf8"); } catch { return ""; } };
-
 /**
- * `AGENT_CMD`, only when this is a test: `NODE_ENV=test` (what `bun test` sets, and the tests pass on to the servers
- * they start). The working directory is the writer's project, and Bun loads its `.env` into the environment: a folder
- * that names a command there would have the server run it. So a `.env` there that sets `AGENT_CMD` or `NODE_ENV` —
- * which could fake the test — turns the stand-in off. Read on each call, since tests set it as they go.
+ * `AGENT_CMD`, only when this is a test (`isTest`: `NODE_ENV=test`, and not from the folder's `.env`). The working
+ * directory is the writer's project, and Bun loads its `.env` into the environment: a folder that names a command
+ * there would have the server run it, so a `.env` there that sets `AGENT_CMD` turns the stand-in off too. Read on each
+ * call, since tests set it as they go.
  */
 export function fakeCommand(): string | undefined {
   const cmd = process.env.AGENT_CMD;
-  if (!cmd || process.env.NODE_ENV !== "test") return undefined;
-  const planted = DOTENV.some((f) => /^\s*(export\s+)?(AGENT_CMD|NODE_ENV)\s*=/m.test(namesIn(join(process.cwd(), f))));
-  return planted ? undefined : cmd;
+  return cmd && isTest() && !setByFolder("AGENT_CMD") ? cmd : undefined;
 }
 
 /** The command for the agent process: `AGENT_CMD` and the model. Prompts arrive on stdin. */
