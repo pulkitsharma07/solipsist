@@ -117,6 +117,16 @@ The address the server listens on.
 
 `localhost` keeps the server to this machine. `0.0.0.0` opens it to the network. There is no login, so do that only on a network you trust.
 
+#### `server.allowed_hosts`
+
+Names other than localhost the server answers to.
+
+| Type | Default | Environment |
+|---|---|---|
+| a list of text |  | `SOLIPSIST_ALLOWED_HOSTS` |
+
+The server refuses a request addressed to any name but `localhost`, `127.0.0.1` or `[::1]` on its own port, so a website can't reach it by pointing a name of its own at this machine. Opened to the network (`server.host`) or behind a proxy, list the names it is reached by: `notes.lan`, or `notes.lan:8080` for that port only. In the environment, a comma-separated list.
+
 ### agent
 
 The background agents: when a run starts, how many run at once, how long they may take and cost, and how long a finished agent is kept for a chat.

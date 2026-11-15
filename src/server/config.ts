@@ -29,7 +29,7 @@ export interface Config {
   projectRoot: string;
   /** Where the pages (the working copies, in a project) live. */
   pagesDir: string;
-  server: { port: number; host: string };
+  server: { port: number; host: string; allowed_hosts: string[] };
   agent: {
     gap_ms: number; settle_ms: number; single_agent: boolean; concurrency: number; max_runs: number; run_timeout_ms: number;
     cost_limit_usd?: number; cost_limit_day_usd: number; cost_limit_month_usd: number; max_unmetered_runs_day: number;

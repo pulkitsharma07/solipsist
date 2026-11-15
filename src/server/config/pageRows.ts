@@ -12,5 +12,8 @@ export const PAGE_ROWS: Setting[] = [
   { key: "server.host", env: "SOLIPSIST_HOST", kind: "string", default: "localhost",
     summary: "The address the server listens on.",
     purpose: "`localhost` keeps the server to this machine. `0.0.0.0` opens it to the network. There is no login, so do that only on a network you trust." },
+  { key: "server.allowed_hosts", env: "SOLIPSIST_ALLOWED_HOSTS", kind: "strings", default: [],
+    summary: "Names other than localhost the server answers to.",
+    purpose: "The server refuses a request addressed to any name but `localhost`, `127.0.0.1` or `[::1]` on its own port, so a website can't reach it by pointing a name of its own at this machine. Opened to the network (`server.host`) or behind a proxy, list the names it is reached by: `notes.lan`, or `notes.lan:8080` for that port only. In the environment, a comma-separated list." },
 
 ];

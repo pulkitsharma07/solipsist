@@ -27,6 +27,11 @@ an error in the [agent panel](/docs/reference/agent-panel/#the-log).
 The server listens on `localhost` by default (`server.host`). The settings and prompts endpoints only answer requests
 from the machine the server runs on, even if you set `server.host` to open the rest to the network.
 
+It answers only requests addressed to `localhost`, `127.0.0.1` or `[::1]` on its own port, and refuses any that a
+browser sends from another website. So a page open in another tab can't reach it, even one that points a name of its
+own at your machine. Reached by another name, over the network or through a proxy, the server needs that name in
+`server.allowed_hosts`.
+
 ## Reporting a vulnerability
 
 See [`SECURITY.md`](https://github.com/pulkitsharma07/solipsist/blob/main/SECURITY.md).

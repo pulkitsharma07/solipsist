@@ -120,10 +120,12 @@ describe("keys this build doesn't know are kept", () => {
   });
 });
 
+// Bun's own: happy-dom's drops `host`, which the routes' guard needs (`src/server/guard.ts`).
+const NativeRequest = Request;
 /** One route of the real server, as the browser calls it (the routes are where a refused write becomes a 423). */
 async function route(path: string, method: string, id: string, body?: unknown): Promise<Response> {
   const handler = (apiRoutes() as unknown as Record<string, Record<string, (req: unknown, srv: unknown) => Promise<Response>>>)[path]![method]!;
-  const req = Object.assign(new Request("http://x/", { method, body: body === undefined ? undefined : JSON.stringify(body) }), { params: { id } });
+  const req = Object.assign(new NativeRequest("http://localhost/", { method, headers: { host: "localhost", "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) }), { params: { id } });
   return handler(req, { timeout() {} });
 }
 

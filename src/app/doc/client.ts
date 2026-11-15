@@ -6,6 +6,8 @@ export interface FileMsg { rev: number; file: string; path?: string }
 export type PutReply = { ok: true } & FileMsg | { ok: false; code: string; file?: string; rev?: number };
 
 const j = async (res: Response) => res.json().catch(() => ({}));
+/** Every body is sent as JSON: the server refuses any other (`src/server/guard.ts`), so a website can't post to it. */
+const JSON_BODY = { "content-type": "application/json" };
 /** A page's address in the API: its id, which may hold slashes, is one segment. */
 const pageApi = (id: string) => `/api/pages/${encodeURIComponent(id)}`;
 
@@ -15,7 +17,7 @@ export async function listPages(): Promise<{ id: string; title: string; mtime: n
 
 /** A new page; in a project, at `path`. Undefined when it couldn't be made. */
 export async function createPage(path?: string): Promise<string | undefined> {
-  return (await j(await fetch("/api/pages", { method: "POST", ...(path !== undefined && { body: JSON.stringify({ path }) }) }))).id;
+  return (await j(await fetch("/api/pages", { method: "POST", ...(path !== undefined && { headers: JSON_BODY, body: JSON.stringify({ path }) }) }))).id;
 }
 
 export interface SetupInfo { project: boolean; needed: boolean; changed: boolean; found: string[]; searchPaths: string[]; capped: boolean }
@@ -23,15 +25,15 @@ export async function getSetup(): Promise<SetupInfo> {
   return (await fetch("/api/setup")).json();
 }
 export async function addFiles(paths: string[]): Promise<{ failed: string[] }> {
-  return (await fetch("/api/setup", { method: "POST", body: JSON.stringify({ paths }) })).json();
+  return (await fetch("/api/setup", { method: "POST", headers: JSON_BODY, body: JSON.stringify({ paths }) })).json();
 }
 export async function getSyncState(id: string): Promise<boolean> {
   return !!(await j(await fetch(`${pageApi(id)}/sync`))).unsynced;
 }
 type Outcome = { ok: true } | { ok: false; code: string };
 const outcome = async (res: Response): Promise<Outcome> => (res.ok ? { ok: true } : { ok: false, code: (await j(res)).error?.code ?? `http_${res.status}` });
-export const syncDoc = async (id: string, force: boolean) => outcome(await fetch(`${pageApi(id)}/sync`, { method: "POST", body: JSON.stringify({ force }) }));
-export const reloadDoc = async (id: string, discard: boolean) => outcome(await fetch(`${pageApi(id)}/reload`, { method: "POST", body: JSON.stringify({ discard }) }));
+export const syncDoc = async (id: string, force: boolean) => outcome(await fetch(`${pageApi(id)}/sync`, { method: "POST", headers: JSON_BODY, body: JSON.stringify({ force }) }));
+export const reloadDoc = async (id: string, discard: boolean) => outcome(await fetch(`${pageApi(id)}/reload`, { method: "POST", headers: JSON_BODY, body: JSON.stringify({ discard }) }));
 
 export async function getPage(id: string): Promise<FileMsg> {
   const res = await fetch(`${pageApi(id)}`);
@@ -41,7 +43,7 @@ export async function getPage(id: string): Promise<FileMsg> {
 
 /** `keepalive` lets the last save finish while the page is closing. */
 export async function putPage(id: string, body: PutRequest, keepalive = false): Promise<PutReply> {
-  const res = await fetch(`${pageApi(id)}`, { method: "PUT", body: JSON.stringify(body), keepalive });
+  const res = await fetch(`${pageApi(id)}`, { method: "PUT", headers: JSON_BODY, body: JSON.stringify(body), keepalive });
   const data = await j(res);
   if (res.ok) return { ok: true, ...data };
   return { ok: false, code: data.error?.code ?? `http_${res.status}`, file: data.file, rev: data.rev };
@@ -151,7 +153,7 @@ export async function getAgentModels(): Promise<{ models: AgentModelOption[]; ca
 /** How often the button of request `task` runs on its own, page open or not (ms), or null for only when pressed. False when refused. */
 export async function scheduleButton(id: string, task: string, every: number | null): Promise<boolean> {
   try {
-    return (await fetch(`${pageApi(id)}/tasks/${encodeURIComponent(task)}/schedule`, { method: "POST", body: JSON.stringify({ every }) })).ok;
+    return (await fetch(`${pageApi(id)}/tasks/${encodeURIComponent(task)}/schedule`, { method: "POST", headers: JSON_BODY, body: JSON.stringify({ every }) })).ok;
   } catch {
     return false;
   }
@@ -164,7 +166,7 @@ export async function scheduleButton(id: string, task: string, every: number | n
  */
 export async function saveAgentSettings(id: string, patch: { on?: boolean; model?: string }): Promise<{ on: boolean; model: string } | null> {
   try {
-    const res = await fetch(`${pageApi(id)}/agent`, { method: "POST", body: JSON.stringify(patch) });
+    const res = await fetch(`${pageApi(id)}/agent`, { method: "POST", headers: JSON_BODY, body: JSON.stringify(patch) });
     return res.ok ? await res.json() : null;
   } catch {
     return null;
@@ -230,7 +232,7 @@ export function openChatStream(id: string, task: string, on: { onEvent(e: ChatEv
 /** Says `text` in the chat on `task`; the reply streams in. Null when sent, else why not. */
 export async function sayInChat(id: string, task: string, text: string): Promise<string | null> {
   try {
-    const res = await fetch(chatUrl(id, task), { method: "POST", body: JSON.stringify({ text }) });
+    const res = await fetch(chatUrl(id, task), { method: "POST", headers: JSON_BODY, body: JSON.stringify({ text }) });
     if (res.ok) return null;
     const body = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
     return body?.error?.message ?? `HTTP ${res.status}`;
@@ -263,5 +265,5 @@ export async function getSupport(): Promise<SupportView | null> {
 
 /** The writer's answer to the strip: ask again later, or they have bought one. */
 export async function answerSupport(action: "later" | "paid") {
-  await fetch("/api/support", { method: "POST", body: JSON.stringify({ action }) }).catch(() => {});
+  await fetch("/api/support", { method: "POST", headers: JSON_BODY, body: JSON.stringify({ action }) }).catch(() => {});
 }

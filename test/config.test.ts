@@ -34,7 +34,7 @@ const fails = (yaml: string | null, env: Record<string, string>, message: RegExp
 test("no file: every default, a project in the working directory", () => {
   const c = load(null);
   expect(c.file).toBeNull();
-  expect(c.server).toEqual({ port: 3000, host: "localhost" });
+  expect(c.server).toEqual({ port: 3000, host: "localhost", allowed_hosts: [] });
   expect(c.agent).toMatchObject({ gap_ms: 1000, settle_ms: 2000, concurrency: 3, max_runs: 6, run_timeout_ms: 600000, wait_ms: 300000, max_waiting: 6, max_failures: 3 });
   expect(c.agent.cost_limit_usd).toBeUndefined();
   expect(c.suggestions).toEqual({ max_chars: 20000, max_edits: 20 });

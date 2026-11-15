@@ -11,6 +11,8 @@ server:
   port: 3000
   # The address the server listens on. Env: SOLIPSIST_HOST.
   host: localhost
+  # Names other than localhost the server answers to. Env: SOLIPSIST_ALLOWED_HOSTS.
+  allowed_hosts:
 
 agent:
   # The pause before a failed run is retried (ms). Env: AGENT_GAP_MS.

@@ -6,6 +6,13 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ## [Unreleased]
 
+### Security
+
+- The server refuses requests from other websites, and requests addressed to any name but `localhost` on its own
+  port, so a page open in another tab can't drive it.
+  UPGRADE: if you reach Solipsist by another name (`server.host` opened to the network, or a proxy), list that name
+  in the new `server.allowed_hosts`.
+
 ## [0.1.0] — first public build
 
 ### Added

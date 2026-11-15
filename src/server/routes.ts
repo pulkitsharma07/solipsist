@@ -3,15 +3,21 @@ import { chatForget, chatSay, chatStop, chatStream } from "./chat";
 import * as api from "./api";
 import { events } from "./live";
 import { NewerPageError } from "./files";
+import { refuseRequest } from "./guard";
 
 type Handler = (req: any, srv: any) => unknown;
-/** A write refused because the page is from a newer Solipsist (`NewerPageError`): 423 with why, from any route. */
+/**
+ * Every handler is wrapped twice: first the request check (`guard.ts`: our host, our origin, JSON bodies), then a write
+ * refused because the page is from a newer Solipsist (`NewerPageError`) becomes a 423 with why, from any route.
+ */
 // One wrapper per handler: a handler serving two routes is still one function.
 const wrapped = new WeakMap<Handler, Handler>();
 const refusingNewer = (h: Handler): Handler => {
   let w = wrapped.get(h);
   if (!w) {
     w = async (req, srv) => {
+      const refused = refuseRequest(req, srv);
+      if (refused) return refused;
       try {
         return await h(req, srv);
       } catch (e) {
