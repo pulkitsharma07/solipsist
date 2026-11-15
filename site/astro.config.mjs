@@ -11,8 +11,17 @@ export default defineConfig({
       description: "Think, work, collaborate with your local AI agents in your markdown docs. They suggest; you decide.",
       logo: { light: "./src/assets/logo.svg", dark: "./src/assets/logo-dark.svg", replacesTitle: true },
       favicon: "/favicon.svg",
-      // The card a link to any docs page shows: the landing page's (`bun run site:og` draws it).
       head: [
+        // Cloudflare Web Analytics: page views, no cookies. The token is public.
+        {
+          tag: "script",
+          attrs: {
+            type: "module",
+            src: "https://static.cloudflareinsights.com/beacon.min.js",
+            "data-cf-beacon": '{"token": "74aa3e574caa45b89081555e0e29a567"}', // gitleaks:allow (a public beacon token)
+          },
+        },
+        // The card a link to any docs page shows: the landing page's (`bun run site:og` draws it).
         { tag: "meta", attrs: { property: "og:image", content: "https://solipsist.sh/og.png" } },
         { tag: "meta", attrs: { property: "og:image:width", content: "1280" } },
         { tag: "meta", attrs: { property: "og:image:height", content: "640" } },
