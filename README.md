@@ -34,11 +34,11 @@
 On macOS or Linux:
 
 ```bash
-curl -fsSL https://get.solipsist.sh | sh
+curl -fsSL https://solipsist.sh/install | sh
 cd ~/my-notes && solipsist
 ```
 
-On Windows (PowerShell): `irm https://get.solipsist.sh/install.ps1 | iex`.
+On Windows (PowerShell): `irm https://solipsist.sh/install.ps1 | iex`.
 
 The installer downloads the release for your system, checks it against the release's checksums and puts `solipsist` where
 you choose (`~/.local/bin` by default, no sudo). No Bun. Run it again to update. `solipsist --version` says which build you have.

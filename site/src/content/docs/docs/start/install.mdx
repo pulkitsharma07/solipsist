@@ -10,13 +10,13 @@ import Shot from "../../../../components/Shot.astro";
 On macOS or Linux:
 
 ```bash
-curl -fsSL https://get.solipsist.sh | sh
+curl -fsSL https://solipsist.sh/install | sh
 ```
 
 On Windows, in PowerShell:
 
 ```powershell
-irm https://get.solipsist.sh/install.ps1 | iex
+irm https://solipsist.sh/install.ps1 | iex
 ```
 
 The installer downloads the release for your system (macOS and Linux on Intel or ARM, Windows x64; Linux needs glibc,
@@ -73,7 +73,7 @@ Everything else is a setting. See the [command line reference](/docs/reference/c
 ## Updating
 
 Run the install command again: it replaces the program with the latest release. Restart the server afterwards. To
-install a particular release, set `SOLIPSIST_VERSION` (`curl -fsSL https://get.solipsist.sh | SOLIPSIST_VERSION=0.2.0 sh`),
+install a particular release, set `SOLIPSIST_VERSION` (`curl -fsSL https://solipsist.sh/install | SOLIPSIST_VERSION=0.2.0 sh`),
 and `SOLIPSIST_INSTALL_DIR` to install somewhere else. To uninstall, delete the program: your pages are never touched.
 
 ## Running from source

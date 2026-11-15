@@ -1,5 +1,5 @@
 #!/bin/sh
-# Install Solipsist: curl -fsSL https://get.solipsist.sh | sh
+# Install Solipsist: curl -fsSL https://solipsist.sh/install | sh
 #
 # Downloads the release file for this system, checks it against the release's SHA256SUMS, and puts `solipsist` where
 # the writer picks. In a terminal it asks: just for them (~/.local/bin, or $XDG_BIN_HOME; no sudo, the default), for

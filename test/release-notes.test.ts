@@ -14,8 +14,8 @@ test("UPGRADE lines come out of the body and into a list", () => {
 test("a stable release: callout, notes, install commands, diff, checksums", () => {
   const md = releaseNotes({ version: "0.2.0", section: SECTION, repo: "o/r", prev: "v0.1.0", sums: "abc  solipsist-linux-x64.tar.gz\n" });
   expect(md.startsWith("> [!IMPORTANT]\n> **When you update:**\n> - run `solipsist --print-config`")).toBe(true);
-  expect(md).toContain("curl -fsSL https://get.solipsist.sh | sh");
-  expect(md).toContain("irm https://get.solipsist.sh/install.ps1 | iex");
+  expect(md).toContain("curl -fsSL https://solipsist.sh/install | sh");
+  expect(md).toContain("irm https://solipsist.sh/install.ps1 | iex");
   expect(md).toContain("https://github.com/o/r/compare/v0.1.0...v0.2.0");
   expect(md).toContain("abc  solipsist-linux-x64.tar.gz");
 });

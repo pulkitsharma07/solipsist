@@ -1,4 +1,4 @@
-# Install Solipsist on Windows:  irm https://get.solipsist.sh/install.ps1 | iex
+# Install Solipsist on Windows:  irm https://solipsist.sh/install.ps1 | iex
 #
 # Downloads the release file, checks it against the release's SHA256SUMS, and puts solipsist.exe in
 # %LOCALAPPDATA%\solipsist (added to your user PATH). No admin rights. Run it again to update.

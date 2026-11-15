@@ -1,0 +1,33 @@
+#!/bin/sh
+# Install Solipsist: curl -fsSL https://solipsist.sh/install | sh
+#
+# A stand-in served with the website: it fetches the latest release's own install.sh and runs it, so what installs
+# changes only with a release, whenever the website was last published. Every variable that script reads
+# (SOLIPSIST_VERSION, SOLIPSIST_INSTALL_DIR, SOLIPSIST_BASE_URL, NO_COLOR) passes through to it.
+#
+# Everything is inside main(), called on the last line: piped into sh, a download cut off part way runs nothing.
+set -eu
+
+main() {
+  url=https://github.com/pulkitsharma07/solipsist/releases/latest/download/install.sh
+  tmp=$(mktemp "${TMPDIR:-/tmp}/solipsist-install.XXXXXX")
+  trap 'rm -f "$tmp"' EXIT
+  trap 'exit 130' INT TERM
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL --proto '=https' --tlsv1.2 "$url" -o "$tmp" || fail
+  elif command -v wget >/dev/null 2>&1; then
+    wget -q --https-only -O "$tmp" "$url" || fail
+  else
+    printf 'solipsist install: needs curl or wget\n' >&2
+    exit 1
+  fi
+  # Not exec: the trap removes the file once it has run. Its stdin stays ours; it asks its questions on /dev/tty.
+  sh "$tmp" "$@"
+}
+
+fail() {
+  printf 'solipsist install: could not download %s\n' "$url" >&2
+  exit 1
+}
+
+main "$@"

@@ -44,9 +44,9 @@ cd dist/release && shasum -a 256 -c SHA256SUMS
 
 The archives are `solipsist-<os>-<arch>.tar.gz` (`.zip` on Windows) for `linux-x64`, `linux-arm64`, `darwin-x64`,
 `darwin-arm64` and `windows-x64`, with no version in the name, so `releases/latest/download/<name>` stays one URL.
-Beside them are `install.sh` and `install.ps1`, copied from `scripts/`: `get.solipsist.sh` redirects to
-`releases/latest/download/install.sh` (and `/install.ps1` to that one), so what the install command runs changes only
-with a release. `SHA256SUMS` covers all seven. The build is reproducible: the same commit gives the same `SHA256SUMS` (on
+Beside them are `install.sh` and `install.ps1`, copied from `scripts/`. The install command fetches
+`solipsist.sh/install` (and `/install.ps1`), small stand-ins in `site/public/` that download and run
+`releases/latest/download/install.sh` (or `.ps1`), so what the install command runs changes only with a release. `SHA256SUMS` covers all seven. The build is reproducible: the same commit gives the same `SHA256SUMS` (on
 the same kind of machine; the times in it are the commit's), so a local build can be compared with the release's.
 Run the install command itself against the draft's files (`SOLIPSIST_BASE_URL=<folder> sh scripts/install.sh`, on a Mac with the system `sh`, which is bash 3.2) and check `solipsist --version`. Unpack the one for your machine, run `./solipsist --version` (it must print the number you are releasing) and start it in
 an empty folder: the page opens, a page saves, stopping it leaves no process behind. `bash scripts/smoke.sh <archive>
