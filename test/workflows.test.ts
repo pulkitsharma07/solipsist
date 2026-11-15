@@ -74,3 +74,9 @@ describe("the nightly fuzz's failure step", () => {
     expect(String(calls[0]!.args.body)).toContain("seed 1234");
   });
 });
+
+test("the release's smoke run starts the binary in a folder with a planted bunfig.toml preload, and fails if it runs", () => {
+  const smoke = workflows["release.yml"]!.jobs.smoke!.steps!.map((s) => s.run ?? "").join("\n");
+  expect(smoke).toContain("preload = [");
+  expect(smoke).toContain("the binary ran the folder's bunfig.toml preload");
+});

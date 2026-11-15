@@ -103,6 +103,18 @@ const git = (...args: string[]) => {
 
 export type BuildResult = { target: Target; archive: string; binary: string; bytes: number };
 
+/**
+ * How the binary is compiled. It runs in the writer's folder, which may be anyone's: it reads no `bunfig.toml` from it
+ * (a `preload` there would run that folder's code), nor its `tsconfig.json` or `package.json`.
+ */
+export const compileOptions = (t: Target, outfile: string) => ({
+  target: bunTarget(t),
+  outfile,
+  autoloadBunfig: false,
+  autoloadTsconfig: false,
+  autoloadPackageJson: false,
+});
+
 export async function buildTarget(t: Target, o: { out: string; commit: string; built: string; mtime: number }): Promise<BuildResult> {
   const exe = t.startsWith("windows") ? "solipsist.exe" : "solipsist";
   const stage = join(o.out, `stage-${t}`, `solipsist-${pkg.version}-${t}`);
@@ -113,7 +125,7 @@ export async function buildTarget(t: Target, o: { out: string; commit: string; b
     plugins: [tailwind],
     minify: true,
     define: { SOLIPSIST_COMMIT: JSON.stringify(o.commit), SOLIPSIST_BUILT: JSON.stringify(o.built), "process.env.NODE_ENV": '"production"' },
-    compile: { target: bunTarget(t), outfile: join(stage, exe) },
+    compile: compileOptions(t, join(stage, exe)),
   });
   if (!result.success) throw new Error(`Build for ${t} failed:\n${result.logs.map((l) => l.message).join("\n")}`);
   for (const f of ["LICENSE", "NOTICE", "README.md"]) cpSync(join(root, f), join(stage, f));

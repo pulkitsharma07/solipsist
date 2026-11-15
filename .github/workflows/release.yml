@@ -85,6 +85,11 @@ jobs:
           line=$("$bin" --version); echo "$line"
           case "$line" in "solipsist $VERSION ("*) ;; *) echo "::error::--version says '$line', expected $VERSION"; exit 1;; esac
           mkdir docs && echo "# hi" > docs/a.md && cd docs
+          # The folder is the writer's, maybe anyone's: a preload in its bunfig.toml must not run.
+          printf 'preload = ["./planted.ts"]\n' > bunfig.toml
+          echo 'require("fs").writeFileSync("planted-ran", "")' > planted.ts
+          "$bin" --version > /dev/null
+          if [ -e planted-ran ]; then echo "::error::the binary ran the folder's bunfig.toml preload"; exit 1; fi
           PORT=47123 SOLIPSIST_TUI=0 "$bin" > "$work/server.out" 2>&1 &
           pid=$!
           for _ in $(seq 1 30); do

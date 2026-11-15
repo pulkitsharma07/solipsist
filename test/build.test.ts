@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
-import { archive, archiveName, buildTime, pickTargets, sha256, sumsText, TARGETS } from "../scripts/build";
+import { archive, archiveName, buildTime, compileOptions, pickTargets, sha256, sumsText, TARGETS } from "../scripts/build";
 
 test("every target is named as --version prints it", () => {
   expect([...TARGETS]).toEqual(["linux-x64", "linux-arm64", "darwin-x64", "darwin-arm64", "windows-x64"]);
@@ -74,4 +74,10 @@ describe("archives are reproducible", () => {
     const now = Math.floor(Date.now() / 1000);
     expect(buildTime({}, "")).toBeGreaterThanOrEqual(now);
   });
+});
+
+test("the binary reads no bunfig.toml, tsconfig.json or package.json from the folder it runs in", () => {
+  // A `preload` in a folder's bunfig.toml ran that folder's code when the binary started there.
+  const o = compileOptions("linux-x64", "/x/solipsist");
+  expect(o).toMatchObject({ target: "bun-linux-x64", outfile: "/x/solipsist", autoloadBunfig: false, autoloadTsconfig: false, autoloadPackageJson: false });
 });
