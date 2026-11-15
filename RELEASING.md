@@ -49,8 +49,15 @@ Release workflow (to be written): checks the tag matches `package.json` and `CHA
 tests, builds the five targets, starts the Linux binary, writes `SHA256SUMS`, attests the build provenance, and creates a
 **draft** GitHub Release with the changelog section as its body.
 
-Until it exists: create the draft by hand with `gh release create vx.y.z --draft --notes-file <changelog section>
-dist/release/*`, mark a pre-release with `--prerelease`.
+Until it exists, make the draft by hand:
+
+```sh
+bun scripts/release-notes.ts x.y.z --prev vPREVIOUS --sums dist/release/SHA256SUMS > dist/release/notes.md
+gh release create vx.y.z --draft --notes-file dist/release/notes.md dist/release/solipsist-* dist/release/SHA256SUMS
+```
+
+Add `--prerelease` for a beta or rc. The notes are the changelog section, with `UPGRADE:` lines lifted into a callout;
+a stable release adds the install commands, the diff from the previous tag and the checksums.
 
 Read the draft, then publish it. Once published, a release's files are never changed or replaced.
 
