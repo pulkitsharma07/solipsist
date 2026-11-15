@@ -4,7 +4,8 @@
  *   bun scripts/release-notes.ts <version> [--prev vX.Y.Z] [--sums dist/release/SHA256SUMS] [--repo owner/name] > notes.md
  *
  * The changelog section, with any `UPGRADE:` lines lifted into a callout at the top, then (for a stable release) how to
- * install, the diff from the previous tag, and the checksums. A pre-release says it is one and gives no install command:
+ * install, the diff from the previous tag, the checksums, and how to check that a file was built by the release
+ * workflow (its build provenance, attested by GitHub). A pre-release says it is one and gives no install command:
  * it never becomes what the install command fetches.
  */
 import { readFileSync } from "node:fs";
@@ -53,6 +54,18 @@ export function releaseNotes(n: Notes): string {
   }
   if (n.prev) out.push(`**Full diff:** https://github.com/${n.repo}/compare/${n.prev}...v${n.version}`);
   if (n.sums?.trim()) out.push(["## Checksums (SHA-256)", "", "```", n.sums.trim(), "```"].join("\n"));
+  out.push(
+    [
+      "## Check a download",
+      "",
+      "Every file here was built from this tag by the repository's release workflow, and GitHub keeps a signed record of",
+      "that. To check one with the [GitHub CLI](https://cli.github.com):",
+      "",
+      "```sh",
+      `gh attestation verify solipsist-linux-x64.tar.gz --repo ${n.repo}`,
+      "```",
+    ].join("\n"),
+  );
   return out.join("\n\n") + "\n";
 }
 

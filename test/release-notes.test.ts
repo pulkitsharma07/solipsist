@@ -32,3 +32,11 @@ test("no UPGRADE lines, no callout; an empty section still says something", () =
   expect(releaseNotes({ version: "1.0.0", section: "- A.", repo: "o/r" })).not.toContain("IMPORTANT");
   expect(releaseNotes({ version: "1.0.0", section: "", repo: "o/r" })).toContain("No notes.");
 });
+
+test("every release, pre-release too, says how to check a download's build provenance", () => {
+  for (const version of ["0.2.0", "0.2.0-beta.1"]) {
+    const md = releaseNotes({ version, section: "- A.", repo: "o/r" });
+    expect(md).toContain("## Check a download");
+    expect(md).toContain("gh attestation verify solipsist-linux-x64.tar.gz --repo o/r");
+  }
+});
