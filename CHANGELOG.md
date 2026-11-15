@@ -6,6 +6,15 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ## [Unreleased]
 
+### Fixed
+
+- The install command (`curl -fsSL https://get.solipsist.sh | sh`) failed on a Mac with "target: unbound variable" before downloading anything. Release 0.2.0's `install.sh` has this fault.
+  UPGRADE: on a Mac, until the next release, install 0.2.0 by hand from the release page, or run Solipsist from a clone.
+
+### Changed
+
+- The documentation and README now start with the install command and `solipsist`, and keep running from a clone for those who want the source.
+
 ## [0.2.0] — 2026-11-15
 
 ### Added

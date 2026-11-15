@@ -76,7 +76,7 @@ main() {
   tmp=$(mktemp -d "${TMPDIR:-/tmp}/solipsist-install.XXXXXX")
   trap 'rm -rf "$tmp"' EXIT INT TERM
 
-  say "Downloading Solipsist for $target…"
+  say "Downloading Solipsist for ${target}…"  # braces: macOS bash 3.2 reads the bytes of … as part of the name
   fetch "$base/$asset" "$tmp/$asset" || die 1 "could not download $base/$asset"
   fetch "$base/SHA256SUMS" "$tmp/SHA256SUMS" || die 1 "could not download $base/SHA256SUMS"
 

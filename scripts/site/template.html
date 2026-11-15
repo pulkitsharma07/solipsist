@@ -483,11 +483,10 @@ body { overflow-x: hidden; }
 <section class="l-end" id="start">
   <div class="l-wrap">
     <h2>Open a folder you already have</h2>
-    <p>You need <a href="https://bun.sh">Bun</a>. Solipsist lists the markdown files it finds in the folder. Pick the ones to work on.</p>
-    <div class="l-term"><pre id="cmd"><span class="p">$ </span>git clone https://github.com/pulkitsharma07/solipsist ~/solipsist
-<span class="p">$ </span>cd ~/solipsist &amp;&amp; bun install
-<span class="p">$ </span>cd ~/my-notes &amp;&amp; bun ~/solipsist/src/index.ts</pre><button type="button" class="l-btn" id="copy">Copy</button></div>
-    <p class="l-more">Then open localhost:3000 and connect a model: an OpenRouter key, or a login you saved in Pi. <a href="/docs/start/install/">Read the guide</a></p>
+    <p>One command installs it: no Bun, no sudo. Solipsist lists the markdown files it finds in the folder. Pick the ones to work on.</p>
+    <div class="l-term"><pre id="cmd"><span class="p">$ </span>curl -fsSL https://get.solipsist.sh | sh
+<span class="p">$ </span>cd ~/my-notes &amp;&amp; solipsist</pre><button type="button" class="l-btn" id="copy">Copy</button></div>
+    <p class="l-more">Then open localhost:3000 and connect a model: an OpenRouter key, or a login you saved in Pi. Windows, updating and running from source: <a href="/docs/start/install/">read the guide</a>.</p>
   </div>
 </section>
 </main>

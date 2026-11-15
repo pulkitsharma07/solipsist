@@ -31,16 +31,20 @@
 
 ## Install
 
-You need [Bun](https://bun.sh). For now, Solipsist runs from a clone of this repository:
+On macOS or Linux:
 
 ```bash
-git clone https://github.com/pulkitsharma07/solipsist ~/solipsist
-cd ~/solipsist && bun install
-cd ~/my-notes && bun ~/solipsist/src/index.ts
+curl -fsSL https://get.solipsist.sh | sh
+cd ~/my-notes && solipsist
 ```
 
+On Windows (PowerShell): `irm https://get.solipsist.sh/install.ps1 | iex`.
+
+The installer downloads the release for your system, checks it against the release's checksums and puts `solipsist` in
+`~/.local/bin`. No sudo, no Bun. Run it again to update. `solipsist --version` says which build you have.
+
 Open <http://localhost:3000>. The first launch lists the markdown files in that folder. Pick the ones to work on.
-To update, run `git pull && bun install` in `~/solipsist` and restart. More in
+Prefer to run from source? You need [Bun](https://bun.sh) and a clone of this repository. More in
 [Install and run](https://solipsist.sh/docs/start/install/).
 
 ## What it does

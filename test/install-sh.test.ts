@@ -156,3 +156,10 @@ test("SOLIPSIST_BASE_URL is fetched as given (a mirror or a test may be http or 
   expect(c.args).not.toContain("--proto");
   expect(c.args).toContain("http://mirror.test/rel/solipsist-linux-x64.tar.gz");
 });
+
+test("no variable is followed straight by a non-ASCII character: macOS's bash 3.2 reads its bytes as part of the name", () => {
+  const bad = readFileSync(script, "utf8")
+    .split("\n")
+    .filter((l) => /\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7f]/.test(l));
+  expect(bad).toEqual([]);
+});

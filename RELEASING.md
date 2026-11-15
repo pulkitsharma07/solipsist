@@ -48,7 +48,7 @@ Beside them are `install.sh` and `install.ps1`, copied from `scripts/`: `get.sol
 `releases/latest/download/install.sh` (and `/install.ps1` to that one), so what the install command runs changes only
 with a release. `SHA256SUMS` covers all seven. The build is reproducible: the same commit gives the same `SHA256SUMS` (on
 the same kind of machine; the times in it are the commit's), so a local build can be compared with the release's.
-Unpack the one for your machine, run `./solipsist --version` (it must print the number you are releasing) and start it in
+Run the install command itself against the draft's files (`SOLIPSIST_BASE_URL=<folder> sh scripts/install.sh`, on a Mac with the system `sh`, which is bash 3.2) and check `solipsist --version`. Unpack the one for your machine, run `./solipsist --version` (it must print the number you are releasing) and start it in
 an empty folder: the page opens, a page saves, stopping it leaves no process behind. `bash scripts/smoke.sh <archive>
 <version>` does the automatic part of that (the workflow runs it). The workflow starts only the Linux x64 build unless
 the repository variable `SMOKE_ALL_SYSTEMS` is `true`, which runs all five on their own systems. It is set on this

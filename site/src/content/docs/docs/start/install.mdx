@@ -7,17 +7,31 @@ sidebar:
 
 import Shot from "../../../../components/Shot.astro";
 
-You need [Bun](https://bun.sh). For now you run Solipsist from a clone of its repository:
+On macOS or Linux:
 
 ```bash
-git clone https://github.com/pulkitsharma07/solipsist ~/solipsist
-cd ~/solipsist && bun install
+curl -fsSL https://get.solipsist.sh | sh
+```
+
+On Windows, in PowerShell:
+
+```powershell
+irm https://get.solipsist.sh/install.ps1 | iex
+```
+
+The installer downloads the release for your system (macOS and Linux on Intel or ARM, Windows x64; Linux needs glibc,
+so not Alpine), checks it against the release's `SHA256SUMS`, and puts one `solipsist` program in `~/.local/bin`
+(`%LOCALAPPDATA%\solipsist` on Windows). It needs no sudo and no Bun, and touches nothing outside that folder. If that
+folder isn't on your `PATH`, it prints the line to add. To check what you got:
+
+```bash
+solipsist --version
 ```
 
 Then start it **in the folder you want to write in**:
 
 ```bash
-cd ~/my-notes && bun ~/solipsist/src/index.ts
+cd ~/my-notes && solipsist
 ```
 
 Open [localhost:3000](http://localhost:3000). To use a different port, set `server.port` (or `PORT`).
@@ -45,7 +59,7 @@ It never lists files in dot-folders, in `node_modules`, or anything git ignores.
 ## Command line
 
 ```text
-bun ~/solipsist/src/index.ts [--config <file>] [--print-config] [--version] [--help]
+solipsist [--config <file>] [--print-config] [--version] [--help]
 ```
 
 Everything else is a setting. See the [command line reference](/docs/reference/cli/) and
@@ -53,9 +67,23 @@ Everything else is a setting. See the [command line reference](/docs/reference/c
 
 ## Updating
 
+Run the install command again: it replaces the program with the latest release. Restart the server afterwards. To
+install a particular release, set `SOLIPSIST_VERSION` (`curl -fsSL https://get.solipsist.sh | SOLIPSIST_VERSION=0.2.0 sh`),
+and `SOLIPSIST_INSTALL_DIR` to install somewhere else. To uninstall, delete the program: your pages are never touched.
+
+## Running from source
+
+If you would rather run the code, you need [Bun](https://bun.sh) and a clone of the repository:
+
 ```bash
-cd ~/solipsist && git pull && bun install
+git clone https://github.com/pulkitsharma07/solipsist ~/solipsist
+cd ~/solipsist && bun install
+cd ~/my-notes && bun ~/solipsist/src/index.ts
 ```
 
-Restart the server afterwards. If a page was saved by a newer build than the one you're running, it opens read-only,
+Update it with `git pull && bun install` in the clone.
+
+## Older builds
+
+If a page was saved by a newer build than the one you're running, it opens read-only,
 so an older build can't mess up a format it doesn't know.
