@@ -105,3 +105,32 @@ test("refused: a dirty tree, another branch, a tag that exists, a red suite", ()
   expect(() => cut({ root: d.dir, arg: "patch", runTests: () => false })).toThrow("red");
   expect(git(d.dir, "status", "--porcelain")).toBe("");
 });
+
+/** Puts a git hook in the scratch repo. */
+function hook(dir: string, name: string, body: string) {
+  const f = join(dir, ".git", "hooks", name);
+  writeFileSync(f, `#!/bin/sh\n${body}\n`);
+  Bun.spawnSync(["chmod", "+x", f]);
+}
+
+test("a commit that fails (its pre-commit hook) leaves the tree as it was", () => {
+  const { dir } = repo();
+  const head = git(dir, "rev-parse", "HEAD");
+  hook(dir, "pre-commit", "echo 'hook says no' >&2; exit 1");
+  expect(() => cut({ root: dir, arg: "patch", runTests: green })).toThrow("hook says no");
+  expect(git(dir, "rev-parse", "HEAD")).toBe(head);
+  expect(git(dir, "status", "--porcelain")).toBe("");
+  expect(readFileSync(join(dir, "CHANGELOG.md"), "utf8")).toBe(CHANGELOG);
+});
+
+test("a tag that fails takes the release commit back with it", () => {
+  const { dir } = repo();
+  const head = git(dir, "rev-parse", "HEAD");
+  // reference-transaction runs for every ref update: refuse the tag's only.
+  hook(dir, "reference-transaction", `[ "$1" = prepared ] || exit 0\nif grep -q ' refs/tags/'; then echo 'no tags today' >&2; exit 1; fi`);
+  expect(() => cut({ root: dir, arg: "patch", runTests: green })).toThrow("as they were");
+  expect(git(dir, "rev-parse", "HEAD")).toBe(head);
+  expect(git(dir, "status", "--porcelain")).toBe("");
+  expect(git(dir, "tag")).toBe("");
+  expect(JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).version).toBe("0.1.0");
+});

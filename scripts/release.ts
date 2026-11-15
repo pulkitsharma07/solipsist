@@ -112,6 +112,7 @@ export function cut(o: CutOptions): { version: string; tag: string; push: string
   if (!(o.runTests ?? ((root) => run(["bun", "test"], root, true).ok))(o.root)) throw new Error("bun test is red: no release.");
   const bumped = pkgText.replace(/"version":\s*"[^"]+"/, `"version": "${version}"`);
   if (bumped === pkgText) throw new Error("Could not set the version in package.json.");
+  const head = git("rev-parse", "HEAD").out;
   writeFileSync(pkgPath, bumped);
   writeFileSync(changelogPath, changelog);
   const steps = [
@@ -121,7 +122,13 @@ export function cut(o: CutOptions): { version: string; tag: string; push: string
   ];
   for (const s of steps) {
     const r = git(...s);
-    if (!r.ok) throw new Error(`git ${s.join(" ")} failed:\n${r.err}`);
+    if (r.ok) continue;
+    // Put back what this run changed (its commit, the two files), so the next try starts where this one did.
+    if (git("rev-parse", "HEAD").out !== head) git("reset", "-q", "--soft", head);
+    git("reset", "-q", "--", "package.json", "CHANGELOG.md");
+    writeFileSync(pkgPath, pkgText);
+    writeFileSync(changelogPath, changelogText);
+    throw new Error(`git ${s.join(" ")} failed, and package.json and CHANGELOG.md are as they were:\n${r.err}`);
   }
   return { version, tag, push };
 }
