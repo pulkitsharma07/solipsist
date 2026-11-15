@@ -13,8 +13,10 @@ on:
       # wrote. Unset (a push, a pull request) is true.
       cache: { type: boolean, default: true }
 permissions: { contents: read }
+# Keyed on the workflow too: called from a Release run on main, `github.workflow` is "Release", so the two never share a
+# group and cancel each other.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
