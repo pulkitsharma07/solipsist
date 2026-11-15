@@ -10,8 +10,8 @@
  * page's CSS would come out wrong. The commit and the date are baked in as constants (`src/server/version.ts`); the
  * number is `package.json`'s, inlined by the bundler.
  *
- * Files, named as the install scripts expect: `solipsist-<version>-<os>-<arch>.tar.gz` (`.zip` for windows) holding
- * `solipsist` (`solipsist.exe`), `LICENSE`, `NOTICE` and `README.md`.
+ * Files, named as the install scripts expect: `solipsist-<os>-<arch>.tar.gz` (`.zip` for windows), no version in the
+ * name, holding a folder with `solipsist` (`solipsist.exe`), `LICENSE`, `NOTICE` and `README.md`.
  */
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -28,7 +28,8 @@ export type Target = (typeof TARGETS)[number];
 
 const bunTarget = (t: Target) => `bun-${t}` as Bun.Build.CompileTarget;
 
-export const archiveName = (version: string, t: Target) => `solipsist-${version}-${t}.${t.startsWith("windows") ? "zip" : "tar.gz"}`;
+/** No version in the name, so `releases/latest/download/<asset>` is a stable URL; the version is in the release and in `--version`. */
+export const archiveName = (t: Target) => `solipsist-${t}.${t.startsWith("windows") ? "zip" : "tar.gz"}`;
 
 /** `--target` words -> the targets to build; throws on one we don't ship. */
 export function pickTargets(arg: string | undefined, host = targetOf(process.platform, process.arch)): Target[] {
@@ -64,7 +65,7 @@ export async function buildTarget(t: Target, o: { out: string; commit: string; b
   });
   if (!result.success) throw new Error(`Build for ${t} failed:\n${result.logs.map((l) => l.message).join("\n")}`);
   for (const f of ["LICENSE", "NOTICE", "README.md"]) cpSync(join(root, f), join(stage, f));
-  const archive = join(o.out, archiveName(pkg.version, t));
+  const archive = join(o.out, archiveName(t));
   rmSync(archive, { force: true });
   const dir = basename(stage);
   if (t.startsWith("windows")) shell(["zip", "-qr", archive, dir], join(o.out, `stage-${t}`));

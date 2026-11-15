@@ -16,9 +16,9 @@ test("--target: none is all, host is this machine, a list is each, an unknown on
   expect(() => pickTargets("host", "linux-riscv64")).toThrow(/Unknown target/);
 });
 
-test("archives: tar.gz, and zip for windows, named for the install scripts", () => {
-  expect(archiveName("1.2.3", "darwin-arm64")).toBe("solipsist-1.2.3-darwin-arm64.tar.gz");
-  expect(archiveName("1.2.3-beta.1", "windows-x64")).toBe("solipsist-1.2.3-beta.1-windows-x64.zip");
+test("archives: tar.gz, and zip for windows, no version in the name (a stable releases/latest/download URL)", () => {
+  expect(archiveName("darwin-arm64")).toBe("solipsist-darwin-arm64.tar.gz");
+  expect(archiveName("windows-x64")).toBe("solipsist-windows-x64.zip");
 });
 
 test("SHA256SUMS is what `shasum -a 256 -c` reads: hash, two spaces, the file's name", () => {
