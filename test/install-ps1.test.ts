@@ -73,3 +73,12 @@ test("Windows PowerShell 5.1 is given TLS 1.2, added to what it offers (PowerShe
   expect(text).toMatch(/if \(\$PSVersionTable\.PSVersion\.Major -lt 6\) \{\s*\[Net\.ServicePointManager\]::SecurityProtocol = \[Net\.ServicePointManager\]::SecurityProtocol -bor \[Net\.SecurityProtocolType\]::Tls12/);
   expect(text.indexOf("Tls12")).toBeLessThan(text.indexOf("Invoke-WebRequest -UseBasicParsing"));
 });
+
+test("the user's Path is read and written as stored, so a %VAR% entry stays one", () => {
+  // The registry is Windows-only: this reads the script, so the raw read and the ExpandString write can't quietly go.
+  const text = readFileSync(script, "utf8");
+  expect(text).toContain("[Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames");
+  expect(text).toContain("[Microsoft.Win32.RegistryValueKind]::ExpandString");
+  expect(text).not.toContain('GetEnvironmentVariable("Path"');
+  expect(text).not.toMatch(/SetEnvironmentVariable\("Path"/);
+});

@@ -57,11 +57,23 @@
 
     Write-Host "Installed: $version"
     Write-Host "  $target"
-    $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-    if (($userPath -split ";") -notcontains $dir) {
-      [Environment]::SetEnvironmentVariable("Path", ($(if ($userPath) { "$userPath;" } else { "" }) + $dir), "User")
-      Write-Host ""
-      Write-Host "Added $dir to your PATH. Open a new terminal to use it."
+    # The user's Path as stored, `%VAR%` entries unexpanded: [Environment]::GetEnvironmentVariable expands them, and
+    # writing that back would turn `%USERPROFILE%\bin` into a fixed path for good.
+    $envKey = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey("Environment", $true)
+    try {
+      $userPath = [string]$envKey.GetValue("Path", "", [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+      $entries = $userPath -split ";" | Where-Object { $_ } | ForEach-Object { [Environment]::ExpandEnvironmentVariables($_).TrimEnd("\") }
+      if ($entries -notcontains $dir.TrimEnd("\")) {
+        $envKey.SetValue("Path", ($(if ($userPath) { "$($userPath.TrimEnd(';'));" } else { "" }) + $dir), [Microsoft.Win32.RegistryValueKind]::ExpandString)
+        # Setting the registry tells no one. A variable set and removed through [Environment] sends the change
+        # around, so a terminal opened from now on sees the new Path.
+        [Environment]::SetEnvironmentVariable("SOLIPSIST_INSTALL_PATH_CHANGED", "1", "User")
+        [Environment]::SetEnvironmentVariable("SOLIPSIST_INSTALL_PATH_CHANGED", $null, "User")
+        Write-Host ""
+        Write-Host "Added $dir to your PATH. Open a new terminal to use it."
+      }
+    } finally {
+      $envKey.Close()
     }
     Write-Host ""
     Write-Host "Run it in a folder of markdown files:  solipsist"
