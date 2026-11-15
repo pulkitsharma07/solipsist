@@ -29,7 +29,6 @@ ${sections.join("\n\n")}
 
 ## Optional
 
-- [Every feature](${SITE}/features.html): each part of the app, drawn with its real HTML
 - [Source](https://github.com/pulkitsharma07/solipsist): the repository, with \`AGENTS.md\` for coding agents
 `;
   return new Response(text, { headers: { "Content-Type": "text/plain; charset=utf-8" } });

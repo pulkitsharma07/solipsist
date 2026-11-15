@@ -1,12 +1,11 @@
-// Writes the website's two generated files; site/ is an Astro Starlight project that serves them (its `dev` and
+// Writes the website's generated files; site/ is an Astro Starlight project that serves them (its `dev` and
 // `build` run this first; .github/workflows/pages.yml publishes site/dist):
 // - site/src/landing.html, the landing page at /, from scripts/site/template.html: the app's real stylesheet (from
 //   FEATURES.html) goes in at /*APP_CSS*/, the engine marks at <!--PI:size-->, and the version from package.json at
 //   <!--VERSION-->, so the demos are drawn by the app's own CSS and icons. Run `bun run features` first if the
 //   catalogue is stale.
 // - the documentation's configuration reference, from CONFIGURATION.md, so the two never differ;
-// - site/public/features.html, a copy of FEATURES.html, served as /features.html.
-import { copyFileSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const root = join(import.meta.dir, "../..");
@@ -76,5 +75,3 @@ const protocolPage = [
 writeFileSync(join(root, "site/src/content/docs/docs/agents/protocol.md"), protocolPage);
 console.log(`site/src/content/docs/docs/agents/protocol.md: ${protocolPage.length} bytes`);
 
-copyFileSync(join(root, "FEATURES.html"), join(root, "site/public/features.html"));
-console.log("site/public/features.html: copied from FEATURES.html");

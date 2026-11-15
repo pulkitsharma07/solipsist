@@ -25,7 +25,6 @@
 <p align="center">
   <a href="https://solipsist.sh">🌐 Website</a> ·
   <a href="https://solipsist.sh/docs/">📖 Docs</a> ·
-  <a href="https://solipsist.sh/features.html">✨ Every feature</a> ·
   <a href="CONFIGURATION.md">⚙️ Configuration</a> ·
   <a href="https://github.com/pulkitsharma07/solipsist/discussions">💬 Discussions</a>
 </p>

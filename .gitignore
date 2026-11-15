@@ -27,7 +27,6 @@ site/.astro/
 site/src/landing.html
 site/src/content/docs/docs/reference/configuration.md
 site/src/content/docs/docs/agents/protocol.md
-site/public/features.html
 
 # The monkey tester, kept local for now (see AGENTS.md)
 monke/
