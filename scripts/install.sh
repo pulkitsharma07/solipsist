@@ -9,6 +9,9 @@
 #   SOLIPSIST_BASE_URL=<url>        fetch the files from here instead of GitHub Releases (a mirror, or a test)
 #
 # Exit codes: 1 unsupported system or download failed, 2 checksum mismatch, 3 the installed binary doesn't run.
+#
+# Everything is inside main(), called on the last line: piped into sh, a download cut off part way defines functions
+# and runs nothing, instead of running the half that arrived.
 set -eu
 
 REPO="pulkitsharma07/solipsist"
@@ -50,50 +53,54 @@ sha256_of() {
   else die 1 "sha256sum or shasum is needed to check the download"; fi
 }
 
-target=$(detect)
-asset="solipsist-$target.tar.gz"
-if [ -n "${SOLIPSIST_BASE_URL:-}" ]; then
-  base=$SOLIPSIST_BASE_URL
-elif [ -n "${SOLIPSIST_VERSION:-}" ]; then
-  base="https://github.com/$REPO/releases/download/v${SOLIPSIST_VERSION#v}"
-else
-  base="https://github.com/$REPO/releases/latest/download"
-fi
-dir=${SOLIPSIST_INSTALL_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}
+main() {
+  target=$(detect)
+  asset="solipsist-$target.tar.gz"
+  if [ -n "${SOLIPSIST_BASE_URL:-}" ]; then
+    base=$SOLIPSIST_BASE_URL
+  elif [ -n "${SOLIPSIST_VERSION:-}" ]; then
+    base="https://github.com/$REPO/releases/download/v${SOLIPSIST_VERSION#v}"
+  else
+    base="https://github.com/$REPO/releases/latest/download"
+  fi
+  dir=${SOLIPSIST_INSTALL_DIR:-${XDG_BIN_HOME:-$HOME/.local/bin}}
 
-tmp=$(mktemp -d "${TMPDIR:-/tmp}/solipsist-install.XXXXXX")
-trap 'rm -rf "$tmp"' EXIT INT TERM
+  tmp=$(mktemp -d "${TMPDIR:-/tmp}/solipsist-install.XXXXXX")
+  trap 'rm -rf "$tmp"' EXIT INT TERM
 
-say "Downloading Solipsist for $target…"
-fetch "$base/$asset" "$tmp/$asset" || die 1 "could not download $base/$asset"
-fetch "$base/SHA256SUMS" "$tmp/SHA256SUMS" || die 1 "could not download $base/SHA256SUMS"
+  say "Downloading Solipsist for $target…"
+  fetch "$base/$asset" "$tmp/$asset" || die 1 "could not download $base/$asset"
+  fetch "$base/SHA256SUMS" "$tmp/SHA256SUMS" || die 1 "could not download $base/SHA256SUMS"
 
-want=$(grep "  $asset\$" "$tmp/SHA256SUMS" | cut -d' ' -f1 || true)
-[ -n "$want" ] || die 1 "$asset is not in the release's SHA256SUMS"
-got=$(sha256_of "$tmp/$asset")
-[ "$got" = "$want" ] || die 2 "checksum mismatch for $asset (expected $want, got $got): nothing installed"
+  want=$(grep "  $asset\$" "$tmp/SHA256SUMS" | cut -d' ' -f1 || true)
+  [ -n "$want" ] || die 1 "$asset is not in the release's SHA256SUMS"
+  got=$(sha256_of "$tmp/$asset")
+  [ "$got" = "$want" ] || die 2 "checksum mismatch for $asset (expected $want, got $got): nothing installed"
 
-tar -xzf "$tmp/$asset" -C "$tmp"
-bin=$(find "$tmp" -type f -name solipsist -path "*/solipsist-*/solipsist" | head -n 1)
-[ -n "$bin" ] || die 1 "the download has no solipsist binary in it"
-chmod +x "$bin"
-version=$("$bin" --version 2>&1) || die 3 "the downloaded binary doesn't run: $version"
+  tar -xzf "$tmp/$asset" -C "$tmp"
+  bin=$(find "$tmp" -type f -name solipsist -path "*/solipsist-*/solipsist" | head -n 1)
+  [ -n "$bin" ] || die 1 "the download has no solipsist binary in it"
+  chmod +x "$bin"
+  version=$("$bin" --version 2>&1) || die 3 "the downloaded binary doesn't run: $version"
 
-mkdir -p "$dir"
-# Copy beside the target, then rename over it: replacing a binary that is running is safe this way.
-cp "$bin" "$dir/.solipsist.new.$$"
-mv -f "$dir/.solipsist.new.$$" "$dir/solipsist"
+  mkdir -p "$dir"
+  # Copy beside the target, then rename over it: replacing a binary that is running is safe this way.
+  cp "$bin" "$dir/.solipsist.new.$$"
+  mv -f "$dir/.solipsist.new.$$" "$dir/solipsist"
 
-say "Installed: $version"
-say "  $dir/solipsist"
-case ":$PATH:" in
-  *":$dir:"*) ;;
-  *)
-    say ""
-    say "$dir is not on your PATH. Add it:"
-    say "  echo 'export PATH=\"$dir:\$PATH\"' >> ~/.profile   # then open a new terminal"
-    ;;
-esac
-say ""
-say "Run it in a folder of markdown files:  solipsist"
-say "To uninstall:  rm $dir/solipsist   (your pages are never touched)"
+  say "Installed: $version"
+  say "  $dir/solipsist"
+  case ":$PATH:" in
+    *":$dir:"*) ;;
+    *)
+      say ""
+      say "$dir is not on your PATH. Add it:"
+      say "  echo 'export PATH=\"$dir:\$PATH\"' >> ~/.profile   # then open a new terminal"
+      ;;
+  esac
+  say ""
+  say "Run it in a folder of markdown files:  solipsist"
+  say "To uninstall:  rm $dir/solipsist   (your pages are never touched)"
+}
+
+main "$@"

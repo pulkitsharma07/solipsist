@@ -106,3 +106,21 @@ test("a release that has no file for this system is an error, not a crash", () =
   expect(r.code).toBe(1);
   expect(r.err).toContain("could not download");
 });
+
+test("piped in and cut off at any line, the script runs nothing", () => {
+  makeRelease("linux-x64", "solipsist 0.0.0 (linux-x64)");
+  const lines = readFileSync(script, "utf8").split("\n");
+  const last = lines.findLastIndex((l) => l.trim() !== "");
+  const dir = join(root, "cut");
+  for (let i = 1; i <= last; i++) {
+    const r = Bun.spawnSync(["/bin/sh", "-s"], {
+      stdin: Buffer.from(lines.slice(0, i).join("\n") + "\n"),
+      env: { PATH: `${stubs}:${process.env.PATH}`, HOME: join(root, "home"), TMPDIR: root, SOLIPSIST_BASE_URL: `file://${release}`, SOLIPSIST_INSTALL_DIR: dir },
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    if (r.stdout.toString().includes("Downloading")) throw new Error(`cut after line ${i}, the script started downloading`);
+  }
+  expect(existsSync(dir)).toBe(false);
+});
+
