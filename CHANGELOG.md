@@ -6,6 +6,8 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-11-15
+
 ### Added
 
 - A second Solipsist started on a folder that already has one running is refused, with where the first one is and how to stop it, instead of both writing the same pages. A lock left by a crash is taken over.
