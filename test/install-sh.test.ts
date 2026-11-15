@@ -54,6 +54,24 @@ test("installs the file for this system, checked, into ~/.local/bin, and says ho
   expect(r.out).toContain("Installed: solipsist 0.0.0 (linux-x64)");
   expect(r.out).toContain("is not on your PATH");
   expect(r.out).toContain("your pages are never touched");
+  expect(r.out).toContain("https://solipsist.sh/docs/");
+  // No key and no Pi login: it says how to connect a model.
+  expect(r.out).toContain("No model connected yet");
+});
+
+test("a login Pi already has, or a key in the environment, is a connected model; Pi's folder is only read", () => {
+  makeRelease("linux-x64", "solipsist 0.0.0 (linux-x64)");
+  const pi = join(root, "pi-agent");
+  mkdirSync(pi, { recursive: true });
+  const auth = `{"github-copilot":{"type":"oauth"}}`;
+  writeFileSync(join(pi, "auth.json"), auth);
+  const a = run({ SOLIPSIST_INSTALL_DIR: join(root, "login-a"), PI_CODING_AGENT_DIR: pi }, { s: "Linux", m: "x86_64" });
+  expect(a.code).toBe(0);
+  expect(a.out).not.toContain("No model connected");
+  expect(readFileSync(join(pi, "auth.json"), "utf8")).toBe(auth);
+  const b = run({ SOLIPSIST_INSTALL_DIR: join(root, "login-b"), SOLIPSIST_OPENROUTER_KEY: "sk-or-test" }, { s: "Linux", m: "x86_64" });
+  expect(b.out).not.toContain("No model connected");
+  expect(existsSync(join(root, "home", ".pi"))).toBe(false);
 });
 
 test("an arm64 Mac gets darwin-arm64; an aarch64 Linux gets linux-arm64", () => {

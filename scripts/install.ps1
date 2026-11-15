@@ -77,6 +77,7 @@
     }
     Write-Host ""
     Write-Host "Run it in a folder of markdown files:  solipsist"
+    Write-Host "Docs and configuration:  https://solipsist.sh/docs/"
     Write-Host "To uninstall: delete $dir and remove it from your PATH (your pages are never touched)."
   } finally {
     Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue

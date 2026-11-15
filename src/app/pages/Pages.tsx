@@ -40,7 +40,7 @@ export function Pages() {
     setSkipped(left);
     await revalidate();
   };
-  const create = async (path: string) => { const id = await createPage(path); if (id) navigate(pageUrl(id)); };
+  const create = async (path: string) => { const id = await createPage(path); if (id) navigate(pageUrl(id)); return !!id; };
   // It opens by itself on the first launch, and again when md_search_paths changed and found files not added yet.
   const open = setup.needed || setup.changed || adding;
   const close = async () => {
@@ -60,7 +60,7 @@ export function Pages() {
       {setup.project && open && (
         <SetupDialog
           found={setup.found} searchPaths={setup.searchPaths} capped={setup.capped} first={setup.needed} failed={failed}
-          onAdd={(paths) => void add(paths)} onClose={setup.needed ? undefined : () => void close()}
+          onAdd={(paths) => void add(paths)} onCreate={create} onClose={setup.needed ? undefined : () => void close()}
         />
       )}
     </>

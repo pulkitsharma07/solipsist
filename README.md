@@ -40,10 +40,11 @@ cd ~/my-notes && solipsist
 
 On Windows (PowerShell): `irm https://get.solipsist.sh/install.ps1 | iex`.
 
-The installer downloads the release for your system, checks it against the release's checksums and puts `solipsist` in
-`~/.local/bin`. No sudo, no Bun. Run it again to update. `solipsist --version` says which build you have.
+The installer downloads the release for your system, checks it against the release's checksums and puts `solipsist` where
+you choose (`~/.local/bin` by default, no sudo). No Bun. Run it again to update. `solipsist --version` says which build you have.
 
-Open <http://localhost:3000>. The first launch lists the markdown files in that folder. Pick the ones to work on.
+Open <http://localhost:3000>. The first launch lists the markdown files in that folder. Pick the ones to work on, or
+start a new page if there are none.
 Prefer to run from source? You need [Bun](https://bun.sh) and a clone of this repository. More in
 [Install and run](https://solipsist.sh/docs/start/install/).
 

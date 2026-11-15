@@ -480,9 +480,12 @@ export const catalog: Entry[] = [
   {
     id: "setup-dialog", group: "frame", name: "Choose your files", kind: "React component", where: "Over the home screen, on the first launch and from Add files",
     summary: "The markdown files md_search_paths found, to pick which ones Solipsist copies and syncs.",
-    use: ["Say which of a project's files to work on. Nothing is created until you confirm."],
-    handlers: ["All: ticks or clears every file.", "Add N files: copies the ones ticked into .solipsist/.", "Cancel (Add files only): closes it."],
-    specimens: [{ label: "First launch", frame: "window", html: () => { const { SetupDialog } = require("../../src/app/pages/SetupDialog"); return render(<SetupDialog found={["README.md", "ROADMAP.md", "docs/plan.md"]} searchPaths={["*.md", "docs"]} capped={false} first failed={[]} onAdd={noop} />); } }],
+    use: ["Say which of a project's files to work on. Nothing is created until you confirm.", "In a folder with no markdown, start a new page instead."],
+    handlers: ["All: ticks or clears every file.", "Add N files: copies the ones ticked into .solipsist/.", "Create page (nothing found): makes an empty file at the path given and opens it; says so when the name is taken.", "Cancel (Add files only): closes it."],
+    specimens: [
+      { label: "First launch", frame: "window", html: () => { const { SetupDialog } = require("../../src/app/pages/SetupDialog"); return render(<SetupDialog found={["README.md", "ROADMAP.md", "docs/plan.md"]} searchPaths={["*.md", "docs"]} capped={false} first failed={[]} onAdd={noop} />); } },
+      { label: "First launch, no markdown files", frame: "window", html: () => { const { SetupDialog } = require("../../src/app/pages/SetupDialog"); return render(<SetupDialog found={[]} searchPaths={["*.md"]} capped={false} first failed={[]} onAdd={noop} onCreate={async () => true} />); } },
+    ],
     source: ["src/app/pages/SetupDialog.tsx"],
   },
   {

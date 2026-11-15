@@ -94,3 +94,37 @@ test("coming back to the tab asks the server again, so a restart with new search
   expect(ui.dialog()?.textContent).toContain("b.md");
   await ui.done();
 });
+
+test("a first launch in a folder with no markdown offers a new page, and creating it opens it", async () => {
+  const setup: SetupInfo = { ...base, needed: true };
+  const made: unknown[] = [];
+  let taken = true;
+  fakeServer(() => setup);
+  const inner = globalThis.fetch;
+  globalThis.fetch = (async (url: string, init?: RequestInit) => {
+    if (String(url) === "/api/pages" && init?.method === "POST") {
+      made.push(JSON.parse(String(init.body)));
+      return taken ? Response.json({ error: "taken" }, { status: 400 }) : Response.json({ id: "notes" });
+    }
+    return inner(url, init);
+  }) as typeof fetch;
+  const ui = await mount();
+  expect(ui.dialog()?.textContent).toContain("Start with a new page");
+  expect(ui.dialog()?.textContent).not.toContain("Add 0 files");
+  const field = ui.dialog()!.querySelector('input[aria-label="Path of the new page"]') as HTMLInputElement;
+  expect(field.value).toBe("notes.md");
+
+  // Refused (the name is taken): it says so and stays.
+  await ui.act(async () => { ui.button("Create page").click(); });
+  await ui.settle();
+  expect(made).toEqual([{ path: "notes.md" }]);
+  expect(ui.dialog()?.textContent).toContain("Couldn't create notes.md");
+
+  taken = false;
+  await ui.act(async () => { ui.button("Create page").click(); });
+  await ui.settle();
+  // Made: the dialog gives way to the page.
+  expect(made).toHaveLength(2);
+  expect(ui.dialog()).toBeNull();
+  await ui.done();
+});

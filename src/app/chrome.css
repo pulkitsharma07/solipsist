@@ -250,6 +250,8 @@ button.sb-item:hover { background: var(--sunken); color: var(--ink); }
 .file-list label { display: block; padding: 2px 0; cursor: pointer; }
 .file-all { font-weight: 500; }
 .file-folder { margin-top: var(--s2); font: var(--t-xs)/1.5 var(--mono); color: var(--ink-3); }
+.setup-new { display: flex; margin-top: var(--s2); }
+.setup-new .field { flex: 1; }
 .home-new { display: flex; gap: var(--s2); align-items: center; margin-bottom: var(--s4); }
 .home-folder { margin: var(--s4) 0 var(--s2); font: var(--t-xs)/1.5 var(--mono); color: var(--ink-3); }
 .home header { gap: var(--s2); }

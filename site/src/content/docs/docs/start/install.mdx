@@ -20,9 +20,13 @@ irm https://get.solipsist.sh/install.ps1 | iex
 ```
 
 The installer downloads the release for your system (macOS and Linux on Intel or ARM, Windows x64; Linux needs glibc,
-so not Alpine), checks it against the release's `SHA256SUMS`, and puts one `solipsist` program in `~/.local/bin`
-(`%LOCALAPPDATA%\solipsist` on Windows). It needs no sudo and no Bun, and touches nothing outside that folder. If that
-folder isn't on your `PATH`, it prints the line to add. To check what you got:
+so not Alpine), checks it against the release's `SHA256SUMS`, and puts one `solipsist` program where you choose. On
+macOS and Linux it asks: just for you (`~/.local/bin`, no sudo, the default), for everyone (`/usr/local/bin`, with sudo
+if it needs it), or this folder only (run it as `./solipsist`). Run without a terminal (in CI, say), it asks nothing
+and installs just for you. On Windows it goes in `%LOCALAPPDATA%\solipsist`. It needs no Bun, and touches nothing
+outside that folder. If the folder isn't on your `PATH`, it offers to add it to your shell's startup file. If no model
+is connected yet (no OpenRouter key, no login saved in Pi), it says how to [connect one](/docs/start/connect-a-model/).
+To check what you got:
 
 ```bash
 solipsist --version
@@ -38,7 +42,8 @@ Open [localhost:3000](http://localhost:3000). To use a different port, set `serv
 
 ## Picking the files
 
-The first time you start it, Solipsist lists the markdown files it finds in that folder.
+The first time you start it, Solipsist lists the markdown files it finds in that folder. If there are none, it offers
+to start a new page instead: give it a name (`notes.md`) and press Create page.
 
 <Shot name="setup-dialog" title="Choose your files" alt="The Choose your files dialog: the markdown files found in the folder, each with a checkbox" caption="The first launch: pick the files to work on." />
 
