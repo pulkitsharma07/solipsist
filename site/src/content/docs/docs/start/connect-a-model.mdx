@@ -7,7 +7,7 @@ sidebar:
 
 import Shot from "../../../../components/Shot.astro";
 
-The agents are [Pi](https://github.com/earendil-works/pi), an open-source coding agent. It's built into Solipsist, so
+The agents are [Pi](https://github.com/earendil-works/pi), an open-source coding agent ([more about Pi here](/docs/engines/pi/)). It's built into Solipsist, so
 there's nothing extra to install. Pi needs a model, and there are two ways to give it one.
 
 If you ask for something before a model is connected, you get this dialog instead of a request that would fail:
@@ -23,7 +23,7 @@ environment:
 SOLIPSIST_OPENROUTER_KEY=sk-or-...
 ```
 
-You can also put it in `solipsist.yaml` as `pi.openrouter_key`, but that file is easy to commit by accident. The
+More on [OpenRouter](/docs/start/openrouter/). You can also put it in `solipsist.yaml` as `pi.openrouter_key`, but that file is easy to commit by accident. The
 server never prints a key. Errors and `--print-config` only say whether one is set.
 
 ## A login you saved in Pi
@@ -31,6 +31,10 @@ server never prints a key. Errors and `--print-config` only say whether one is s
 If you already use Pi in a terminal, Solipsist picks up Pi's own configuration, the same way the `pi` command does in
 that folder (`~/.pi/agent`, plus a project `.pi`). Your saved logins, skills and connected tools work here too. To add
 a login, run `pi` and then `/login`.
+
+## A model on your own computer
+
+Pi can also run through Ollama, LM Studio, llama.cpp or vLLM. See [Local models](/docs/start/local-models/).
 
 ## Choosing the model
 
@@ -49,6 +53,10 @@ If a run is in progress when you change the model, it finishes on the old one. I
 bar's model reads [Connect a model](/docs/reference/status-bar/#model) instead.
 
 <Shot name="status-bar" title="Status bar" alt="The status bar: editing mode, the agent on, the model, what the page has cost" />
+
+:::tip[Something not working?]
+[When it goes wrong](/docs/engines/when-it-goes-wrong/) lists the messages you can see and what fixes each.
+:::
 
 :::caution
 Like Pi in a terminal, an agent can run commands on your computer, and Solipsist doesn't sandbox them. Pi's own
