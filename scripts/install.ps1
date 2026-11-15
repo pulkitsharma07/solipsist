@@ -7,11 +7,11 @@
 #   $env:SOLIPSIST_INSTALL_DIR = "<dir>"      install there
 #   $env:SOLIPSIST_BASE_URL = "<url>"         fetch the files from here instead of GitHub Releases
 #
-# Errors are thrown, not `exit`ed: this script runs inside the user's own shell through `iex`.
-$ErrorActionPreference = "Stop"
-$ProgressPreference = "SilentlyContinue"   # Invoke-WebRequest is many times slower with its progress bar
-
+# Errors are thrown, not `exit`ed: this script runs inside the user's own shell through `iex`. For the same reason
+# everything, its preferences too, is inside `& { }`: set there, they don't outlast the script in that shell.
 & {
+  $ErrorActionPreference = "Stop"
+  $ProgressPreference = "SilentlyContinue"   # Invoke-WebRequest is many times slower with its progress bar
   $repo = "pulkitsharma07/solipsist"
   if (-not [Environment]::Is64BitOperatingSystem) { throw "solipsist install: unsupported system: 32-bit Windows" }
   # Windows on ARM runs the x64 build through its own emulation.
