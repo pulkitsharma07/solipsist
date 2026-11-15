@@ -58,5 +58,10 @@
   },
   "patchedDependencies": {
     "@tiptap/extension-list@3.32.0": "patches/@tiptap%2Fextension-list@3.32.0.patch"
+  },
+  "overrides": {
+    "undici": "8.12.3",
+    "minimatch": "11.0.3",
+    "@isaacs/nonrecursive-glob-match": "1.0.3"
   }
 }

@@ -22,6 +22,7 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 - An SVG image opened on its own can no longer run scripts as the app.
 - The `public/` folder of your project is no longer served.
 - The routes kept for testing are off unless Solipsist runs under `bun test` or `bun run dev`.
+- Updated two libraries the agents use, `undici` and `minimatch`, past their known vulnerabilities.
 
 ## [0.1.0] — first public build
 
