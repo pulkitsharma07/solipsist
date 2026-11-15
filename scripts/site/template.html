@@ -263,6 +263,7 @@ body { overflow-x: hidden; }
 .l-term { display: inline-grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 16px; margin-top: 32px; padding: 14px 14px 14px 20px; border: 1px solid var(--line-2); border-radius: var(--r-lg); background: var(--surface); text-align: left; max-width: 100%; }
 .l-term pre { margin: 0; font: 13.5px/1.8 var(--mono); color: var(--ink); overflow-x: auto; }
 .l-term .p { color: var(--ink-3); user-select: none; }
+.l-hero .l-install { margin-top: 20px; }
 .l-end .l-more { margin-top: 20px; font-size: 14.5px; }
 .l-end .l-more a, .l-foot a { color: var(--ink-2); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
 .l-end .l-more a:hover, .l-foot a:hover { color: var(--ink); }
@@ -288,6 +289,7 @@ body { overflow-x: hidden; }
     <h1>Think, work, collaborate with your local AI agents</h1>
     <p class="l-lede">They suggest; you decide. Solipsist is a markdown editor for planning, research and writing. Your agents work inside the page, on your machine, with the models you already use.</p>
     <div class="l-cta"><a class="l-btn l-solid l-lg" href="#start">Get started</a><a class="l-btn l-lg" href="https://github.com/pulkitsharma07/solipsist">View on GitHub</a></div>
+    <div class="l-term l-install"><pre id="hero-cmd"><span class="p">$ </span>curl -fsSL https://solipsist.sh/install | sh</pre><button type="button" class="l-btn" data-copy="hero-cmd">Copy</button></div>
 
     <video class="l-film" src="/launch.mp4" poster="/launch-poster.jpg" controls playsinline preload="none" aria-label="An 80-second film: starting Solipsist in a folder, asking an agent for the end of a sentence, accepting its suggestion, and a tour of the features"></video>
 
@@ -486,7 +488,7 @@ body { overflow-x: hidden; }
     <h2>Open a folder you already have</h2>
     <p>One command installs it: no Bun, no sudo. Solipsist lists the markdown files it finds in the folder. Pick the ones to work on.</p>
     <div class="l-term"><pre id="cmd"><span class="p">$ </span>curl -fsSL https://solipsist.sh/install | sh
-<span class="p">$ </span>cd ~/my-notes &amp;&amp; solipsist</pre><button type="button" class="l-btn" id="copy">Copy</button></div>
+<span class="p">$ </span>cd ~/my-notes &amp;&amp; solipsist</pre><button type="button" class="l-btn" id="copy" data-copy="cmd">Copy</button></div>
     <p class="l-more">Then open localhost:3000 and connect a model: an OpenRouter key, or a login you saved in Pi. Windows, updating and running from source: <a href="/docs/start/install/">read the guide</a>.</p>
   </div>
 </section>
@@ -743,10 +745,11 @@ body { overflow-x: hidden; }
     ]);
   })();
 
-  $("copy").addEventListener("click", async (e) => {
-    const btn = e.currentTarget;
-    try { await navigator.clipboard.writeText($("cmd").textContent.replace(/^\$ /gm, "")); btn.textContent = "Copied"; }
-    catch { const r = document.createRange(); r.selectNodeContents($("cmd")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+  // A Copy button copies the commands of the <pre> its data-copy names, without the prompts.
+  for (const b of document.querySelectorAll("[data-copy]")) b.addEventListener("click", async (e) => {
+    const btn = e.currentTarget, cmd = $(btn.dataset.copy);
+    try { await navigator.clipboard.writeText(cmd.textContent.replace(/^\$ /gm, "")); btn.textContent = "Copied"; }
+    catch { const r = document.createRange(); r.selectNodeContents(cmd); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
     setTimeout(() => (btn.textContent = "Copy"), 1500);
   });
 })();
