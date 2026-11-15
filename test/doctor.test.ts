@@ -39,7 +39,8 @@ test("problems are said plainly: a busy port, an engine that can't run, a folder
     "/home/ann",
   );
   expect(text).toContain("no settings file");
-  expect(text).toContain("is in use");
+  expect(text).toContain("is in use (not by Solipsist");
+  expect(format({ ...base, server: { ...base.server, free: false, solipsist: 4242 } }, "/home/ann")).toContain("already running for this folder (process 4242)");
   expect(text).toContain("Agent:    pi can't run: no model key");
   expect(text).toContain("NOT WRITABLE");
   expect(text).toContain("Log:      off");
@@ -73,4 +74,4 @@ test("run for real in an empty folder: it reports, and a key never appears", asy
   } finally {
     for (const [k, v] of [["SOLIPSIST_PROJECT_ROOT", was.root], ["SOLIPSIST_OPENROUTER_KEY", was.key]] as const) v === undefined ? delete process.env[k] : (process.env[k] = v);
   }
-});
+}, 30_000); // loads Pi's model catalog: a cold import takes seconds under load

@@ -1,0 +1,53 @@
+---
+title: Pi
+description: The agent engine, with its login, its configuration, its tools and its models.
+sidebar:
+  order: 2
+---
+
+[Pi](https://github.com/earendil-works/pi) is built into Solipsist. There's nothing to install: the agents run inside
+the Solipsist process, using Pi as a library.
+
+## What it needs
+
+A model it can call. Any one of these:
+
+- an [OpenRouter key](/docs/engines/openrouter/) in `SOLIPSIST_OPENROUTER_KEY` (or `pi.openrouter_key`),
+- a login saved in Pi: run `pi`, then `/login`,
+- a provider in Pi's own `models.json`, such as a [model on your computer](/docs/engines/local-models/).
+
+Until one of those exists, the status bar says **Connect a model**, and asking for something opens a dialog that says
+how, instead of starting a run that would fail.
+
+## It is your Pi
+
+Solipsist reads Pi's configuration the way the `pi` command does in the folder you run it from: `~/.pi/agent`, and a
+project `.pi` in the folder. Your saved logins, skills and settings work here too. Pi's session files for a run are
+kept where `pi` keeps them for that folder, so you can open one in `pi` afterwards.
+
+## Tools
+
+An agent may use the tools in `pi.tools` (`SOLIPSIST_PI_TOOLS`, comma-separated). The default is `read`, `grep`,
+`find`, `ls`, `bash`, `write` and `edit`. It leaves out MCP, codemode and tool search, so an agent never starts your MCP
+servers.
+
+- `write` and `edit` can only write to the page's images folder. The page itself is never written by an agent: it
+  answers with a suggestion, and you decide.
+- `bash` runs where Solipsist runs and isn't sandboxed. Remove it from `pi.tools` if you don't want an agent to run
+  commands.
+
+A permission prompt from a Pi extension can't be answered, because nobody is at the keyboard. It is refused and shows
+in the [agent panel](/docs/reference/agent-panel/) as an error.
+
+## Models
+
+The picker shows a shortlist (`pi.models`, with your `agent.preferred_models` pinned to the top) and can search every
+model your Pi can run. Solipsist reads Pi's model list from its files and doesn't ask the network, so the list is as
+fresh as the last time you ran `pi`. To refresh it, run `pi` once.
+
+A model is `<provider>/<model>`, for example `openrouter/anthropic/claude-haiku-5.5`. On a page it's saved as
+`pi:<provider>/<model>`.
+
+## In the file
+
+The settings are in [Configuration](/docs/reference/configuration/): `pi.models`, `pi.tools` and `pi.openrouter_key`.

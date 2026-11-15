@@ -58,5 +58,23 @@ const configPage = [
 writeFileSync(join(root, "site/src/content/docs/docs/reference/configuration.md"), configPage);
 console.log(`site/src/content/docs/docs/reference/configuration.md: ${configPage.length} bytes`);
 
+// The protocol every agent is told (src/server/agent/protocol.md), published as it is: what the agent is asked to do.
+const protocolPage = [
+  "---",
+  "title: The protocol",
+  "description: Exactly what every agent is told about tasks, markers and how to reply.",
+  "editUrl: " + repoFile.replace("/blob/", "/edit/") + "src/server/agent/protocol.md",
+  "sidebar:",
+  "  order: 6",
+  "---",
+  "",
+  "<!-- Generated from src/server/agent/protocol.md by scripts/site/build.ts: edit that file instead. -->",
+  "This is the `protocol` [prompt](/docs/agents/prompts/): it goes in every agent's system prompt, before the prompt for the run. You can read and change it in settings. `{guide}` stands for the path of the image guide.",
+  "",
+  readFileSync(join(root, "src/server/agent/protocol.md"), "utf8"),
+].join("\n");
+writeFileSync(join(root, "site/src/content/docs/docs/agents/protocol.md"), protocolPage);
+console.log(`site/src/content/docs/docs/agents/protocol.md: ${protocolPage.length} bytes`);
+
 copyFileSync(join(root, "FEATURES.html"), join(root, "site/public/features.html"));
 console.log("site/public/features.html: copied from FEATURES.html");

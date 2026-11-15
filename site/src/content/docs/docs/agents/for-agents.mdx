@@ -1,0 +1,74 @@
+---
+title: For AI agents
+description: How a coding agent can read these docs, put requests in a page, and drive a Solipsist headless.
+sidebar:
+  order: 5
+---
+
+If you point a coding agent (Cursor, Codex, Pi or another) at Solipsist, this is what it needs.
+
+## Reading the docs
+
+- Every page of these docs is also plain markdown at the same address with `.md` on the end, for example
+  `/docs/agents/for-agents.md`. Each page has **Copy page as markdown** under its title.
+- [`/llms.txt`](/llms.txt) lists the pages with a line about each, and [`/llms-full.txt`](/llms-full.txt) is all of them
+  in one file.
+- The repository has an `AGENTS.md` for an agent that changes Solipsist's own code.
+- [The protocol](/docs/agents/protocol/) is what Solipsist's own agents are told, word for word.
+
+## A request in a file
+
+A request is an HTML comment in the markdown, so it's invisible in any other editor. A point is one comment, and a
+range is a pair around the text it is about:
+
+```markdown
+The launch is <!-- sel:k3x "make it shorter" -->on the third of September, a Tuesday<!-- /sel:k3x -->.
+
+Next steps: <!-- gen:p9q -->
+```
+
+- The word before the colon is the **type**: `gen` (write something here), `sel` (do something to this text) and
+  `img` (change this image). The part after it is an **id**, a short string of lowercase letters and digits, unique
+  in the page.
+- `sel` and `img` take an instruction in quotes on the opening comment. `sel`'s is optional, `img`'s is required.
+  Write it like HTML: `&quot;` for a quote, `&lt;` for `<`, `&amp;` for `&`.
+- A marker with nothing after its id is waiting. Solipsist adds `:ack`, `:sug` or `:btn` as the request moves on:
+  leave those alone.
+- Don't write anything below the page's own text: the `<!-- solip-comments … -->` block at the end is Solipsist's
+  bookkeeping.
+
+## Getting a page in front of the agents
+
+1. Write the markers into your `.md` file.
+2. Start Solipsist in that folder: `solipsist` (or `bun ~/solipsist/src/index.ts`). It prints its address, by default
+   `http://localhost:3000`.
+3. The first launch asks which files to work on. Without a browser, choose them with the server's own request:
+
+   ```bash
+   curl -X POST localhost:3000/api/setup -H 'content-type: application/json' -d '{"paths":["notes.md"]}'
+   ```
+
+   The files are copied into `.solipsist/pages/` and worked on there. Your original is untouched until you
+   [Sync](/docs/guides/files-and-sync/).
+4. Agents start when a page is open in a browser tab. A request becomes a suggestion that waits for a person to accept or
+   reject it: the agents never write the page.
+
+To put requests into a page that is already being worked on, edit the original file and use **Reload from file** in the
+page, which merges your edit with the changes made there.
+
+## The HTTP interface
+
+The editor talks to the server over HTTP, and these are the routes it uses. Before 1.0 they can change in any release,
+and the [changelog](https://github.com/pulkitsharma07/solipsist/blob/main/CHANGELOG.md) says when they do.
+
+| Route | What it does |
+|---|---|
+| `GET /api/setup`, `POST /api/setup` | The files found in the folder, and choosing them |
+| `GET /api/pages`, `GET /api/pages/:id` | The pages, and one page's file |
+| `PUT /api/pages/:id` | Save a page (a revision number guards against overwriting a newer one) |
+| `POST /api/pages/:id/sync` | Write the page back to its original file |
+| `GET /api/pages/:id/agent` | The page's agent stream (server-sent events); starts the agents |
+| `GET /api/agent/models` | The models an agent can run |
+| `GET /api/config` | The settings in effect, with keys hidden |
+
+Everything else is a [setting](/docs/reference/configuration/), in `solipsist.yaml` or the environment.

@@ -8,6 +8,7 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ### Added
 
+- A second Solipsist started on a folder that already has one running is refused, with where the first one is and how to stop it, instead of both writing the same pages. A lock left by a crash is taken over.
 - `solipsist doctor` prints what a bug report needs: the version, your system, which settings file is in effect, whether the port is free, whether the folder can be written, which agents can run, and the last errors. It shows no key and no page text.
 
 ### Security

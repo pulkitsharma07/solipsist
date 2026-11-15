@@ -29,6 +29,20 @@ show as `set`.
 
 <Shot name="settings-loaded" title="Settings: Loaded settings" alt="The Loaded settings tab: each setting, its value and where it came from" />
 
+## One server per folder
+
+Starting Solipsist in a folder that already has one running is refused: two would write the same pages and answer every
+request twice. The message names the first one (its process, its address and when it started) and says what to do:
+
+- open the address it gives, which is the one to use;
+- or stop it with <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal it runs in, or `kill <process>` (`taskkill /PID <process>`
+  on Windows);
+- if nothing is running and the message is wrong, delete the lock file it names and start again. A lock left by a crash
+  is taken over by itself, so this is rarely needed.
+
+The lock is a small file in your temporary folder. Nothing is written to your folder. `solipsist doctor` says when a
+server is already running for the folder.
+
 ## Reporting a problem
 
 `solipsist doctor` prints the version, your system, which settings file is in effect, whether the port is free, whether

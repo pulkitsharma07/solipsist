@@ -12,6 +12,7 @@ export const GROUPS = [
   { dir: "start", label: "Start here" },
   { dir: "guides", label: "Guides" },
   { dir: "agents", label: "Agents" },
+  { dir: "engines", label: "Engines" },
   { dir: "reference", label: "Reference" },
 ] as const;
 

@@ -10,6 +10,7 @@ import { homedir, platform, release } from "node:os";
 import { config } from "./config";
 import { engines, warmEngines } from "./agent/engines";
 import { logFile } from "./log";
+import { readLock, isRunning } from "./lock";
 import { versionLine } from "./version";
 import piPkg from "../../node_modules/@earendil-works/pi-coding-agent/package.json";
 
@@ -19,7 +20,7 @@ export interface DoctorReport {
   runtime: string;
   pi: string;
   configFile: string | null;
-  server: { host: string; port: number; free: boolean };
+  server: { host: string; port: number; free: boolean; solipsist?: number };
   folder: { root: string; pages: string; exists: boolean; writable: boolean; count: number };
   engines: { name: string; problem: string | null }[];
   log: { file: string | null; errors: string[] };
@@ -49,6 +50,12 @@ const portFree = (host: string, port: number) =>
     s.listen(port, host, () => s.close(() => done(true)));
   });
 
+async function serverFacts(host: string, port: number): Promise<DoctorReport["server"]> {
+  const lock = readLock();
+  const solipsist = lock && lock.pid !== process.pid && (await isRunning(lock)) ? lock.pid : undefined;
+  return { host, port, free: await portFree(host, port), ...(solipsist ? { solipsist } : {}) };
+}
+
 export async function gather(): Promise<DoctorReport> {
   const c = config();
   await warmEngines();
@@ -67,7 +74,7 @@ export async function gather(): Promise<DoctorReport> {
     runtime: `Bun ${Bun.version}`,
     pi: piPkg.version,
     configFile: c.file,
-    server: { host: c.server.host, port: c.server.port, free: await portFree(c.server.host, c.server.port) },
+    server: await serverFacts(c.server.host, c.server.port),
     folder: { root: c.projectRoot, pages, exists, writable, count },
     engines: engines().map((e) => ({ name: e.name, problem: e.unavailable() })),
     log: { file, errors },
@@ -81,7 +88,7 @@ export function format(r: DoctorReport, home = homedir()): string {
     `System:   ${r.system}, ${r.runtime}`,
     `Pi:       ${r.pi}`,
     `Settings: ${r.configFile ? t(r.configFile) : "no settings file, defaults and environment"}`,
-    `Server:   ${r.server.host}:${r.server.port} ${r.server.free ? "is free" : "is in use (another Solipsist, or something else)"}`,
+    `Server:   ${r.server.host}:${r.server.port} ${r.server.solipsist ? `is Solipsist, already running for this folder (process ${r.server.solipsist})` : r.server.free ? "is free" : "is in use (not by Solipsist for this folder)"}`,
     `Folder:   ${t(r.folder.root)}`,
     `Pages:    ${r.folder.exists ? `${r.folder.count} page${r.folder.count === 1 ? "" : "s"} in ${t(r.folder.pages)}` : "none yet (the first launch picks them)"}${r.folder.writable ? "" : " — NOT WRITABLE"}`,
     ...r.engines.map((e) => `Agent:    ${e.name} ${e.problem ? `can't run: ${e.problem}` : "ready"}`),

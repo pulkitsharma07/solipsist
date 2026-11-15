@@ -1,0 +1,46 @@
+---
+title: Local models
+description: Run the agents on a model on your own computer, through Pi.
+sidebar:
+  order: 4
+---
+
+Pi can talk to any server that speaks an API it supports, including Ollama, LM Studio, llama.cpp and vLLM. Nothing
+leaves your computer, and there is no key to buy.
+
+## Add the server to Pi
+
+Describe the server in Pi's `models.json`, in `~/.pi/agent` (or in a project `.pi` folder). For Ollama:
+
+```json
+{
+  "providers": {
+    "ollama": {
+      "baseUrl": "http://localhost:11434/v1",
+      "api": "openai-completions",
+      "apiKey": "ollama",
+      "models": [{ "id": "qwen2.5-coder:7b" }]
+    }
+  }
+}
+```
+
+The `apiKey` is a placeholder that makes the model available to Pi; Ollama ignores it. For a server that needs a real
+key, use `"$NAME"` to read it from an environment variable. Pi's own documentation lists every field (its
+`models.md` and `models-configuration.md`, in the `@earendil-works/pi-coding-agent` package).
+
+Then run `pi` once so its model list is refreshed, restart Solipsist, and choose the model in the
+[agent panel](/docs/reference/agent-panel/): it's listed as `<provider>/<model>`, here `ollama/qwen2.5-coder:7b`.
+
+## What to expect
+
+- **Quality.** A small model follows a short rewrite well and an open-ended one badly. If its suggestions are poor, try
+  a larger model before changing anything else.
+- **Speed.** A run waits for your computer. Lower `agent.concurrency` (three runs at a time by default) if the machine
+  struggles with several at once.
+- **Cost.** A local run reports $0, so the dollar [spending limits](/docs/agents/how-agents-work/#spending-limits)
+  never stop it.
+- **Tools.** Agents give their result by calling a tool, so use a model that supports tool calls. If a model can't,
+  its runs will fail: pick another.
+
+If it doesn't work, see [When it goes wrong](/docs/engines/when-it-goes-wrong/).

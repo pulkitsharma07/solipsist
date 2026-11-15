@@ -1,0 +1,38 @@
+---
+title: OpenRouter
+description: One key for many models, and where to see what each costs.
+sidebar:
+  order: 3
+---
+
+[OpenRouter](https://openrouter.ai) sells access to many models behind one key. It's the quickest way to start:
+make a key in your OpenRouter account and give it to Solipsist.
+
+```bash
+SOLIPSIST_OPENROUTER_KEY=sk-or-...
+```
+
+Put it in a `.env` file in the folder you run Solipsist from (keep that file out of version control), or in your
+environment. You can also set `pi.openrouter_key` in `solipsist.yaml`, but that file is easy to commit by accident.
+Solipsist never prints a key: errors and `--print-config` only say whether one is set. Restart Solipsist after adding it.
+
+## Picking a model
+
+Open the [agent panel](/docs/reference/agent-panel/) and use the model picker. The picker opens on a shortlist of
+OpenRouter models (`pi.models`); search the list for others. The picker shows a model's size and price, so you can see
+what a run is likely to cost before you choose.
+
+A model that suits suggestions is one that follows an instruction closely and answers briefly: you are asking it to
+rewrite a sentence, not to write a novel. A small model is usually enough for a short rewrite, and a larger one is
+worth it for a request that needs the whole page's context.
+
+## What it costs
+
+OpenRouter bills your account. Solipsist adds up what each run cost, shows it in the [status bar](/docs/reference/status-bar/#cost)
+and the agent panel, and stops starting new runs at the [spending limits](/docs/agents/how-agents-work/#spending-limits):
+$5 a day and $50 a month unless you change them (`agent.cost_limit_day_usd`, `agent.cost_limit_month_usd`). Those
+totals are rebuilt from the log, so they survive a restart.
+
+Set a spending limit in your OpenRouter account too: Solipsist's limits only count what its own agents spend.
+
+If it doesn't work, see [When it goes wrong](/docs/engines/when-it-goes-wrong/).
