@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { sha256 } from "../scripts/build";
 
+// The tests that start many shells get a long timeout: a full `bun test` on a busy machine took them past the default 5 s.
 const script = join(import.meta.dir, "..", "scripts", "install.sh");
 let root: string;
 let release: string; // a fake release folder: the archive and SHA256SUMS the script fetches
@@ -122,7 +123,7 @@ test("piped in and cut off at any line, the script runs nothing", () => {
     if (r.stdout.toString().includes("Downloading")) throw new Error(`cut after line ${i}, the script started downloading`);
   }
   expect(existsSync(dir)).toBe(false);
-});
+}, 60_000);
 
 /** Runs the script with only `tools` on the PATH (plus a fake uname) and a fake `curl` or `wget` that records its arguments and fails. */
 function recordFetch(fetcher: "curl" | "wget", env: Record<string, string>) {
@@ -149,13 +150,13 @@ test("from GitHub, curl and wget fetch over HTTPS only (no redirect to http)", (
   expect(w.code).toBe(1);
   expect(w.args).toContain("--https-only");
   expect(w.args).toContain("/releases/download/v1.2.3/solipsist-linux-x64.tar.gz");
-});
+}, 60_000);
 
 test("SOLIPSIST_BASE_URL is fetched as given (a mirror or a test may be http or file)", () => {
   const c = recordFetch("curl", { SOLIPSIST_BASE_URL: "http://mirror.test/rel" });
   expect(c.args).not.toContain("--proto");
   expect(c.args).toContain("http://mirror.test/rel/solipsist-linux-x64.tar.gz");
-});
+}, 60_000);
 
 test("no variable is followed straight by a non-ASCII character: macOS's bash 3.2 reads its bytes as part of the name", () => {
   const bad = readFileSync(script, "utf8")
