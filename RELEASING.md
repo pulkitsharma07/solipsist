@@ -21,8 +21,8 @@ bun run release <patch|minor|major|x.y.z[-beta.N]> --dry-run   # what it would d
 bun run release <patch|minor|major|x.y.z[-beta.N]>
 ```
 
-It refuses a dirty tree, a branch other than `main`, a tag that exists, an empty `[Unreleased]` and a red
-`bun test`. Then it turns `[Unreleased]` into `[x.y.z] — date`, sets `package.json`, commits "Release x.y.z" and makes
+It refuses a dirty tree, a branch other than `main`, a `main` behind `origin/main` (it fetches first), a tag that
+exists, an empty `[Unreleased]` and a red `bun test`. Then it turns `[Unreleased]` into `[x.y.z] — date`, sets `package.json`, commits "Release x.y.z" and makes
 the annotated tag `vx.y.z`. It does not push.
 
 Pre-releases are `x.y.z-beta.N` or `-rc.N`. A pre-release is marked as one on GitHub and is never "latest".
@@ -43,7 +43,8 @@ not run anywhere automatically: try them on those systems before a release that 
 
 ## 4. Publish
 
-Push the commit and the tag together: `git push origin main vx.y.z`.
+Push the commit and the tag together, atomically: `git push --atomic origin main vx.y.z`. Without `--atomic` a refused
+`main` lets the tag through alone; the workflow then fails "not on main", and a pushed tag is never moved.
 
 The Release workflow runs on the tag: it checks the tag matches `package.json` and `CHANGELOG.md` has the section,
 runs the whole CI suite, builds the five targets, starts the Linux binary on an empty folder, attests the build

@@ -1,10 +1,12 @@
 /**
  * Cut a release: `bun scripts/release.ts <patch|minor|major|x.y.z[-beta.N]> [--dry-run]`.
  *
- * Refuses a checkout that isn't clean, isn't on `main`, whose tag exists, whose `## [Unreleased]` has no entries, or
- * whose `bun test` is red. Then it renames `## [Unreleased]` to `## [x.y.z] — YYYY-MM-DD` (a new empty one above it),
+ * Refuses a checkout that isn't clean, isn't on `main`, is behind `origin/main` (fetched first), whose tag exists, whose
+ * `## [Unreleased]` has no entries, or whose `bun test` is red. Then it renames `## [Unreleased]` to `## [x.y.z] — YYYY-MM-DD` (a new empty one above it),
  * sets `package.json`'s version, commits "Release x.y.z" and makes the annotated tag `vx.y.z`. It never pushes: it
- * prints the command, so the tag (which starts the release workflow) is the maintainer's own push.
+ * prints the command, so the tag (which starts the release workflow) is the maintainer's own push. That command is
+ * `git push --atomic`: the tag can't land without main, which the workflow would refuse as "not on main", leaving a
+ * public tag that may not be moved.
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
@@ -69,56 +71,74 @@ function run(cmd: string[], cwd: string, inherit = false) {
   return { ok: r.exitCode === 0, out: r.stdout?.toString().trim() ?? "", err: r.stderr?.toString().trim() ?? "" };
 }
 
-if (import.meta.main) {
-  const root = resolve(import.meta.dir, "..");
-  const args = process.argv.slice(2);
-  const dry = args.includes("--dry-run");
-  const arg = args.find((a) => !a.startsWith("--"));
-  const fail = (m: string): never => {
-    console.error(m);
-    process.exit(1);
-  };
-  if (!arg) fail("Usage: bun scripts/release.ts <patch|minor|major|x.y.z[-beta.N]> [--dry-run]");
-  const pkgPath = join(root, "package.json");
+export type CutOptions = {
+  /** The checkout. */
+  root: string;
+  /** `patch`, `minor`, `major` or `x.y.z[-beta.N]`. */
+  arg: string;
+  /** Check and say what it would do; write nothing. */
+  dry?: boolean;
+  /** The full suite; true when green. */
+  runTests?: (root: string) => boolean;
+  /** The changelog's date for the version, `YYYY-MM-DD`. */
+  date?: string;
+  log?: (line: string) => void;
+};
+
+/** Cuts the release in `root` (see the top of this file); throws, having written nothing, when it refuses. */
+export function cut(o: CutOptions): { version: string; tag: string; push: string } {
+  const log = o.log ?? (() => {});
+  const git = (...args: string[]) => run(["git", ...args], o.root);
+  const pkgPath = join(o.root, "package.json");
   const pkgText = readFileSync(pkgPath, "utf8");
   const current = JSON.parse(pkgText).version as string;
-  let version = "";
-  try {
-    version = nextVersion(current, arg!);
-  } catch (e: any) {
-    fail(e.message);
-  }
+  const version = nextVersion(current, o.arg);
   const tag = `v${version}`;
-  if (run(["git", "status", "--porcelain"], root).out) fail("The working tree has changes: commit or move them first.");
-  const branch = run(["git", "rev-parse", "--abbrev-ref", "HEAD"], root).out;
-  if (branch !== "main") fail(`A release is cut from main, not ${branch}.`);
-  if (run(["git", "rev-parse", "-q", "--verify", `refs/tags/${tag}`], root).ok) fail(`The tag ${tag} already exists.`);
-  const changelogPath = join(root, "CHANGELOG.md");
-  let changelog = "";
-  try {
-    changelog = promote(readFileSync(changelogPath, "utf8"), version, new Date().toISOString().slice(0, 10));
-  } catch (e: any) {
-    fail(e.message);
-  }
-  console.log(`${current} -> ${version} (tag ${tag})`);
-  if (dry) {
-    console.log("--dry-run: nothing written.");
-    process.exit(0);
-  }
-  console.log("bun test …");
-  if (!run(["bun", "test"], root, true).ok) fail("bun test is red: no release.");
+  if (git("status", "--porcelain").out) throw new Error("The working tree has changes: commit or move them first.");
+  const branch = git("rev-parse", "--abbrev-ref", "HEAD").out;
+  if (branch !== "main") throw new Error(`A release is cut from main, not ${branch}.`);
+  if (git("rev-parse", "-q", "--verify", `refs/tags/${tag}`).ok) throw new Error(`The tag ${tag} already exists.`);
+  // The push must be a fast-forward of origin's main, or main is refused and the tag goes alone.
+  const fetched = git("fetch", "--quiet", "origin", "main");
+  if (!fetched.ok) throw new Error(`Could not fetch origin's main, to check this main is not behind it:\n${fetched.err}`);
+  if (!git("merge-base", "--is-ancestor", "origin/main", "HEAD").ok) throw new Error("main is behind origin/main (or has diverged from it): pull first.");
+  const changelogPath = join(o.root, "CHANGELOG.md");
+  const changelogText = readFileSync(changelogPath, "utf8");
+  const changelog = promote(changelogText, version, o.date ?? new Date().toISOString().slice(0, 10));
+  const push = `git push --atomic origin main ${tag}`;
+  log(`${current} -> ${version} (tag ${tag})`);
+  if (o.dry) return { version, tag, push };
+  log("bun test …");
+  if (!(o.runTests ?? ((root) => run(["bun", "test"], root, true).ok))(o.root)) throw new Error("bun test is red: no release.");
   const bumped = pkgText.replace(/"version":\s*"[^"]+"/, `"version": "${version}"`);
-  if (bumped === pkgText) fail("Could not set the version in package.json.");
+  if (bumped === pkgText) throw new Error("Could not set the version in package.json.");
   writeFileSync(pkgPath, bumped);
   writeFileSync(changelogPath, changelog);
   const steps = [
-    ["git", "add", "package.json", "CHANGELOG.md"],
-    ["git", "commit", "-m", `Release ${version}`],
-    ["git", "tag", "-a", tag, "-m", `Solipsist ${version}`],
+    ["add", "package.json", "CHANGELOG.md"],
+    ["commit", "-m", `Release ${version}`],
+    ["tag", "-a", tag, "-m", `Solipsist ${version}`],
   ];
   for (const s of steps) {
-    const r = run(s, root);
-    if (!r.ok) fail(`${s.join(" ")} failed:\n${r.err}`);
+    const r = git(...s);
+    if (!r.ok) throw new Error(`git ${s.join(" ")} failed:\n${r.err}`);
   }
-  console.log(`\nReleased ${version} locally. To publish it (this starts the release workflow):\n  git push origin main ${tag}`);
+  return { version, tag, push };
+}
+
+if (import.meta.main) {
+  const args = process.argv.slice(2);
+  const arg = args.find((a) => !a.startsWith("--"));
+  if (!arg) {
+    console.error("Usage: bun scripts/release.ts <patch|minor|major|x.y.z[-beta.N]> [--dry-run]");
+    process.exit(1);
+  }
+  try {
+    const r = cut({ root: resolve(import.meta.dir, ".."), arg, dry: args.includes("--dry-run"), log: (l) => console.log(l) });
+    if (args.includes("--dry-run")) console.log(`--dry-run: nothing written. Then: ${r.push}`);
+    else console.log(`\nReleased ${r.version} locally. To publish it (this starts the release workflow):\n  ${r.push}`);
+  } catch (e: any) {
+    console.error(e.message);
+    process.exit(1);
+  }
 }
