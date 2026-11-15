@@ -6,7 +6,7 @@
 </h1>
 
 <p align="center">
-  Think and work with AI agents in your markdown docs. They suggest; you decide.
+  Think, work, collaborate with your local AI agents in your markdown docs. They suggest; you decide.
 </p>
 
 <p align="center">
@@ -19,15 +19,15 @@
 </p>
 
 <p align="center">
-  <a href="site/public/launch.mp4">▶ Watch the 50-second film</a>
+  <a href="site/public/launch.mp4">▶ Watch the 80-second film</a>
 </p>
 
 <p align="center">
-  <a href="https://solipsist.sh">Website</a> ·
-  <a href="https://solipsist.sh/docs/">Docs</a> ·
-  <a href="https://solipsist.sh/features.html">Every feature</a> ·
-  <a href="CONFIGURATION.md">Configuration</a> ·
-  <a href="https://github.com/pulkitsharma07/solipsist/discussions">Discussions</a>
+  <a href="https://solipsist.sh">🌐 Website</a> ·
+  <a href="https://solipsist.sh/docs/">📖 Docs</a> ·
+  <a href="https://solipsist.sh/features.html">✨ Every feature</a> ·
+  <a href="CONFIGURATION.md">⚙️ Configuration</a> ·
+  <a href="https://github.com/pulkitsharma07/solipsist/discussions">💬 Discussions</a>
 </p>
 
 ## Install

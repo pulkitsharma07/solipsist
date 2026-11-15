@@ -61,7 +61,7 @@ const HTML = `<!doctype html><html lang="en" data-theme="light"><meta charset="u
 <div class="og-bg"></div>
 <div class="og-left">
   <span class="l-brand">${logo}Solipsist</span>
-  <h1>Think and work with AI agents in your markdown docs</h1>
+  <h1>Think, work, collaborate with your local AI agents</h1>
   <p class="l-lede">They suggest; you decide.</p>
   <div class="og-foot">solipsist.sh</div>
 </div>

@@ -8,7 +8,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Solipsist",
-      description: "Think and work with AI agents in your markdown docs. They suggest; you decide.",
+      description: "Think, work, collaborate with your local AI agents in your markdown docs. They suggest; you decide.",
       logo: { light: "./src/assets/logo.svg", dark: "./src/assets/logo-dark.svg", replacesTitle: true },
       favicon: "/favicon.svg",
       // The card a link to any docs page shows: the landing page's (`bun run site:og` draws it).

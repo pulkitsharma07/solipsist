@@ -38,6 +38,9 @@ body { overflow-x: hidden; }
 .l-nav nav { display: flex; gap: 26px; margin-left: auto; font-size: 14px; }
 .l-nav nav a { color: var(--ink-2); text-decoration: none; }
 .l-nav nav a:hover { color: var(--ink); }
+.l-nav nav a, .l-foot nav a { display: inline-flex; align-items: center; gap: 6px; }
+.l-foot nav a svg, .l-nav nav a svg { flex: none; opacity: .75; }
+.l-foot nav a { text-decoration: none; }
 @media (max-width: 640px) { .l-nav nav { display: none; } .l-nav .l-btn { margin-left: auto; } }
 
 .l-btn { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 15px; border-radius: var(--r-md); border: 1px solid var(--line-2); background: var(--raised); color: var(--ink); font: 500 14px/1 var(--sans); text-decoration: none; cursor: pointer; white-space: nowrap; }
@@ -72,7 +75,7 @@ body { overflow-x: hidden; }
 @media (hover: none), (prefers-reduced-motion: reduce) { .l-spot { display: none; } }
 @keyframes l-drift { from { transform: translate3d(-3%, 0, 0) scale(1.04); } to { transform: translate3d(3%, 2%, 0) scale(1.1); } }
 @media (prefers-reduced-motion: reduce) { .l-hero::before { animation: none; } }
-.l-hero > .l-wrap > h1 { font: 600 clamp(36px, 6vw, 64px)/1.05 var(--sans); letter-spacing: -0.035em; margin: 0 auto; max-width: 15ch; text-wrap: balance; }
+.l-hero > .l-wrap > h1 { font: 600 clamp(36px, 6vw, 64px)/1.05 var(--sans); letter-spacing: -0.035em; margin: 0 auto; max-width: 19ch; text-wrap: balance; }
 .l-lede { font-size: clamp(16px, 1.7vw, 19px); line-height: 1.6; color: var(--ink-2); max-width: 54ch; margin: 24px auto 0; text-wrap: pretty; }
 .l-lede kbd, .l-step kbd, .l-row kbd { font-size: 11.5px; vertical-align: 1px; }
 .l-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
@@ -114,6 +117,7 @@ body { overflow-x: hidden; }
 
 /* ---- features: text on the left, one still picture of the app on the right ---- */
 .l-sec { padding-top: 160px; }
+.l-film { display: block; width: 100%; margin-top: 56px; aspect-ratio: 16 / 9; border-radius: 14px; border: 1px solid var(--line); box-shadow: var(--shadow-3); background: var(--sunken); }
 .l-head { max-width: 640px; }
 .l-head h2, .l-end h2 { font: 600 clamp(28px, 3.8vw, 42px)/1.1 var(--sans); letter-spacing: -0.03em; margin: 0; text-wrap: balance; }
 .l-head p { font-size: 17px; line-height: 1.6; color: var(--ink-2); margin: 16px 0 0; max-width: 52ch; }
@@ -272,7 +276,7 @@ body { overflow-x: hidden; }
 <header class="l-nav">
   <div class="l-wrap">
     <a class="l-brand" href="#top"><svg class="l-logo" viewBox="0 0 80 80" aria-hidden="true"><rect width="80" height="80" rx="16" fill="var(--ink)"/><path d="M31.6 57.01Q34.39 57.01 35.96 55.58Q37.53 54.15 37.53 51.94Q37.53 50.56 36.9 49.42Q36.28 48.28 34.54 47.36Q32.81 46.44 29.55 45.63Q23.88 44.4 20.7 42.56Q17.52 40.73 16.26 38.33Q15.01 35.93 15.01 33.11Q15.01 27.88 18.7 24.78Q22.4 21.68 29.36 21.68Q31.85 21.68 33.48 22.11Q35.11 22.54 36.17 22.98Q37.24 23.42 38.02 23.42Q38.85 23.42 39.28 22.98Q39.71 22.54 40.13 22.1Q40.55 21.66 41.33 21.66Q41.84 21.66 42.28 22Q42.71 22.34 42.97 23.32L45.7 31.31Q46.11 32.52 45.95 33.31Q45.8 34.1 44.98 34.43Q44.16 34.73 43.56 34.42Q42.97 34.12 42.44 33.32Q40.71 30.14 38.71 28.31Q36.71 26.48 34.47 25.67Q32.22 24.86 29.84 24.86Q26.35 24.86 24.6 26.33Q22.84 27.8 22.84 30.24Q22.84 31.68 23.58 32.87Q24.31 34.06 26.31 35.06Q28.3 36.05 31.99 36.93Q36.96 38.08 39.85 39.77Q42.73 41.45 43.99 43.8Q45.25 46.15 45.25 49.35Q45.25 52.53 43.61 55.01Q41.97 57.48 39.01 58.87Q36.05 60.25 32.11 60.25Q29.67 60.25 28.16 59.75Q26.65 59.26 25.64 58.77Q24.64 58.28 23.7 58.28Q22.9 58.28 22.39 58.77Q21.87 59.26 21.41 59.75Q20.95 60.25 20.27 60.25Q19.74 60.25 19.39 59.87Q19.04 59.49 18.87 58.61L17.27 50.95Q16.97 49.51 17.14 48.78Q17.31 48.06 18.01 47.81Q18.79 47.5 19.38 47.88Q19.98 48.26 20.62 49.33Q22.9 53.45 25.76 55.23Q28.62 57.01 31.6 57.01Z" fill="var(--surface)"/><circle cx="55.49" cy="53.3" r="6" fill="#c4623f"/></svg>Solipsist</a>
-    <nav aria-label="Sections"><a href="#how">How it works</a><a href="#features">Features</a><a href="/docs/">Docs</a><a href="https://github.com/pulkitsharma07/solipsist">GitHub</a></nav>
+    <nav aria-label="Sections"><a href="#how"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> How it works</a><a href="#features"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.5 6 6.5.5-5 4.3 1.6 6.4L12 16.5 6.4 20.2 8 13.8 3 9.5 9.5 9z"/></svg> Features</a><a href="/docs/"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg> Docs</a><a href="https://github.com/pulkitsharma07/solipsist"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2m12 4v-3.5a3 3 0 0 0-.8-2.3c2.700-.3 5.500-1.300 5.500-6a4.700 4.700 0 0 0-1.300-3.200 4.400 4.400 0 0 0-.1-3.200s-1-.3-3.400 1.300a11.700 11.700 0 0 0-6 0C6.500 2.800 5.500 3.100 5.500 3.100a4.400 4.400 0 0 0-.1 3.200A4.700 4.700 0 0 0 4 9.500c0 4.600 2.800 5.700 5.500 6A3 3 0 0 0 8.700 17.800V21"/></svg> GitHub</a></nav>
     <a class="l-btn l-solid" href="#start">Get started</a>
   </div>
 </header>
@@ -280,9 +284,11 @@ body { overflow-x: hidden; }
 <main id="top">
 <section class="l-hero">
   <div class="l-wrap">
-    <h1>Think and work with AI agents in your markdown docs</h1>
+    <h1>Think, work, collaborate with your local AI agents</h1>
     <p class="l-lede">They suggest; you decide. Solipsist is a markdown editor for planning, research and writing. Your agents work inside the page, on your machine, with the models you already use.</p>
     <div class="l-cta"><a class="l-btn l-solid l-lg" href="#start">Get started</a><a class="l-btn l-lg" href="https://github.com/pulkitsharma07/solipsist">View on GitHub</a></div>
+
+    <video class="l-film" src="/launch.mp4" poster="/launch-poster.jpg" controls playsinline preload="none" aria-label="An 80-second film: starting Solipsist in a folder, asking an agent for the end of a sentence, accepting its suggestion, and a tour of the features"></video>
 
     <div class="l-win l-app" id="demo" role="img" aria-label="Demo: the writer asks for the end of a sentence, an agent suggests it, and the writer accepts">
       <div class="l-winbar">launch-plan.md</div>
@@ -486,7 +492,7 @@ body { overflow-x: hidden; }
 </section>
 </main>
 
-<footer class="l-foot"><div class="l-wrap"><span>Solipsist <!--VERSION-->. Your files stay on your computer.</span><nav aria-label="Footer"><a href="/docs/">Docs</a><a href="features.html">Every feature</a><a href="/docs/reference/configuration/">Configuration</a><a href="https://github.com/pulkitsharma07/solipsist/blob/main/LICENSE">Licence (FSL-1.1-MIT)</a><a href="https://github.com/pulkitsharma07/solipsist">GitHub</a></nav></div></footer>
+<footer class="l-foot"><div class="l-wrap"><span>Solipsist <!--VERSION-->. Your files stay on your computer.</span><nav aria-label="Footer"><a href="/docs/"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/></svg> Docs</a><a href="features.html"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.5 6 6.5.5-5 4.3 1.6 6.4L12 16.5 6.4 20.2 8 13.8 3 9.5 9.5 9z"/></svg> Every feature</a><a href="/docs/reference/configuration/"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.900 4.900l2.100 2.100M17 17l2.100 2.100M4.900 19.100L7 17M17 7l2.100-2.100"/></svg> Configuration</a><a href="https://github.com/pulkitsharma07/solipsist/blob/main/LICENSE"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.500-3.400 8-8 9-4.600-1-8-4.500-8-9V6z"/></svg> Licence (FSL-1.1-MIT)</a><a href="https://github.com/pulkitsharma07/solipsist"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-4 1.5-4-2-6-2m12 4v-3.5a3 3 0 0 0-.8-2.3c2.700-.3 5.500-1.300 5.500-6a4.700 4.700 0 0 0-1.300-3.200 4.400 4.400 0 0 0-.1-3.200s-1-.3-3.400 1.300a11.700 11.700 0 0 0-6 0C6.500 2.800 5.500 3.100 5.500 3.100a4.400 4.400 0 0 0-.1 3.200A4.700 4.700 0 0 0 4 9.500c0 4.600 2.800 5.700 5.500 6A3 3 0 0 0 8.700 17.800V21"/></svg> GitHub</a></nav></div></footer>
 
 <script>
 (() => {
