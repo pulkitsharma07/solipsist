@@ -12,6 +12,11 @@
 & {
   $ErrorActionPreference = "Stop"
   $ProgressPreference = "SilentlyContinue"   # Invoke-WebRequest is many times slower with its progress bar
+  # Windows PowerShell 5.1 (what `powershell` is on Windows 10) may offer only TLS 1.0 and 1.1, which GitHub refuses.
+  # Added to what it offers, not put in place of it. PowerShell 6 and later need nothing.
+  if ($PSVersionTable.PSVersion.Major -lt 6) {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+  }
   $repo = "pulkitsharma07/solipsist"
   if (-not [Environment]::Is64BitOperatingSystem) { throw "solipsist install: unsupported system: 32-bit Windows" }
   # Windows on ARM runs the x64 build through its own emulation.

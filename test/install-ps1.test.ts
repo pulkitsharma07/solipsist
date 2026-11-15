@@ -66,3 +66,10 @@ test.skipIf(!pwsh)("a checksum that doesn't match throws, and nothing is install
   expect(out).toContain("AFTER: Continue Continue");
   expect(Bun.file(join(dir, "solipsist.exe")).size).toBe(0);
 }, 60_000);
+
+test("Windows PowerShell 5.1 is given TLS 1.2, added to what it offers (PowerShell 6+ untouched)", () => {
+  // 5.1 only runs on Windows: this reads the script, so the line can't quietly go.
+  const text = readFileSync(script, "utf8");
+  expect(text).toMatch(/if \(\$PSVersionTable\.PSVersion\.Major -lt 6\) \{\s*\[Net\.ServicePointManager\]::SecurityProtocol = \[Net\.ServicePointManager\]::SecurityProtocol -bor \[Net\.SecurityProtocolType\]::Tls12/);
+  expect(text.indexOf("Tls12")).toBeLessThan(text.indexOf("Invoke-WebRequest -UseBasicParsing"));
+});
