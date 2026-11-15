@@ -14,6 +14,7 @@
     "typecheck": "bun --bun tsc --noEmit",
     "features": "bun scripts/features/index.tsx",
     "build": "bun scripts/build.ts",
+    "release": "bun scripts/release.ts",
     "site": "bun scripts/site/build.ts",
     "site:shots": "bun scripts/site/shots.ts",
     "site:demo": "bun scripts/site/demo-gif.ts",
