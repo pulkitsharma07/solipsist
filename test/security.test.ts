@@ -1,7 +1,10 @@
 // What keeps the server to the writer: each test here is an attack that used to work, against the real routes.
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join } from "node:path";
+import { parseFile, serializeFile } from "../src/shared/docfile";
+import { addFiles, syncPage } from "../src/server/project";
 import { projectDir } from "./project-dir";
 import { apiRoutes } from "../src/server/routes";
 import { hostAllowed } from "../src/server/guard";
@@ -86,5 +89,72 @@ describe("the guard in front of every route (S1, S2)", () => {
     expect(hostAllowed("[::1]:3000", 3000, [])).toBe(true);
     expect(hostAllowed("127.0.0.1:3000", 3000, [])).toBe(true);
     expect(hostAllowed("localhost.evil.example:3000", 3000, [])).toBe(false);
+  });
+});
+
+describe("Sync copies a page's images only from its own folder, to beside the page (S4)", () => {
+  // The project sits in a folder of its own, so a link that climbs out of it lands somewhere the test can see.
+  let outer = "";
+  let proj = "";
+  const put = (path: string, text: string) => { mkdirSync(dirname(join(proj, path)), { recursive: true }); writeFileSync(join(proj, path), text); };
+  const link = async (id: string, href: string) => {
+    const file = join(proj, ".solipsist/pages", `${id}.md`);
+    const { markdown, block } = parseFile(readFileSync(file, "utf8"));
+    const rev = block.meta.rev + 1;
+    writeFileSync(file, serializeFile(`${markdown}\n\n![x](${href})\n`, { ...block, meta: { rev, body_rev: rev, body_by: "t_a" } }));
+  };
+  beforeAll(() => {
+    outer = realpathSync(mkdtempSync(join(tmpdir(), "solip-s4-")));
+    proj = join(outer, "proj");
+    mkdirSync(proj);
+    process.env.SOLIPSIST_PROJECT_ROOT = proj;
+  });
+  afterAll(() => {
+    P.enter();
+    rmSync(outer, { recursive: true, force: true });
+  });
+
+  test("a link with .. copies nothing out of the project", async () => {
+    put("README.md", "# Readme\n");
+    put(".zshrc", "planted");
+    writeFileSync(join(outer, ".zshrc"), "mine");
+    await addFiles(["README.md"]);
+    // k = 3 climbs from the store to the project's own .zshrc, and from beside the page to the folder above it.
+    await link("README", "images/README/../../../.zshrc");
+    expect((await syncPage("README")).ok).toBe(true);
+    expect(readFileSync(join(outer, ".zshrc"), "utf8")).toBe("mine");
+    expect(existsSync(join(proj, "images"))).toBe(false);
+  });
+
+  test("a symlink in the image folder isn't followed", async () => {
+    put("b.md", "# B\n");
+    await addFiles(["b.md"]);
+    writeFileSync(join(outer, "secret.txt"), "secret");
+    mkdirSync(join(proj, ".solipsist/images/b"), { recursive: true });
+    symlinkSync(join(outer, "secret.txt"), join(proj, ".solipsist/images/b/leak.png"));
+    await link("b", "images/b/leak.png");
+    expect((await syncPage("b")).ok).toBe(true);
+    expect(existsSync(join(proj, "images/b/leak.png"))).toBe(false);
+  });
+
+  test("a symlink where the image would go isn't written through", async () => {
+    put("c.md", "# C\n");
+    await addFiles(["c.md"]);
+    put(".solipsist/images/c/pic.png", "picture");
+    writeFileSync(join(outer, "target.txt"), "untouched");
+    mkdirSync(join(proj, "images/c"), { recursive: true });
+    symlinkSync(join(outer, "target.txt"), join(proj, "images/c/pic.png"));
+    await link("c", "images/c/pic.png");
+    expect((await syncPage("c")).ok).toBe(true);
+    expect(readFileSync(join(outer, "target.txt"), "utf8")).toBe("untouched");
+  });
+
+  test("an image of the page's own still reaches the repo", async () => {
+    put("d.md", "# D\n");
+    await addFiles(["d.md"]);
+    put(".solipsist/images/d/sub/chart.svg", "<svg/>");
+    await link("d", "images/d/sub/chart.svg");
+    expect((await syncPage("d")).ok).toBe(true);
+    expect(readFileSync(join(proj, "images/d/sub/chart.svg"), "utf8")).toBe("<svg/>");
   });
 });

@@ -1,4 +1,4 @@
-import { copyFile, chmod, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { copyFile, chmod, lstat, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { existsSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { isPageId } from "../shared/ids";
@@ -194,17 +194,48 @@ export type SyncResult =
   | { ok: true; changed: boolean; fallback: boolean }
   | { ok: false; code: "original_changed" | "original_missing" | "not_found" };
 
-/** Copies the images the page links from the store to beside the page, where the links lead once it's in the repo. */
+/** Whether `path` is `base` itself or under it. Both are real paths (`realpathSync`) or neither is. */
+const within = (base: string, path: string) => path === base || path.startsWith(base + sep);
+/** The real path of `path`, or of the nearest folder above it that exists, with the rest added back. */
+function realish(path: string): string {
+  let at = path;
+  const rest: string[] = [];
+  while (!existsSync(at)) {
+    rest.unshift(basename(at));
+    const up = dirname(at);
+    if (up === at) break;
+    at = up;
+  }
+  return join(realpathSync(at), ...rest);
+}
+
+/**
+ * Copies the images the page links from the store to beside the page, where the links lead once it's in the repo.
+ *
+ * A link is the page's text, which a file someone else wrote or an agent's suggestion can supply: so a link with `..`
+ * (or a dot-segment of any kind) is skipped, both ends must stay inside their folders by real path, and neither may
+ * be a symlink, which would read or write somewhere else.
+ */
 async function copyImages(id: string, file: string, text: string) {
   const name = basename(id);
+  const prefix = `images/${name}/`;
+  const images = realish(projectImages(id));
+  const project = realpathSync(root());
   for (const m of text.matchAll(/!\[[^\]]*\]\(<?(images\/[^)\s>]+)/g)) {
-    const rel = decodeURI(m[1]!);
-    const prefix = `images/${name}/`;
+    let rel: string;
+    try { rel = decodeURI(m[1]!); } catch { continue; }
     if (!rel.startsWith(prefix)) continue;
-    const from = join(projectImages(id), rel.slice(prefix.length));
-    if (!existsSync(from)) continue;
-    const to = join(dirname(file), rel);
+    const parts = rel.slice(prefix.length).split(/[\\/]/);
+    if (parts.some((p) => p === "" || p.startsWith("."))) continue;
+    const from = join(projectImages(id), ...parts);
+    const source = await lstat(from).catch(() => null);
+    if (!source?.isFile() || !within(images, realpathSync(from))) continue;
+    const to = join(dirname(file), "images", name, ...parts);
+    if (!within(project, realish(to))) continue;
+    const there = await lstat(to).catch(() => null);
+    if (there && !there.isFile()) continue;
     await mkdir(dirname(to), { recursive: true });
+    if (!within(project, realpathSync(dirname(to)))) continue;
     await copyFile(from, to);
   }
 }

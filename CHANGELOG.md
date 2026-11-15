@@ -12,6 +12,8 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
   port, so a page open in another tab can't drive it.
   UPGRADE: if you reach Solipsist by another name (`server.host` opened to the network, or a proxy), list that name
   in the new `server.allowed_hosts`.
+- Sync copies a page's images only from its own image folder to beside the page: an image link with `..`, or a
+  symlink at either end, is skipped instead of copying a file outside the project.
 
 ## [0.1.0] — first public build
 
