@@ -6,6 +6,8 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-11-15
+
 ### Changed
 
 - The install command asks where to put Solipsist: just for you (`~/.local/bin`, the default), for everyone (`/usr/local/bin`), or this folder only. It shows the download's progress, offers to add the folder to your `PATH`, says whether a model is connected and how to connect one, and ends with links to the docs. Run without a terminal (in CI, say), it asks nothing and installs just for you, as before.
