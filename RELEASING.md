@@ -36,7 +36,9 @@ cd dist/release && shasum -a 256 -c SHA256SUMS
 ```
 
 The archives are `solipsist-<os>-<arch>.tar.gz` (`.zip` on Windows) for `linux-x64`, `linux-arm64`, `darwin-x64`,
-`darwin-arm64` and `windows-x64`, with no version in the name, so `releases/latest/download/<name>` stays one URL.
+`darwin-arm64` and `windows-x64`, with no version in the name, so `releases/latest/download/<name>` stays one URL. The build is reproducible: the same commit
+gives the same `SHA256SUMS` (on the same kind of machine; the times in it are the commit's), so a local build can be
+compared with the release's.
 Unpack the one for your machine, run `./solipsist --version` (it must print the number you are releasing) and start it in
 an empty folder: the page opens, a page saves, stopping it leaves no process behind. The macOS and Windows builds are
 not run anywhere automatically: try them on those systems before a release that matters.

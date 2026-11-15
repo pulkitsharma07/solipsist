@@ -12,10 +12,15 @@
  *
  * Files, named as the install scripts expect: `solipsist-<os>-<arch>.tar.gz` (`.zip` for windows), no version in the
  * name, holding a folder with `solipsist` (`solipsist.exe`), `LICENSE`, `NOTICE` and `README.md`.
+ *
+ * Reproducible: the same commit builds the same archives on the same kind of machine. The time in them (file times and
+ * the `--version` date) is the commit's, or `SOURCE_DATE_EPOCH`; files go in sorted, owned by 0, with fixed modes, and
+ * the gzip carries no time or name (`archive`).
  */
 import { createHash } from "node:crypto";
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
+import { gzipSync } from "node:zlib";
 import tailwind from "bun-plugin-tailwind";
 import pkg from "../package.json";
 import { targetOf } from "../src/server/version";
@@ -39,9 +44,56 @@ export function pickTargets(arg: string | undefined, host = targetOf(process.pla
   return names as Target[];
 }
 
-function shell(cmd: string[], cwd: string) {
-  const r = Bun.spawnSync(cmd, { cwd, stdout: "pipe", stderr: "pipe" });
+function shell(cmd: string[], cwd: string, env?: Record<string, string>) {
+  const r = Bun.spawnSync(cmd, { cwd, stdout: "pipe", stderr: "pipe", env: env && { ...process.env, ...env } });
   if (r.exitCode !== 0) throw new Error(`${cmd.join(" ")} failed:\n${r.stderr.toString()}`);
+  return r.stdout.toString();
+}
+
+const EXECUTABLES = new Set(["solipsist", "solipsist.exe"]);
+
+/** `dir` and everything under it, relative to its parent, folders before their contents, sorted by name. */
+function listTree(parent: string, dir: string): string[] {
+  const out = [dir];
+  for (const name of readdirSync(join(parent, dir)).sort()) {
+    const rel = `${dir}/${name}`;
+    if (statSync(join(parent, rel)).isDirectory()) out.push(...listTree(parent, rel));
+    else out.push(rel);
+  }
+  return out;
+}
+
+/**
+ * Packs `parent/dir` into `out` (`.zip`, else `.tar.gz`) so the same files make the same bytes: every entry's time is
+ * `mtime` (seconds), the modes fixed (0755 for the binary and folders, 0644 for the rest), entries sorted, owner 0, no
+ * macOS metadata, and the gzip written here with no time or name in its header.
+ */
+export function archive(o: { parent: string; dir: string; out: string; mtime: number }) {
+  const entries = listTree(o.parent, o.dir);
+  for (const rel of [...entries].reverse()) {
+    const path = join(o.parent, rel);
+    const folder = statSync(path).isDirectory();
+    chmodSync(path, folder || EXECUTABLES.has(basename(rel)) ? 0o755 : 0o644);
+    utimesSync(path, o.mtime, o.mtime);
+  }
+  rmSync(o.out, { force: true });
+  if (o.out.endsWith(".zip")) {
+    // -X: no uid/gid or extra time fields. A zip's times are local: UTC, so the zone of the machine doesn't show.
+    shell(["zip", "-X", "-q", "-D", o.out, ...entries.filter((e) => e !== o.dir)], o.parent, { TZ: "UTC" });
+    return;
+  }
+  const tarFile = `${o.out}.tar-tmp`;
+  const gnu = shell(["tar", "--version"], o.parent).includes("GNU");
+  const owner = gnu ? ["--owner=0", "--group=0", "--numeric-owner"] : ["--uid", "0", "--gid", "0", "--uname", "", "--gname", "", "--no-xattrs", "--no-mac-metadata"];
+  shell(["tar", "--format=ustar", ...owner, gnu ? "--no-recursion" : "-n", "-cf", tarFile, ...entries], o.parent, { COPYFILE_DISABLE: "1" });
+  writeFileSync(o.out, gzipSync(readFileSync(tarFile), { level: 9 }));
+  rmSync(tarFile, { force: true });
+}
+
+/** The time a build carries: `SOURCE_DATE_EPOCH`, else the commit's, else now (seconds). */
+export function buildTime(env: Record<string, string | undefined>, commitTime: string): number {
+  const fixed = Number(env.SOURCE_DATE_EPOCH || commitTime);
+  return Number.isInteger(fixed) && fixed > 0 ? fixed : Math.floor(Date.now() / 1000);
 }
 
 const git = (...args: string[]) => {
@@ -51,7 +103,7 @@ const git = (...args: string[]) => {
 
 export type BuildResult = { target: Target; archive: string; binary: string; bytes: number };
 
-export async function buildTarget(t: Target, o: { out: string; commit: string; built: string }): Promise<BuildResult> {
+export async function buildTarget(t: Target, o: { out: string; commit: string; built: string; mtime: number }): Promise<BuildResult> {
   const exe = t.startsWith("windows") ? "solipsist.exe" : "solipsist";
   const stage = join(o.out, `stage-${t}`, `solipsist-${pkg.version}-${t}`);
   rmSync(join(o.out, `stage-${t}`), { recursive: true, force: true });
@@ -65,13 +117,10 @@ export async function buildTarget(t: Target, o: { out: string; commit: string; b
   });
   if (!result.success) throw new Error(`Build for ${t} failed:\n${result.logs.map((l) => l.message).join("\n")}`);
   for (const f of ["LICENSE", "NOTICE", "README.md"]) cpSync(join(root, f), join(stage, f));
-  const archive = join(o.out, archiveName(t));
-  rmSync(archive, { force: true });
-  const dir = basename(stage);
-  if (t.startsWith("windows")) shell(["zip", "-qr", archive, dir], join(o.out, `stage-${t}`));
-  else shell(["tar", "-czf", archive, dir], join(o.out, `stage-${t}`));
+  const file = join(o.out, archiveName(t));
+  archive({ parent: join(o.out, `stage-${t}`), dir: basename(stage), out: file, mtime: o.mtime });
   const bytes = Bun.file(join(stage, exe)).size;
-  return { target: t, archive, binary: join(stage, exe), bytes };
+  return { target: t, archive: file, binary: join(stage, exe), bytes };
 }
 
 export const sha256 = (path: string) => createHash("sha256").update(readFileSync(path)).digest("hex");
@@ -88,12 +137,13 @@ if (import.meta.main) {
   const out = resolve(root, opt("out") ?? "dist/release");
   const targets = pickTargets(opt("target"));
   const commit = git("rev-parse", "--short", "HEAD") || "unknown";
-  const built = new Date().toISOString().slice(0, 10);
+  const mtime = buildTime(process.env, git("log", "-1", "--format=%ct"));
+  const built = new Date(mtime * 1000).toISOString().slice(0, 10);
   if (git("status", "--porcelain", "--untracked-files=no")) console.warn("warning: the checkout has changes; the commit below doesn't describe this build.");
   mkdirSync(out, { recursive: true });
   const results: BuildResult[] = [];
   for (const t of targets) {
-    const r = await buildTarget(t, { out, commit, built });
+    const r = await buildTarget(t, { out, commit, built, mtime });
     console.log(`${t.padEnd(13)} ${(r.bytes / 1e6).toFixed(1)} MB  ${basename(r.archive)}`);
     results.push(r);
   }
