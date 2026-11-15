@@ -3,8 +3,8 @@
 How a release is cut. One maintainer, one command per step. What a version number promises is in `CONTRIBUTING.md`;
 every change goes in `CHANGELOG.md` under `## [Unreleased]`, in a writer's words.
 
-**Status:** steps 1–3 work today. The release workflow (`.github/workflows/release.yml`, step 4) is not written yet:
-until it is, step 4 is done by hand as described there.
+**Status:** the release workflow (`.github/workflows/release.yml`) is written. Run it first as a dry run
+(Actions → Release → Run workflow, `dry_run` on): it builds and tests and publishes nothing.
 
 ## 1. Before the tag
 
@@ -45,19 +45,19 @@ not run anywhere automatically: try them on those systems before a release that 
 
 Push the commit and the tag together: `git push origin main vx.y.z`.
 
-Release workflow (to be written): checks the tag matches `package.json` and `CHANGELOG.md` has the section, runs the
-tests, builds the five targets, starts the Linux binary, writes `SHA256SUMS`, attests the build provenance, and creates a
-**draft** GitHub Release with the changelog section as its body.
+The Release workflow runs on the tag: it checks the tag matches `package.json` and `CHANGELOG.md` has the section,
+runs the whole CI suite, builds the five targets, starts the Linux binary on an empty folder, attests the build
+provenance of every file, and creates a **draft** GitHub Release with the notes from `scripts/release-notes.ts`
+(marked pre-release for a `-beta.N` or `-rc.N`). It never runs on a push to `main`.
 
-Until it exists, make the draft by hand:
+If the workflow can't be used, make the draft by hand:
 
 ```sh
 bun scripts/release-notes.ts x.y.z --prev vPREVIOUS --sums dist/release/SHA256SUMS > dist/release/notes.md
 gh release create vx.y.z --draft --notes-file dist/release/notes.md dist/release/solipsist-* dist/release/SHA256SUMS
 ```
 
-Add `--prerelease` for a beta or rc. The notes are the changelog section, with `UPGRADE:` lines lifted into a callout;
-a stable release adds the install commands, the diff from the previous tag and the checksums.
+Add `--prerelease` for a beta or rc.
 
 Read the draft, then publish it. Once published, a release's files are never changed or replaced.
 

@@ -1,0 +1,139 @@
+# A release: runs when a tag `v*` is pushed, or by hand (Actions -> Release -> Run workflow, `dry_run` on by default).
+# It never runs on a push to main. Steps: verify the tag, the whole CI suite, build the five targets on one Linux
+# runner, start the Linux binary, and (not on a dry run) attest the files and make a DRAFT GitHub Release for the
+# maintainer to read and publish. See RELEASING.md. Left out for now: the minisign signature, the Homebrew tap, the
+# macOS and Windows smoke runs (the binaries are built here and tried by hand).
+name: Release
+on:
+  push: { tags: ["v*"] }
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Build and test, publish nothing
+        type: boolean
+        default: true
+permissions: { contents: read }
+concurrency: { group: release, cancel-in-progress: false }
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 0 }
+      - id: v
+        shell: bash
+        run: |
+          version=$(jq -r .version package.json)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            [ "$GITHUB_REF_NAME" = "v$version" ] || { echo "::error::the tag $GITHUB_REF_NAME is not v$version (package.json)"; exit 1; }
+            git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "::error::the tag is not on main"; exit 1; }
+          else
+            echo "Not a tag: a manual run of $version from $GITHUB_REF_NAME (nothing is published unless it is a tag)."
+          fi
+          grep -q "^## \[$version\]" CHANGELOG.md || { echo "::error::CHANGELOG.md has no section for $version"; exit 1; }
+
+  test:
+    needs: verify
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    needs: [verify, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with: { bun-version-file: .bun-version }
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+      - run: bun install --frozen-lockfile
+      - name: Build the five targets
+        run: |
+          bun run build | tee build.log
+          { echo "### Binaries"; echo '```'; grep ' MB ' build.log; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release
+          path: dist/release/
+          if-no-files-found: error
+          retention-days: 14
+
+  smoke:
+    needs: [verify, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with: { name: release, path: release }
+      - name: Checksums
+        run: cd release && sha256sum -c SHA256SUMS
+      - name: The Linux binary is self-contained
+        shell: bash
+        env:
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          set -euo pipefail
+          work=$(mktemp -d); cd "$work"
+          tar -xzf "$GITHUB_WORKSPACE/release/solipsist-linux-x64.tar.gz"
+          bin=$(ls -d "$work"/solipsist-*-linux-x64)/solipsist
+          line=$("$bin" --version); echo "$line"
+          case "$line" in "solipsist $VERSION ("*) ;; *) echo "::error::--version says '$line', expected $VERSION"; exit 1;; esac
+          mkdir docs && echo "# hi" > docs/a.md && cd docs
+          PORT=47123 SOLIPSIST_TUI=0 "$bin" > "$work/server.out" 2>&1 &
+          pid=$!
+          for _ in $(seq 1 30); do
+            [ "$(curl -s -o /dev/null -w '%{http_code}' localhost:47123/)" = 200 ] && break
+            sleep 1
+          done
+          html=$(curl -fsS localhost:47123/)
+          for asset in $(echo "$html" | grep -oE '(src|href)="[^"]+\.(js|css)"' | sed -E 's/.*="(.*)"/\1/'); do
+            curl -fsS -o /dev/null "localhost:47123$asset"
+          done
+          curl -fsS localhost:47123/api/pages > /dev/null
+          kill "$pid"; wait "$pid" || true
+          if pgrep -f "solipsist-.*-linux-x64/solipsist" > /dev/null; then echo "::error::a process was left behind"; exit 1; fi
+      - if: failure()
+        run: cat "$(ls -d /tmp/tmp.*/server.out 2>/dev/null | head -1)" || true
+
+  publish:
+    # Not on a dry run, and not for a manual run that isn't on a tag.
+    if: github.ref_type == 'tag' && !(github.event_name == 'workflow_dispatch' && inputs.dry_run)
+    needs: [verify, smoke]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # the draft release
+      id-token: write # the attestation's signing identity
+      attestations: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { fetch-depth: 0 }
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with: { bun-version-file: .bun-version }
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with: { name: release, path: release }
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            release/solipsist-*
+            release/SHA256SUMS
+      - name: Draft the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.verify.outputs.version }}
+        run: |
+          set -euo pipefail
+          prev=$(git describe --tags --abbrev=0 "$GITHUB_REF_NAME^" 2>/dev/null || true)
+          bun scripts/release-notes.ts "$VERSION" ${prev:+--prev "$prev"} --sums release/SHA256SUMS --repo "$GITHUB_REPOSITORY" > notes.md
+          flags=(--draft --verify-tag --title "Solipsist $VERSION" --notes-file notes.md)
+          case "$VERSION" in *-*) flags+=(--prerelease);; esac
+          gh release create "$GITHUB_REF_NAME" "${flags[@]}" release/solipsist-* release/SHA256SUMS
+          echo "Draft release for $GITHUB_REF_NAME: read it, then publish it." >> "$GITHUB_STEP_SUMMARY"

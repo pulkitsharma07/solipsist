@@ -30,6 +30,14 @@ format: a page saved by any public build opens in every later one, from the firs
 
 A renamed setting, route or prompt keeps its old name working for at least one minor, with a warning when it is used.
 
+## How a release is made
+
+Every change a writer would notice is a line under `## [Unreleased]` in `CHANGELOG.md`, and anything they must do after
+updating starts with `UPGRADE:`. A release is `bun run release <patch|minor|major|x.y.z>`, which turns that section into
+the version's, commits and tags it; the tag `vX.Y.Z` is what publishes. A `-beta.N` or `-rc.N` tag is a pre-release and
+is never what the install command fetches. The files are one archive per system (`solipsist-<os>-<arch>`, no version in
+the name) and a `SHA256SUMS` to check them against. The steps are in [RELEASING.md](RELEASING.md).
+
 Everyone in issues and discussions is held to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 The source is under the FSL-1.1-MIT licence (`LICENSE`): use, change and self-host it for anything but a competing
