@@ -16,12 +16,13 @@ If you ask for something before a model is connected, you get this dialog instea
 
 ## An OpenRouter key
 
-Put the key in a `.env` file in the folder you run Solipsist from (keep it out of version control), or set it in your
-environment:
+Set the key in your environment, in your shell's profile (`~/.zshrc`, `~/.bashrc`) to keep it:
 
 ```bash
-SOLIPSIST_OPENROUTER_KEY=sk-or-...
+export SOLIPSIST_OPENROUTER_KEY=sk-or-...
 ```
+
+Solipsist doesn't read a `.env` from the folder it runs in: that folder may be someone else's.
 
 More on [OpenRouter](/docs/start/openrouter/). You can also put it in `solipsist.yaml` as `pi.openrouter_key`, but that file is easy to commit by accident. The
 server never prints a key. Errors and `--print-config` only say whether one is set.

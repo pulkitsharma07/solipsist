@@ -9,11 +9,12 @@ sidebar:
 make a key in your OpenRouter account and give it to Solipsist.
 
 ```bash
-SOLIPSIST_OPENROUTER_KEY=sk-or-...
+export SOLIPSIST_OPENROUTER_KEY=sk-or-...
 ```
 
-Put it in a `.env` file in the folder you run Solipsist from (keep that file out of version control), or in your
-environment. You can also set `pi.openrouter_key` in `solipsist.yaml`, but that file is easy to commit by accident.
+Set it in your environment: add that line to your shell's profile (`~/.zshrc`, `~/.bashrc`) to keep it. Solipsist
+doesn't read a `.env` from the folder it runs in, since that folder may be someone else's. You can also set
+`pi.openrouter_key` in `solipsist.yaml`, but that file is easy to commit by accident.
 Solipsist never prints a key: errors and `--print-config` only say whether one is set. Restart Solipsist after adding it.
 
 ## Picking a model

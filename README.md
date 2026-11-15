@@ -81,7 +81,7 @@ Dot-folders, `node_modules` and anything git ignores are never offered. Every se
 The agents are [Pi](https://github.com/earendil-works/pi), an open-source coding agent, built in: you don't need to
 install it.
 
-- **OpenRouter:** put `SOLIPSIST_OPENROUTER_KEY` in a `.env` file where you run Solipsist, or in your environment.
+- **OpenRouter:** set `SOLIPSIST_OPENROUTER_KEY` in your environment (your shell's profile, say).
 - **Pi's own logins:** if you use Pi already, its saved logins, skills and connected tools work here too (`pi`, then
   `/login`, to add one). That includes subscriptions you already pay for and models running on your own computer.
 

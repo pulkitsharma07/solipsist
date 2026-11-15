@@ -13,6 +13,6 @@ export const ENGINE_ROWS: Setting[] = [
     purpose: "The default leaves out MCP, codemode and tool search, so an agent starts none of your MCP servers. Bash runs where Solipsist runs and is not confined; a write guard limits `write` and `edit` to the page's image folder. In the environment, a comma-separated list." },
   { key: "pi.openrouter_key", env: "SOLIPSIST_OPENROUTER_KEY", kind: "string", secret: true, example: "sk-or-...",
     summary: "Your OpenRouter API key.",
-    purpose: "Better kept in `.env` than in this file, which you may commit. `OPENROUTER_API_KEY` works too, and so does any login Pi has saved of its own (`pi`, then `/login`) — for OpenRouter or any other provider, which a key set here overrides. With none of them Pi is listed but greyed out." },
+    purpose: "Better kept in your environment than in this file, which you may commit. `OPENROUTER_API_KEY` works too, and so does any login Pi has saved of its own (`pi`, then `/login`) — for OpenRouter or any other provider, which a key set here overrides. With none of them Pi is listed but greyed out." },
 
 ];

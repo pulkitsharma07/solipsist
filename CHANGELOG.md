@@ -23,6 +23,10 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 - An SVG image opened on its own can no longer run scripts as the app.
 - The `public/` folder of your project is no longer served.
 - The routes kept for testing are off unless Solipsist runs under `bun test` or `bun run dev`.
+- The installed `solipsist` reads no `.env` or `bunfig.toml` from the folder it runs in, which may be someone else's:
+  either could open it to the network, swap in another key, or run that folder's code.
+  UPGRADE: if you kept `SOLIPSIST_OPENROUTER_KEY` in a `.env`, set it in your environment instead (your shell's
+  profile), or log in with `pi`. Running from source with `bun` still reads `.env`.
 - Updated two libraries the agents use, `undici` and `minimatch`, past their known vulnerabilities.
 - Opening Solipsist in a folder that holds its own git settings no longer runs a command they name.
 

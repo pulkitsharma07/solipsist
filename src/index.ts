@@ -65,7 +65,7 @@ function start() {
     });
   } catch (e: any) {
     if (e?.code !== "EADDRINUSE") throw e;
-    console.error(`Port ${port} on ${host} is already in use. Set a different server.port in solipsist.yaml, or PORT in .env (see CONFIGURATION.md).`);
+    console.error(`Port ${port} on ${host} is already in use. Set a different server.port in solipsist.yaml, or PORT in the environment (see CONFIGURATION.md).`);
     process.exit(1);
   }
 }

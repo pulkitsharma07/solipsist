@@ -12,7 +12,7 @@ const at = Date.now();
 const MODELS = [
   { id: "fake:small", engine: "Fake", title: "Small" },
   { id: "fake:large", engine: "Fake", title: "Large" },
-  { id: "pi:z-ai/glm", engine: "Pi", title: "z-ai/glm", unavailable: "Set SOLIPSIST_OPENROUTER_KEY (in .env or the environment) to use Pi." },
+  { id: "pi:z-ai/glm", engine: "Pi", title: "z-ai/glm", unavailable: "Set SOLIPSIST_OPENROUTER_KEY in your environment to use Pi." },
 ];
 async function render(events: AgentEvent[], model = "fake:small", link: "live" | "offline" | "refused" | "paused" = "live") {
   const { DebugPanel } = await import("../src/app/pages/DebugPanel");

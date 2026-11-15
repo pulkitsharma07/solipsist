@@ -284,7 +284,7 @@ export function piSessionFile(agentDir: string, cwd: string, id: string): string
 export interface PiOptions {
   /** Pi's config directory. By default Pi's own (`~/.pi/agent`, or `PI_CODING_AGENT_DIR`). */
   agentDir?(): string;
-  /** The model runtime and model to use (tests pass a fake). By default: Pi's, with the `.env` key for OpenRouter. */
+  /** The model runtime and model to use (tests pass a fake). By default: Pi's, with the configured key for OpenRouter. */
   runtime?(): Promise<ModelRuntime>;
   model?(runtime: ModelRuntime, id: string): any;
 }
@@ -381,7 +381,7 @@ export function piEngine(opts: PiOptions = {}): AgentEngine {
       fresh();
       return opts.runtime || config().pi.openrouter_key || process.env.OPENROUTER_API_KEY || known.length || piAuthSaved(agentDir())
         ? null
-        : `Set ${PI_KEY_ENV} (in .env or the environment), or log in with \`pi\` (/login openrouter), to use Pi.`;
+        : `Set ${PI_KEY_ENV} in your environment, or log in with \`pi\` (/login openrouter), to use Pi.`;
     },
     async start(o): Promise<AgentSession> {
       fresh();

@@ -6,7 +6,8 @@ Settings come from three places. A later one wins over an earlier one:
 
 1. the **defaults** (listed below);
 2. the **config file**, `solipsist.yaml`;
-3. the **environment**, including what Bun loads from `.env`.
+3. the **environment**. The installed `solipsist` reads no `.env`: the folder it runs in may be someone else's. Run
+   from source (`bun src/index.ts`), Bun loads the folder's `.env` into the environment first.
 
 A setting that is wrong stops the server at start and says which one:
 
@@ -43,7 +44,7 @@ agent:
 ## Secrets
 
 `pi.openrouter_key` may go in the file, but `solipsist.yaml` is easy to commit by accident. Keep
-keys in `.env` (`SOLIPSIST_OPENROUTER_KEY`), which git ignores. The server never prints a key:
+keys in your environment (`SOLIPSIST_OPENROUTER_KEY`, in your shell's profile). The server never prints a key:
 errors and `--print-config` say only whether one is set.
 
 ## Seeing what is in effect
@@ -415,7 +416,7 @@ Your OpenRouter API key. **A secret.**
 |---|---|---|
 | text | unset | `SOLIPSIST_OPENROUTER_KEY` |
 
-Better kept in `.env` than in this file, which you may commit. `OPENROUTER_API_KEY` works too, and so does any login Pi has saved of its own (`pi`, then `/login`) — for OpenRouter or any other provider, which a key set here overrides. With none of them Pi is listed but greyed out.
+Better kept in your environment than in this file, which you may commit. `OPENROUTER_API_KEY` works too, and so does any login Pi has saved of its own (`pi`, then `/login`) — for OpenRouter or any other provider, which a key set here overrides. With none of them Pi is listed but greyed out.
 
 ### prompts
 
