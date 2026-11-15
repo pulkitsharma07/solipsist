@@ -29,8 +29,11 @@ afterAll(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-/** Runs install.ps1 as `irm … | iex` would, in a session that then prints its own preferences; returns what it said. */
-function install(env: Record<string, string>) {
+/**
+ * Runs install.ps1 as `irm … | iex` would, in a session that then prints its own preferences; returns what it said.
+ * Not `spawnSync`: the server it downloads from is in this process, and can't answer while this process is blocked.
+ */
+async function install(env: Record<string, string>) {
   const scriptText = readFileSync(script, "utf8");
   const scriptFile = join(root, "script.txt");
   writeFileSync(scriptFile, scriptText);
@@ -39,29 +42,30 @@ function install(env: Record<string, string>) {
     `try { Invoke-Expression (Get-Content -Raw '${scriptFile}') } catch { Write-Output "THROWN: $($_.Exception.Message)" }`,
     `Write-Output "AFTER: $ErrorActionPreference $ProgressPreference"`,
   ].join("; ");
-  const r = Bun.spawnSync([pwsh!, "-NoProfile", "-NonInteractive", "-Command", command], {
+  const r = Bun.spawn([pwsh!, "-NoProfile", "-NonInteractive", "-Command", command], {
     env: { ...process.env, LOCALAPPDATA: join(root, "appdata"), SOLIPSIST_BASE_URL: `http://127.0.0.1:${server!.port}`, ...env },
     stdout: "pipe",
     stderr: "pipe",
   });
-  return r.stdout.toString() + r.stderr.toString();
+  const [out, err] = await Promise.all([new Response(r.stdout).text(), new Response(r.stderr).text(), r.exited]);
+  return out + err;
 }
 
-test.skipIf(!pwsh)("a failed download throws, and leaves the shell's own preferences as they were", () => {
+test.skipIf(!pwsh)("a failed download throws, and leaves the shell's own preferences as they were", async () => {
   files = {};
-  const out = install({ SOLIPSIST_INSTALL_DIR: join(root, "none") });
+  const out = await install({ SOLIPSIST_INSTALL_DIR: join(root, "none") });
   expect(out).toContain("THROWN: solipsist install: could not download");
   expect(out).toContain("AFTER: Continue Continue");
 }, 60_000);
 
-test.skipIf(!pwsh)("a checksum that doesn't match throws, and nothing is installed", () => {
+test.skipIf(!pwsh)("a checksum that doesn't match throws, and nothing is installed", async () => {
   const stage = join(root, "stage", "solipsist-0.0.0-windows-x64");
   mkdirSync(stage, { recursive: true });
   writeFileSync(join(stage, "solipsist.exe"), "not really\n");
   Bun.spawnSync(["zip", "-qr", join(root, "w.zip"), "solipsist-0.0.0-windows-x64"], { cwd: join(root, "stage") });
   files = { "solipsist-windows-x64.zip": new Blob([readFileSync(join(root, "w.zip"))]), SHA256SUMS: `${"0".repeat(64)}  solipsist-windows-x64.zip\n` };
   const dir = join(root, "bad");
-  const out = install({ SOLIPSIST_INSTALL_DIR: dir });
+  const out = await install({ SOLIPSIST_INSTALL_DIR: dir });
   expect(out).toContain("THROWN: solipsist install: checksum mismatch");
   expect(out).toContain("AFTER: Continue Continue");
   expect(Bun.file(join(dir, "solipsist.exe")).size).toBe(0);

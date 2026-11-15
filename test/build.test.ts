@@ -63,7 +63,8 @@ describe("archives are reproducible", () => {
     const names = listing.map((l) => l.split(/\s+/).at(-1));
     expect(names).toEqual([`${s.dir}/`, `${s.dir}/LICENSE`, `${s.dir}/NOTICE`, `${s.dir}/README.md`, `${s.dir}/solipsist`]);
     expect(listing.map((l) => l.slice(0, 10))).toEqual(["drwxr-xr-x", "-rw-r--r--", "-rw-r--r--", "-rw-r--r--", "-rwxr-xr-x"]);
-    for (const l of listing) expect(l).toMatch(/^\S+\s+\d+\s+0\s+0\s/);
+    // bsdtar (macOS) lists the owner as `0 0 0` (links, uid, gid), GNU tar (Linux) as `0/0`.
+    for (const l of listing) expect(l).toMatch(/^\S+\s+(\d+\s+0\s+0|0\/0)\s/);
     const gz = readFileSync(out);
     expect(gz.readUInt32LE(4)).toBe(0); // the gzip header's time
   });
