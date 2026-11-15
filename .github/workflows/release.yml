@@ -128,4 +128,15 @@ jobs:
           flags=(--draft --verify-tag --title "Solipsist $VERSION" --notes-file notes.md)
           case "$VERSION" in *-*) flags+=(--prerelease);; esac
           gh release create "$GITHUB_REF_NAME" "${flags[@]}" release/solipsist-* release/install.sh release/install.ps1 release/SHA256SUMS
-          echo "Draft release for $GITHUB_REF_NAME: read it, then publish it." >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "### Draft release for $GITHUB_REF_NAME: not public yet"
+            echo
+            echo "Read the draft, then publish it: Releases → the draft → Publish release, or"
+            echo
+            echo '```sh'
+            echo "gh release edit $GITHUB_REF_NAME --draft=false"
+            echo '```'
+            echo
+            echo "Until it is published, \`releases/latest/download/install.sh\` (and every other \`latest\` download) is a 404:"
+            echo "GitHub doesn't count a draft as the latest release."
+          } >> "$GITHUB_STEP_SUMMARY"

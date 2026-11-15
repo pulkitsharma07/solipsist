@@ -74,7 +74,15 @@ gh release create vx.y.z --draft --notes-file dist/release/notes.md dist/release
 
 Add `--prerelease` for a beta or rc.
 
-Read the draft, then publish it. Once published, a release's files are never changed or replaced.
+**The release is not public until you publish the draft.** A draft isn't the "latest" release, so
+`releases/latest/download/install.sh` (what the install command uses) is a 404 until then. Read the draft's notes and
+files, then publish it: Releases → the draft → Publish release, or
+
+```sh
+gh release edit vx.y.z --draft=false
+```
+
+Once published, a release's files are never changed or replaced.
 
 ## 5. After
 

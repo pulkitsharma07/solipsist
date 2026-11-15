@@ -143,7 +143,7 @@ if (import.meta.main) {
   try {
     const r = cut({ root: resolve(import.meta.dir, ".."), arg, dry: args.includes("--dry-run"), log: (l) => console.log(l) });
     if (args.includes("--dry-run")) console.log(`--dry-run: nothing written. Then: ${r.push}`);
-    else console.log(`\nReleased ${r.version} locally. To publish it (this starts the release workflow):\n  ${r.push}`);
+    else console.log(`\nReleased ${r.version} locally. To publish it (this starts the release workflow):\n  ${r.push}\nThe workflow leaves a DRAFT release: approve its deployment, read the draft, then publish it (RELEASING.md, step 4). Until then releases/latest/download/install.sh is a 404.`);
   } catch (e: any) {
     console.error(e.message);
     process.exit(1);
