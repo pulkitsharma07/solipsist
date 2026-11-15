@@ -11,4 +11,7 @@ else
   exit 1
 fi
 
+# Git hands a hook its pointers to this repo (in a worktree, GIT_DIR too). The tests run git in scratch folders, and
+# with these set it would answer for this checkout from any of them.
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_COMMON_DIR GIT_OBJECT_DIRECTORY GIT_PREFIX
 bun run test:fast
