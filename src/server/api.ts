@@ -202,12 +202,6 @@ export async function postSupport(req: Request) {
 
 export const notImplemented = () => fail(501, "not_implemented", "Not implemented yet.");
 
-export const publicFile = async (req: Request) => {
-  const path = new URL(req.url).pathname.replace(/^\/public\//, "");
-  if (path.includes("..")) return fail(400, "bad_path", "Bad path.");
-  const file = Bun.file(`${projectRoot()}/public/${path}`);
-  return (await file.exists()) ? new Response(file) : fail(404, "not_found", "No such file.");
-};
 
 
 /** What a page may show. A project's folder holds its secrets too, so nothing else is served from it. */

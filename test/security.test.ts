@@ -217,3 +217,12 @@ describe("an asset can't run on the app's origin (S10)", () => {
     expect(r.headers.get("x-content-type-options")).toBe("nosniff");
   });
 });
+
+describe("nothing serves the project's folder but the asset route (S12)", () => {
+  test("/public/.env isn't served", async () => {
+    mkdirSync(join(P.root, "public"), { recursive: true });
+    writeFileSync(join(P.root, "public", ".env"), "SECRET=sk-or-fake");
+    expect(Object.keys(apiRoutes()).some((p) => p.startsWith("/public"))).toBe(false);
+    expect(await (await call("/public/.env")).text()).not.toContain("sk-or-fake");
+  });
+});

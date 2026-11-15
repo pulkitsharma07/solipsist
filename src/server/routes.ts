@@ -62,7 +62,6 @@ export function apiRoutes() {
     "/api/dev/comments/:id": { POST: api.addComments },
     "/api/assets/*": api.assetFile,
     "/api/*": api.notImplemented,
-    "/public/*": api.publicFile,
   } as const;
   return Object.fromEntries(Object.entries(routes).map(([path, route]) => [path, guard(route)])) as typeof routes;
 }
