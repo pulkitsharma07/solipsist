@@ -37,6 +37,9 @@ jobs:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
       - run: bun install --frozen-lockfile
+      # A dependency with a known vulnerability fails the build: upgrade it, or override it past the advisory
+      # (`overrides` in package.json) when what pins it hasn't caught up.
+      - run: bun audit
       - run: bun test
 
   ui:
