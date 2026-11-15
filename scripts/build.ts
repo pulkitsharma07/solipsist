@@ -105,12 +105,14 @@ const git = (...args: string[]) => {
 export type BuildResult = { target: Target; archive: string; binary: string; bytes: number };
 
 /**
- * How the binary is compiled. It runs in the writer's folder, which may be anyone's: it reads no `bunfig.toml` from it
- * (a `preload` there would run that folder's code), nor its `tsconfig.json` or `package.json`.
+ * How the binary is compiled. It runs in the writer's folder, which may be anyone's: it reads no `.env` from it (which
+ * could open the server to the network or swap in someone else's key), no `bunfig.toml` (a `preload` there would run
+ * that folder's code), nor its `tsconfig.json` or `package.json`. Settings come from the environment and the config file.
  */
 export const compileOptions = (t: Target, outfile: string) => ({
   target: bunTarget(t),
   outfile,
+  autoloadDotenv: false,
   autoloadBunfig: false,
   autoloadTsconfig: false,
   autoloadPackageJson: false,

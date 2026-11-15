@@ -76,10 +76,10 @@ describe("archives are reproducible", () => {
   });
 });
 
-test("the binary reads no bunfig.toml, tsconfig.json or package.json from the folder it runs in", () => {
-  // A `preload` in a folder's bunfig.toml ran that folder's code when the binary started there.
+test("the binary reads no .env, bunfig.toml, tsconfig.json or package.json from the folder it runs in", () => {
+  // A `preload` in a folder's bunfig.toml ran that folder's code when the binary started there; its .env set the host.
   const o = compileOptions("linux-x64", "/x/solipsist");
-  expect(o).toMatchObject({ target: "bun-linux-x64", outfile: "/x/solipsist", autoloadBunfig: false, autoloadTsconfig: false, autoloadPackageJson: false });
+  expect(o).toMatchObject({ target: "bun-linux-x64", outfile: "/x/solipsist", autoloadDotenv: false, autoloadBunfig: false, autoloadTsconfig: false, autoloadPackageJson: false });
 });
 
 test("the install scripts are released beside the archives, as they are in the repo", () => {

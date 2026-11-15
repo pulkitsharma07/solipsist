@@ -85,10 +85,11 @@ test("the release smoke-tests each archive with scripts/smoke.sh: Linux x64 alwa
   expect(linuxOnly).toEqual([{ target: "linux-x64", os: "ubuntu-latest" }]);
 });
 
-test("the smoke script starts the binary in a folder with a planted bunfig.toml preload, and fails if it runs", () => {
+test("the smoke script starts the binary in a folder with a planted .env and bunfig.toml preload, and fails if it reads either", () => {
   const script = readFileSync(join(import.meta.dir, "..", "scripts", "smoke.sh"), "utf8");
   expect(script).toContain("preload = [");
   expect(script).toContain("the binary ran the folder's bunfig.toml preload");
+  expect(script).toContain("the binary read the folder's .env");
 });
 
 test("the release attests and uploads the install scripts with the archives and SHA256SUMS", () => {

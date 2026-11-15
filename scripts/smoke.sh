@@ -3,8 +3,8 @@
 #
 #   bash scripts/smoke.sh dist/release/solipsist-darwin-arm64.tar.gz 0.2.0
 #
-# Unpacks it, checks `--version` says that version, starts the binary in a folder with a planted bunfig.toml preload
-# (which must not run), loads the page and every script and stylesheet it names and the pages list, then stops it
+# Unpacks it, checks `--version` says that version, starts the binary in a folder with a planted .env and bunfig.toml
+# preload (neither may be read), loads the page and every script and stylesheet it names and the pages list, then stops it
 # and checks no process is left. Run by the release workflow on each system (`smoke` in release.yml); bash, so it
 # runs the same on Linux, macOS and Windows' Git Bash.
 set -euo pipefail
@@ -46,6 +46,10 @@ printf 'preload = ["./planted.ts"]\n' > bunfig.toml
 echo 'require("fs").writeFileSync("planted-ran", "")' > planted.ts
 "$bin" --version > /dev/null
 [ ! -e planted-ran ] || fail "the binary ran the folder's bunfig.toml preload"
+# Nor its .env: one could open the server to the network.
+printf 'SOLIPSIST_HOST=203.0.113.7\n' > .env
+if "$bin" --print-config 2>&1 | grep -q 203.0.113.7; then fail "the binary read the folder's .env"; fi
+rm .env
 
 PORT=$port SOLIPSIST_TUI=0 "$bin" > "$work/server.out" 2>&1 &
 pid=$!
