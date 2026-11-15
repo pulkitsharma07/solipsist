@@ -66,8 +66,8 @@ jobs:
 
   smoke:
     # Each archive started on its own system (scripts/smoke.sh). Linux x64 always; all five when the repository
-    # variable SMOKE_ALL_SYSTEMS is "true" (Settings -> Secrets and variables -> Actions -> Variables). Off while the repo
-    # is private, where the macOS and arm runners cost many times Linux's; free once it is public.
+    # variable SMOKE_ALL_SYSTEMS is "true" (Settings -> Secrets and variables -> Actions -> Variables). It is set on
+    # this repository; a fork without it starts the Linux build only.
     name: smoke (${{ matrix.target }})
     needs: [verify, build]
     strategy:

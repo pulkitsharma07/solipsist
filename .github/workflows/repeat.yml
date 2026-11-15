@@ -6,7 +6,7 @@ on:
     inputs:
       file: { description: "Test file, e.g. ./test/e2e-dom/agent.dom.tsx", required: true }
       times: { description: "How many runs", required: true, default: "12" }
-      os: { description: "Runner", required: true, default: ubuntu-latest, type: choice, options: [ubuntu-latest] }
+      os: { description: "Runner", required: true, default: ubuntu-latest, type: choice, options: [ubuntu-latest, macos-latest] }
 permissions: { contents: read }
 
 jobs:

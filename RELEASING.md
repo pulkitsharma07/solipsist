@@ -51,9 +51,8 @@ the same kind of machine; the times in it are the commit's), so a local build ca
 Unpack the one for your machine, run `./solipsist --version` (it must print the number you are releasing) and start it in
 an empty folder: the page opens, a page saves, stopping it leaves no process behind. `bash scripts/smoke.sh <archive>
 <version>` does the automatic part of that (the workflow runs it). The workflow starts only the Linux x64 build unless
-the repository variable `SMOKE_ALL_SYSTEMS` is `true`, which runs all five on their own systems (macOS and arm runners
-cost many times Linux's while the repo is private; set it once it is public). Until then, try the macOS and Windows
-builds on those systems before a release that matters.
+the repository variable `SMOKE_ALL_SYSTEMS` is `true`, which runs all five on their own systems. It is set on this
+repository; where it isn't (a fork), try the macOS and Windows builds on those systems before a release that matters.
 
 ## 4. Publish
 

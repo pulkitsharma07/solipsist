@@ -1,6 +1,5 @@
-# Every push to main and every pull request: the whole suite (typecheck and the fake-DOM e2e inside it), then the
-# real-Chrome suite, on Linux. No macOS while the repo is private: its runners cost ten times Linux's, out of a small
-# allowance. Put `macos-latest` back in the matrix when the repo is public (free there).
+# Every push to main and every pull request: the whole suite (typecheck and the fake-DOM e2e inside it) on Linux and
+# macOS, then the real-Chrome suite on Linux.
 # No secrets: test/sandbox.ts blanks every key, and no test reaches a model.
 name: CI
 on:
@@ -23,7 +22,7 @@ jobs:
   test:
     strategy:
       fail-fast: false
-      matrix: { os: [ubuntu-latest] }
+      matrix: { os: [ubuntu-latest, macos-latest] }
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     steps:
