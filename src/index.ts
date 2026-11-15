@@ -58,7 +58,8 @@ function start() {
         ...apiRoutes(),
         "/*": index,
       },
-      development: process.env.NODE_ENV !== "production" && { hmr: true, console: true },
+      // Bun's dev server (hot reload, the browser's console in the terminal) only when asked: `bun run dev`.
+      development: process.env.NODE_ENV === "development" && { hmr: true, console: true },
     });
   } catch (e: any) {
     if (e?.code !== "EADDRINUSE") throw e;

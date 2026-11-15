@@ -226,3 +226,23 @@ describe("nothing serves the project's folder but the asset route (S12)", () => 
     expect(await (await call("/public/.env")).text()).not.toContain("sk-or-fake");
   });
 });
+
+describe("the dev routes are on only when asked for (S13)", () => {
+  const was = process.env.NODE_ENV;
+  afterAll(() => { process.env.NODE_ENV = was; });
+
+  test("unset, production or anything but test and development: 404", async () => {
+    for (const env of [undefined, "production", "staging"]) {
+      if (env === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = env;
+      for (const p of ["/api/dev/changed/README", "/api/dev/mock-comment/README", "/api/dev/comments/README"]) {
+        expect([env, p, (await call(p, { method: "POST" })).status]).toEqual([env, p, 404]);
+      }
+    }
+  });
+
+  test("in a test they answer, and a bad id is refused", async () => {
+    process.env.NODE_ENV = "test";
+    expect((await call("/api/dev/changed/README", { method: "POST" })).status).toBe(204);
+    expect((await call(`/api/dev/changed/${encodeURIComponent("../x")}`, { method: "POST" })).status).toBe(400);
+  });
+});

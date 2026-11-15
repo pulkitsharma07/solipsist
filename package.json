@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "prepare": "git config core.hooksPath .githooks || true",
-    "dev": "bun --hot src/index.ts",
+    "dev": "NODE_ENV=development bun --hot src/index.ts",
     "start": "NODE_ENV=production bun src/index.ts",
     "test": "bun test",
     "test:fast": "bun scripts/test-fast.ts",
