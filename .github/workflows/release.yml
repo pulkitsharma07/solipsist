@@ -1,8 +1,8 @@
 # A release: runs when a tag `v*` is pushed, or by hand (Actions -> Release -> Run workflow, `dry_run` on by default).
 # It never runs on a push to main. Steps: verify the tag, the whole CI suite, build the five targets on one Linux
-# runner, start the Linux binary, and (not on a dry run) attest the files and make a DRAFT GitHub Release for the
-# maintainer to read and publish. See RELEASING.md. Left out for now: the minisign signature, the Homebrew tap, the
-# macOS and Windows smoke runs (the binaries are built here and tried by hand).
+# runner, start each binary on its own system (Linux x64 only unless SMOKE_ALL_SYSTEMS is on, see `smoke`), and (not
+# on a dry run) attest the files and make a DRAFT GitHub Release for the maintainer to read and publish. See
+# RELEASING.md. Left out for now: the Homebrew tap.
 name: Release
 on:
   push: { tags: ["v*"] }
@@ -65,46 +65,30 @@ jobs:
           retention-days: 14
 
   smoke:
+    # Each archive started on its own system (scripts/smoke.sh). Linux x64 always; all five when the repository
+    # variable SMOKE_ALL_SYSTEMS is "true" (Settings -> Secrets and variables -> Actions -> Variables). Off while the repo
+    # is private, where the macOS and arm runners cost many times Linux's; free once it is public.
+    name: smoke (${{ matrix.target }})
     needs: [verify, build]
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(vars.SMOKE_ALL_SYSTEMS == 'true' && '[{"target":"linux-x64","os":"ubuntu-latest"},{"target":"linux-arm64","os":"ubuntu-24.04-arm"},{"target":"darwin-arm64","os":"macos-latest"},{"target":"darwin-x64","os":"macos-15-intel"},{"target":"windows-x64","os":"windows-latest"}]' || '[{"target":"linux-x64","os":"ubuntu-latest"}]') }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with: { persist-credentials: false }
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with: { name: release, path: release }
       - name: Checksums
-        run: cd release && sha256sum -c SHA256SUMS
-      - name: The Linux binary is self-contained
+        shell: bash
+        run: cd release && if command -v sha256sum > /dev/null; then sha256sum -c SHA256SUMS; else shasum -a 256 -c SHA256SUMS; fi
+      - name: Start it
         shell: bash
         env:
           VERSION: ${{ needs.verify.outputs.version }}
-        run: |
-          set -euo pipefail
-          work=$(mktemp -d); cd "$work"
-          tar -xzf "$GITHUB_WORKSPACE/release/solipsist-linux-x64.tar.gz"
-          bin=$(ls -d "$work"/solipsist-*-linux-x64)/solipsist
-          line=$("$bin" --version); echo "$line"
-          case "$line" in "solipsist $VERSION ("*) ;; *) echo "::error::--version says '$line', expected $VERSION"; exit 1;; esac
-          mkdir docs && echo "# hi" > docs/a.md && cd docs
-          # The folder is the writer's, maybe anyone's: a preload in its bunfig.toml must not run.
-          printf 'preload = ["./planted.ts"]\n' > bunfig.toml
-          echo 'require("fs").writeFileSync("planted-ran", "")' > planted.ts
-          "$bin" --version > /dev/null
-          if [ -e planted-ran ]; then echo "::error::the binary ran the folder's bunfig.toml preload"; exit 1; fi
-          PORT=47123 SOLIPSIST_TUI=0 "$bin" > "$work/server.out" 2>&1 &
-          pid=$!
-          for _ in $(seq 1 30); do
-            [ "$(curl -s -o /dev/null -w '%{http_code}' localhost:47123/)" = 200 ] && break
-            sleep 1
-          done
-          html=$(curl -fsS localhost:47123/)
-          for asset in $(echo "$html" | grep -oE '(src|href)="[^"]+\.(js|css)"' | sed -E 's/.*="(.*)"/\1/'); do
-            curl -fsS -o /dev/null "localhost:47123$asset"
-          done
-          curl -fsS localhost:47123/api/pages > /dev/null
-          kill "$pid"; wait "$pid" || true
-          if pgrep -f "solipsist-.*-linux-x64/solipsist" > /dev/null; then echo "::error::a process was left behind"; exit 1; fi
-      - if: failure()
-        run: cat "$(ls -d /tmp/tmp.*/server.out 2>/dev/null | head -1)" || true
+        run: bash scripts/smoke.sh "release/solipsist-${{ matrix.target }}.$([ "${{ matrix.target }}" = windows-x64 ] && echo zip || echo tar.gz)" "$VERSION"
 
   publish:
     # Not on a dry run, and not for a manual run that isn't on a tag.

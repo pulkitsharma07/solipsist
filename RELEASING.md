@@ -49,8 +49,11 @@ Beside them are `install.sh` and `install.ps1`, copied from `scripts/`: `get.sol
 with a release. `SHA256SUMS` covers all seven. The build is reproducible: the same commit gives the same `SHA256SUMS` (on
 the same kind of machine; the times in it are the commit's), so a local build can be compared with the release's.
 Unpack the one for your machine, run `./solipsist --version` (it must print the number you are releasing) and start it in
-an empty folder: the page opens, a page saves, stopping it leaves no process behind. The macOS and Windows builds are
-not run anywhere automatically: try them on those systems before a release that matters.
+an empty folder: the page opens, a page saves, stopping it leaves no process behind. `bash scripts/smoke.sh <archive>
+<version>` does the automatic part of that (the workflow runs it). The workflow starts only the Linux x64 build unless
+the repository variable `SMOKE_ALL_SYSTEMS` is `true`, which runs all five on their own systems (macOS and arm runners
+cost many times Linux's while the repo is private; set it once it is public). Until then, try the macOS and Windows
+builds on those systems before a release that matters.
 
 ## 4. Publish
 
@@ -58,7 +61,7 @@ Push the commit and the tag together, atomically: `git push --atomic origin main
 `main` lets the tag through alone; the workflow then fails "not on main", and a pushed tag is never moved.
 
 The Release workflow runs on the tag: it checks the tag matches `package.json` and `CHANGELOG.md` has the section,
-runs the whole CI suite, builds the five targets, starts the Linux binary on an empty folder, attests the build
+runs the whole CI suite, builds the five targets, starts each on its own system (`scripts/smoke.sh`; see above for which), attests the build
 provenance of every file, and creates a **draft** GitHub Release with the notes from `scripts/release-notes.ts`
 (marked pre-release for a `-beta.N` or `-rc.N`). It never runs on a push to `main`. The last job, the attestation and
 the draft, waits for your approval in the `release` environment: Actions → the run → Review deployments.

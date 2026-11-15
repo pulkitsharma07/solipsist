@@ -75,10 +75,20 @@ describe("the nightly fuzz's failure step", () => {
   });
 });
 
-test("the release's smoke run starts the binary in a folder with a planted bunfig.toml preload, and fails if it runs", () => {
-  const smoke = workflows["release.yml"]!.jobs.smoke!.steps!.map((s) => s.run ?? "").join("\n");
-  expect(smoke).toContain("preload = [");
-  expect(smoke).toContain("the binary ran the folder's bunfig.toml preload");
+test("the release smoke-tests each archive with scripts/smoke.sh: Linux x64 always, all five systems when switched on", () => {
+  const smoke = workflows["release.yml"]!.jobs.smoke!;
+  expect((smoke.steps ?? []).map((s) => s.run ?? "").join("\n")).toContain("bash scripts/smoke.sh");
+  const include = String((smoke.strategy as { matrix: { include: string } }).matrix.include);
+  expect(include).toContain("vars.SMOKE_ALL_SYSTEMS == 'true'");
+  const [all, linuxOnly] = [...include.matchAll(/'(\[.*?\])'/g)].map((m) => JSON.parse(m[1]!) as { target: string; os: string }[]);
+  expect(all!.map((e) => e.target)).toEqual(["linux-x64", "linux-arm64", "darwin-arm64", "darwin-x64", "windows-x64"]);
+  expect(linuxOnly).toEqual([{ target: "linux-x64", os: "ubuntu-latest" }]);
+});
+
+test("the smoke script starts the binary in a folder with a planted bunfig.toml preload, and fails if it runs", () => {
+  const script = readFileSync(join(import.meta.dir, "..", "scripts", "smoke.sh"), "utf8");
+  expect(script).toContain("preload = [");
+  expect(script).toContain("the binary ran the folder's bunfig.toml preload");
 });
 
 test("the release attests and uploads the install scripts with the archives and SHA256SUMS", () => {
