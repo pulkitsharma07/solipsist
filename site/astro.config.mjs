@@ -11,6 +11,14 @@ export default defineConfig({
       description: "Think and work with AI agents in your markdown docs. They suggest; you decide.",
       logo: { light: "./src/assets/logo.svg", dark: "./src/assets/logo-dark.svg", replacesTitle: true },
       favicon: "/favicon.svg",
+      // The card a link to any docs page shows: the landing page's (`bun run site:og` draws it).
+      head: [
+        { tag: "meta", attrs: { property: "og:image", content: "https://solipsist.sh/og.png" } },
+        { tag: "meta", attrs: { property: "og:image:width", content: "1280" } },
+        { tag: "meta", attrs: { property: "og:image:height", content: "640" } },
+        { tag: "meta", attrs: { property: "og:image:alt", content: "Solipsist: think and work with AI agents in your markdown docs" } },
+        { tag: "meta", attrs: { name: "twitter:image", content: "https://solipsist.sh/og.png" } },
+      ],
       social: [{ icon: "github", label: "GitHub", href: "https://github.com/pulkitsharma07/solipsist" }],
       editLink: { baseUrl: "https://github.com/pulkitsharma07/solipsist/edit/main/site/" },
       customCss: ["./src/styles/docs.css"],

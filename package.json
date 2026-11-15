@@ -17,6 +17,7 @@
     "release": "bun scripts/release.ts",
     "site": "bun scripts/site/build.ts",
     "site:shots": "bun scripts/site/shots.ts",
+    "site:og": "bun scripts/site/og.ts",
     "site:demo": "bun scripts/site/demo-gif.ts",
     "random-edits": "bun scripts/random-edits.ts"
   },
