@@ -6,6 +6,10 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ## [Unreleased]
 
+### Added
+
+- `solipsist doctor` prints what a bug report needs: the version, your system, which settings file is in effect, whether the port is free, whether the folder can be written, which agents can run, and the last errors. It shows no key and no page text.
+
 ### Security
 
 - The server refuses requests from other websites, and requests addressed to any name but `localhost` on its own
@@ -14,6 +18,7 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
   in the new `server.allowed_hosts`.
 - Sync copies a page's images only from its own image folder to beside the page: an image link with `..`, or a
   symlink at either end, is skipped instead of copying a file outside the project.
+- A `.env` file in the folder Solipsist runs in can no longer choose a command for it to run.
 
 ## [0.1.0] — first public build
 

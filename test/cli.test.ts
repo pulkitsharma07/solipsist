@@ -18,6 +18,9 @@ test("flags", () => {
   expect(parseArgs(["--config"])).toMatchObject({ run: "error", message: expect.stringContaining("--config needs a file") });
   expect(parseArgs(["--port", "4000"])).toEqual({ run: "error", message: "Unknown option --port" });
   expect(parseArgs(["notes"])).toEqual({ run: "error", message: "Unknown option notes" });
+  expect(parseArgs(["doctor"])).toEqual({ run: "doctor" });
+  expect(parseArgs(["doctor", "--config", "a.yaml"])).toEqual({ run: "doctor" });
+  expect(parseArgs(["--print-config", "doctor"])).toEqual({ run: "error", message: "Unknown option doctor" });
 });
 
 test("the version is package.json's, and the usage names every flag", () => {

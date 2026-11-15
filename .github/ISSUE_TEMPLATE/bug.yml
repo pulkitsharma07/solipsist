@@ -50,3 +50,9 @@ body:
       label: Model
       description: The model the page's agent uses, if the bug involves an agent.
       placeholder: openrouter/deepseek/… or "none"
+  - type: textarea
+    id: doctor
+    attributes:
+      label: "`solipsist doctor`"
+      description: Run `solipsist doctor` in the folder that has the problem and paste what it prints. It holds no keys and no page text, and shows your home folder as `~`.
+      render: text

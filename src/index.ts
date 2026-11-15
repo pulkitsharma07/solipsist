@@ -13,6 +13,7 @@ import { log, logFile, why } from "./server/log";
 import { startTui, wantsTui } from "./server/tui";
 import { parseArgs, USAGE } from "./server/cli";
 import { versionInfo, versionLine } from "./server/version";
+import { doctor } from "./server/doctor";
 
 /** Which build is serving, on the log's start line: a bug report's log says which code wrote it. */
 const versionFields = () => { const v = versionInfo(); return { version: v.version, commit: v.commit, built: v.built, target: v.target }; };
@@ -40,6 +41,10 @@ function settings() {
 const cfg = settings();
 if (cli.run === "print-config") {
   console.log(printConfig(cfg));
+  process.exit(0);
+}
+if (cli.run === "doctor") {
+  console.log(await doctor());
   process.exit(0);
 }
 const { port, host } = cfg.server;

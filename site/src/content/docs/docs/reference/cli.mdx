@@ -14,6 +14,8 @@ bun ~/solipsist/src/index.ts [options]
   --print-config    Print every setting, its value and where it came from, then exit.
   --version         Print the version and exit.
   --help            Print this and exit.
+
+solipsist doctor    Print what a bug report needs, then exit.
 ```
 
 Everything else is a setting, in `solipsist.yaml` or the environment. See
@@ -26,6 +28,13 @@ the **Loaded settings** tab in settings (the gear icon) shows the same list for 
 show as `set`.
 
 <Shot name="settings-loaded" title="Settings: Loaded settings" alt="The Loaded settings tab: each setting, its value and where it came from" />
+
+## Reporting a problem
+
+`solipsist doctor` prints the version, your system, which settings file is in effect, whether the port is free, whether
+the folder can be written, which agents can run (and why one can't), and the last errors in the log. Run it in the
+folder that has the problem and paste the output into the bug report. It shows no key and no page text, and your home
+folder as `~`.
 
 ## The terminal view
 
