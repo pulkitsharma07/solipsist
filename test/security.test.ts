@@ -158,3 +158,41 @@ describe("Sync copies a page's images only from its own folder, to beside the pa
     expect(readFileSync(join(proj, "images/d/sub/chart.svg"), "utf8")).toBe("<svg/>");
   });
 });
+
+describe("a folder's .env can't pick a command for the server to run (S3)", () => {
+  const was = { cmd: process.env.AGENT_CMD, env: process.env.NODE_ENV, cwd: process.cwd() };
+  let dir = "";
+  beforeAll(() => { dir = realpathSync(mkdtempSync(join(tmpdir(), "solip-s3-"))); });
+  afterAll(() => {
+    process.chdir(was.cwd);
+    if (was.cmd === undefined) delete process.env.AGENT_CMD; else process.env.AGENT_CMD = was.cmd;
+    process.env.NODE_ENV = was.env;
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  test("outside a test AGENT_CMD is ignored, and the fake engine isn't offered", async () => {
+    const { fakeCommand } = await import("../src/server/agent/engines/cmd");
+    const { engines } = await import("../src/server/agent/engines");
+    process.env.AGENT_CMD = JSON.stringify(["touch", join(dir, "ran")]);
+    process.env.NODE_ENV = "production";
+    expect(fakeCommand()).toBeUndefined();
+    expect(engines().map((e) => e.name)).not.toContain("fake");
+    process.env.NODE_ENV = "development";
+    expect(fakeCommand()).toBeUndefined();
+  });
+
+  test("in a test it is read, unless a .env in the working directory names it or NODE_ENV", async () => {
+    const { fakeCommand } = await import("../src/server/agent/engines/cmd");
+    process.env.AGENT_CMD = '["sh"]';
+    process.env.NODE_ENV = "test";
+    process.chdir(dir);
+    expect(fakeCommand()).toBe('["sh"]');
+    for (const line of ["AGENT_CMD=[\"sh\"]", "export NODE_ENV=test"]) {
+      writeFileSync(join(dir, ".env"), `PORT=1\n${line}\n`);
+      expect(fakeCommand()).toBeUndefined();
+    }
+    rmSync(join(dir, ".env"));
+    writeFileSync(join(dir, ".env.local"), "AGENT_CMD=x\n");
+    expect(fakeCommand()).toBeUndefined();
+  });
+});

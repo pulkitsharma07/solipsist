@@ -1,15 +1,15 @@
 import { config } from "../../config";
 import type { AgentEngine, EngineModel } from "../engine";
-import { cmdEngine } from "./cmd";
+import { cmdEngine, fakeCommand } from "./cmd";
 import { piEngine } from "./pi";
 
 const pi = piEngine();
 /**
  * Pi, the one real engine. A page chooses its own model; an engine that can't run says why in the model list.
- * `AGENT_CMD` (a JSON argv) puts a stand-in named `fake` first: the tests' fake, a process speaking stream-json. Read
- * on each call, since tests set it as they go.
+ * `AGENT_CMD` (a JSON argv) puts a stand-in named `fake` first: the tests' fake, a process speaking stream-json, and
+ * only in a test (`fakeCommand`). Read on each call, since tests set it as they go.
  */
-const builtins = (): AgentEngine[] => (process.env.AGENT_CMD ? [cmdEngine, pi] : [pi]);
+const builtins = (): AgentEngine[] => (fakeCommand() ? [cmdEngine, pi] : [pi]);
 /** Engines set by `setEngines`, in place of the built-ins. */
 let registered: AgentEngine[] | null = null;
 /** The engines a page's agent can run on, in the order the model picker lists them. The first one's first model is the default. */

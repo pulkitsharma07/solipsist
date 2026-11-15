@@ -29,7 +29,7 @@ export const TABLE: Setting[] = [...PAGE_ROWS, ...AGENT_ROWS, ...ENGINE_ROWS, ..
 export const ENV_ONLY: { name: string; why: string }[] = [
   { name: "SOLIPSIST_CONFIG", why: "The path of the config file, the same as `--config <path>` on the command line." },
   { name: "NODE_ENV", why: "Bun's and every tool's, not ours." },
-  { name: "AGENT_CMD", why: "The test fake: a JSON argv that stands in for an engine. Never a user setting." },
+  { name: "AGENT_CMD", why: "The test fake: a JSON argv that stands in for an engine. Read only when `NODE_ENV` is `test`, and never when a `.env` in the folder sets it. Never a user setting." },
   { name: "PI_CODING_AGENT_DIR", why: "Pi's own: where it keeps its configuration." },
   { name: "OPENROUTER_API_KEY", why: "Pi reads it itself. A fallback behind `pi.openrouter_key`." },
   { name: "FUZZ_RUNS", why: "Test runner only (`test/fuzz.test.ts`)." },

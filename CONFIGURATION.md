@@ -535,7 +535,7 @@ These are read as plain environment variables, outside the settings table.
 |---|---|
 | `SOLIPSIST_CONFIG` | The path of the config file, the same as `--config <path>` on the command line. |
 | `NODE_ENV` | Bun's and every tool's, not ours. |
-| `AGENT_CMD` | The test fake: a JSON argv that stands in for an engine. Never a user setting. |
+| `AGENT_CMD` | The test fake: a JSON argv that stands in for an engine. Read only when `NODE_ENV` is `test`, and never when a `.env` in the folder sets it. Never a user setting. |
 | `PI_CODING_AGENT_DIR` | Pi's own: where it keeps its configuration. |
 | `OPENROUTER_API_KEY` | Pi reads it itself. A fallback behind `pi.openrouter_key`. |
 | `FUZZ_RUNS` | Test runner only (`test/fuzz.test.ts`). |
