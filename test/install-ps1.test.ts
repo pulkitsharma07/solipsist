@@ -9,7 +9,7 @@ import { join } from "node:path";
 const pwsh = Bun.which("pwsh");
 const script = join(import.meta.dir, "..", "scripts", "install.ps1");
 let root: string;
-let files: Record<string, Uint8Array> = {};
+let files: Record<string, Blob | string> = {};
 let server: ReturnType<typeof Bun.serve> | undefined;
 
 beforeAll(() => {
@@ -59,7 +59,7 @@ test.skipIf(!pwsh)("a checksum that doesn't match throws, and nothing is install
   mkdirSync(stage, { recursive: true });
   writeFileSync(join(stage, "solipsist.exe"), "not really\n");
   Bun.spawnSync(["zip", "-qr", join(root, "w.zip"), "solipsist-0.0.0-windows-x64"], { cwd: join(root, "stage") });
-  files = { "solipsist-windows-x64.zip": readFileSync(join(root, "w.zip")), SHA256SUMS: new TextEncoder().encode(`${"0".repeat(64)}  solipsist-windows-x64.zip\n`) };
+  files = { "solipsist-windows-x64.zip": new Blob([readFileSync(join(root, "w.zip"))]), SHA256SUMS: `${"0".repeat(64)}  solipsist-windows-x64.zip\n` };
   const dir = join(root, "bad");
   const out = install({ SOLIPSIST_INSTALL_DIR: dir });
   expect(out).toContain("THROWN: solipsist install: checksum mismatch");
