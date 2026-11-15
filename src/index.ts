@@ -13,7 +13,9 @@ import { log, logFile, why } from "./server/log";
 import { startTui, wantsTui } from "./server/tui";
 import { parseArgs, USAGE } from "./server/cli";
 import { versionInfo, versionLine } from "./server/version";
+import { bunDevServer } from "./server/devMode";
 import { doctor } from "./server/doctor";
+import { acquire as acquireLock, conflictMessage, release as releaseLock } from "./server/lock";
 
 /** Which build is serving, on the log's start line: a bug report's log says which code wrote it. */
 const versionFields = () => { const v = versionInfo(); return { version: v.version, commit: v.commit, built: v.built, target: v.target }; };
@@ -58,7 +60,8 @@ function start() {
         ...apiRoutes(),
         "/*": index,
       },
-      development: process.env.NODE_ENV !== "production" && { hmr: true, console: true },
+      // Bun's dev server (hot reload, the browser's console in the terminal) only when asked: `bun run dev`.
+      development: bunDevServer() && { hmr: true, console: true },
     });
   } catch (e: any) {
     if (e?.code !== "EADDRINUSE") throw e;
@@ -66,6 +69,14 @@ function start() {
     process.exit(1);
   }
 }
+
+// One server per folder: a second one would write the same pages and answer every request twice.
+const held = await acquireLock(host, port);
+if (!held.ok) {
+  console.error(conflictMessage(held.other));
+  process.exit(1);
+}
+process.on("exit", () => releaseLock());
 
 const server = start();
 

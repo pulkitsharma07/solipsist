@@ -8,9 +8,13 @@ on:
   pull_request:
   workflow_dispatch:
   workflow_call: # the release workflow runs the same suite before it builds
+    inputs:
+      # The release passes false: what it tests and builds comes from the lockfile, never from a cache an earlier run
+      # wrote. Unset (a push, a pull request) is true.
+      cache: { type: boolean, default: true }
 permissions: { contents: read }
-# Called by the release workflow, `github.workflow` is the caller's ("Release"): a release's test run and a push's CI
-# on the same ref are then in groups of their own, and one can't cancel the other.
+# Keyed on the workflow too: called from a Release run on main, `github.workflow` is "Release", so the two never share a
+# group and cancel each other.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -27,11 +31,15 @@ jobs:
         with: { persist-credentials: false }
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with: { bun-version-file: .bun-version }
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - if: inputs.cache != false
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
       - run: bun install --frozen-lockfile
+      # A dependency with a known vulnerability fails the build: upgrade it, or override it past the advisory
+      # (`overrides` in package.json) when what pins it hasn't caught up.
+      - run: bun audit
       - run: bun test
 
   ui:
@@ -45,7 +53,8 @@ jobs:
         with: { persist-credentials: false }
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with: { bun-version-file: .bun-version }
-      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - if: inputs.cache != false
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.bun/install/cache
           key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}

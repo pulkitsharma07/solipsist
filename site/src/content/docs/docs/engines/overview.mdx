@@ -1,0 +1,39 @@
+---
+title: Engines
+description: What runs the agents, what it needs, who pays, and what it can touch.
+sidebar:
+  order: 1
+---
+
+An **engine** is what runs an agent: it starts the agent, sends it a request, and reports what it did. Solipsist's
+agents run on one engine today, [Pi](/docs/engines/pi/), an open-source coding agent that runs inside the Solipsist
+process. Pi calls the model you connected: [OpenRouter](/docs/start/openrouter/), a provider you logged in to, or a
+[model on your own computer](/docs/start/local-models/).
+
+| | Pi |
+|---|---|
+| Needs | A model: an OpenRouter key, or a login saved in Pi, or a provider in Pi's `models.json` |
+| Who pays | You, to the provider you chose. Nothing goes through Solipsist |
+| Reports cost | Yes. A run's cost counts toward the [spending limits](/docs/agents/how-agents-work/#spending-limits) (a local model reports $0) |
+| Confined | No. Its shell runs commands as you; only its `write` and `edit` tools are limited to the images folder |
+| Chat | Yes: [chat](/docs/agents/chat/) with the agent behind a request, and the page-wide chat |
+| Steering | Yes: a message sent while it is answering is read after its current step |
+| Keeps its conversation | Yes: an agent that finished waits five minutes, then sleeps, and wakes with everything it knew |
+
+## What "confined" means
+
+An agent can run commands on your computer. An engine is **confined** when what it runs can only write to the images
+folder and can't reach the network beyond your own computer. Pi isn't: its shell can do anything you can, so treat a
+request the way you would treat running Pi in a terminal in that folder. Pi's `write` and `edit` tools are limited to
+the images folder by Solipsist, and you can shorten the list of tools with [`pi.tools`](/docs/engines/pi/#tools).
+
+## Choosing the model
+
+Each page has its own model, set in the [agent panel](/docs/reference/agent-panel/). A model is written as
+`<engine>:<model>`, for example `pi:openrouter/~deepseek/deepseek-flash-latest`. A request keeps the agent that made it
+and its model, so asking again and chatting go back to the same one. See
+[Connect a model](/docs/start/connect-a-model/#choosing-the-model).
+
+## If something doesn't work
+
+[When it goes wrong](/docs/engines/when-it-goes-wrong/) lists the messages you can see and what fixes each.

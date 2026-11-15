@@ -10,7 +10,7 @@ import Shot from "../../../../components/Shot.astro";
 
 Solipsist runs in the folder your files are in. The server serves the editor to your browser and starts
 [Pi](https://github.com/earendil-works/pi) agents inside its own process, one per request. The agents call the model
-you connected, whether that's on your computer or online.
+you connected, whether that's on your computer or online. [Engines](/docs/engines/overview/) says what runs them and what that needs.
 
 <Shot name="how-it-works" title="How it fits together" alt="Diagram: on your computer, you start Solipsist in a folder. It serves the editor to your browser and starts Pi agents through the pi-coding-agent SDK. The agents call a model, local or remote." />
 
@@ -62,7 +62,7 @@ build on each other. While you're chatting with it, requests wait until you clos
 
 Everything the agents are told is a prompt you can read and change: the protocol (how requests, markers and replies
 work), the prompt for each run, one for each kind of request, and the chat prompts. See
-[Prompts](/docs/agents/prompts/).
+[Prompts](/docs/agents/prompts/), and [the protocol](/docs/agents/protocol/) for the exact text every agent starts with.
 
 ## Spending limits
 

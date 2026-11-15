@@ -20,6 +20,7 @@ export default defineConfig({
         { label: "Start here", items: [{ autogenerate: { directory: "docs/start" } }] },
         { label: "Guides", items: [{ autogenerate: { directory: "docs/guides" } }] },
         { label: "Agents", items: [{ autogenerate: { directory: "docs/agents" } }] },
+        { label: "Engines", items: [{ autogenerate: { directory: "docs/engines" } }] },
         { label: "Reference", items: [{ autogenerate: { directory: "docs/reference" } }] },
       ],
     }),

@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "prepare": "git config core.hooksPath .githooks || true",
-    "dev": "bun --hot src/index.ts",
+    "dev": "NODE_ENV=development bun --hot src/index.ts",
     "start": "NODE_ENV=production bun src/index.ts",
     "test": "bun test",
     "test:fast": "bun scripts/test-fast.ts",
@@ -58,5 +58,10 @@
   },
   "patchedDependencies": {
     "@tiptap/extension-list@3.32.0": "patches/@tiptap%2Fextension-list@3.32.0.patch"
+  },
+  "overrides": {
+    "undici": "8.12.3",
+    "minimatch": "11.0.3",
+    "@isaacs/nonrecursive-glob-match": "1.0.3"
   }
 }

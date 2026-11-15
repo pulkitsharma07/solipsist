@@ -1,0 +1,63 @@
+---
+title: When it goes wrong
+description: The messages you can see when an agent can't run, and what fixes each.
+sidebar:
+  order: 5
+---
+
+Open the [agent panel](/docs/reference/agent-panel/) first: the line under its header says what the page's agents are
+doing, and a failed run's last message says what went wrong. These are the ones that come from the engine.
+
+## "Connect a model", and the dialog that says so
+
+No model can run yet. Any one of these fixes it, then restart Solipsist:
+
+- put `SOLIPSIST_OPENROUTER_KEY` in a `.env` file in the folder you run it from,
+- or run `pi`, then `/login`.
+
+See [Connect a model](/docs/start/connect-a-model/).
+
+## "Set SOLIPSIST_OPENROUTER_KEY (in .env or the environment), or log in with `pi` (/login openrouter), to use Pi."
+
+The same thing, from the model picker: Pi has no key, no login and no model it can run. Same fix.
+
+## "OpenRouter refused the key in SOLIPSIST_OPENROUTER_KEY (pi.openrouter_key): fix it, or remove it to use Pi's own login."
+
+The provider answered 401: the key is wrong, expired or revoked. Make a new key in your OpenRouter account and replace
+it, or remove the key to fall back to a login saved in Pi.
+
+## "OpenRouter refused Pi's key: set SOLIPSIST_OPENROUTER_KEY, or log in again with `pi` (/login openrouter)."
+
+Pi's own saved login was refused. Log in again: run `pi`, then `/login openrouter`.
+
+## "Pi does not know the model …"
+
+The page names a model Pi can't find, usually because it was removed from the provider or your Pi's model list is old.
+Pick another model in the agent panel. If you expect it to exist, run `pi` once to refresh Pi's list, then restart.
+
+## "Pi asked for permission (…), which can't be answered here, so it was refused"
+
+A Pi extension or tool asked you to confirm something. An agent runs without anyone at the keyboard, so Solipsist
+refuses and carries on. If it keeps happening, remove that extension from your Pi configuration, or take the tool out of
+`pi.tools`.
+
+## A run that fails again and again
+
+A request whose runs fail three times in a row (`agent.max_failures`) is declined. Look at the failed run's last
+message in the panel, fix what it says, then ask again.
+
+## "Stopped: cost limit reached"
+
+A [spending limit](/docs/agents/how-agents-work/#spending-limits) is reached, so no new run starts. Raise the limit
+(`agent.cost_limit_day_usd`, `agent.cost_limit_month_usd`) or set it to `0` to turn it off, and restart.
+
+## Nothing happens
+
+You're probably still typing (runs wait for the page to settle), the agents are off for the page, or the page is open
+in another tab that has the agents. The panel's header line says which.
+
+## Still stuck
+
+Run `solipsist doctor` in the folder and paste what it prints into a
+[bug report](https://github.com/pulkitsharma07/solipsist/issues/new/choose): it names your version, your system, which
+settings file is in effect and why an agent can't run, with no key and no page text.

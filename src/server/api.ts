@@ -109,9 +109,11 @@ export async function putPage(req: Req) {
   return json({ rev: result.rev, file: result.file });
 }
 
-/** For the browser tests, which write a page from another process: says that it changed. */
+/** For the browser tests, which write a page from another process: says that it changed. Dev only (`routes.ts`). */
 export function pageTouched(req: Req) {
-  pageChanged(req.params.id!);
+  const { id } = req.params;
+  if (!validId(id)) return fail(400, "bad_id", "Invalid document id.");
+  pageChanged(id!);
   return new Response(null, { status: 204 });
 }
 
@@ -132,17 +134,16 @@ export async function startReview(req: Req) {
   return json({ placed: r.placed, replaced: r.replaced, dropped: r.judged.map((j: Judged) => ({ quote: j.quote, outcome: j.outcome })), costUsd: r.costUsd });
 }
 
+/** Dev only (`routes.ts`): one mock comment on the page. */
 export async function mockComment(req: Req) {
-  if (process.env.NODE_ENV === "production") return fail(404, "not_found", "Dev only.");
   const { id } = req.params;
   if (!validId(id)) return fail(400, "bad_id", "Invalid document id.");
   const placed = await addMockComment(id);
   return placed ? json({ id: placed }) : fail(404, "nothing_placed", "No such document, or nowhere to put a comment.");
 }
 
-/** Dev only. Body: `{ comments: [{ quote, title, gloss?, body?, importance? }] }`. Same placement rules as the job. */
+/** Dev only (`routes.ts`). Body: `{ comments: [{ quote, title, gloss?, body?, importance? }] }`. Same placement rules as the job. */
 export async function addComments(req: Req) {
-  if (process.env.NODE_ENV === "production") return fail(404, "not_found", "Dev only.");
   const { id } = req.params;
   if (!validId(id)) return fail(400, "bad_id", "Invalid document id.");
   const body = (await req.json().catch(() => null)) as { comments?: { quote?: unknown; title?: unknown }[] } | null;

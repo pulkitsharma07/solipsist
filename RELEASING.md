@@ -6,6 +6,13 @@ every change goes in `CHANGELOG.md` under `## [Unreleased]`, in a writer's words
 **Status:** the release workflow (`.github/workflows/release.yml`) is written. Run it first as a dry run
 (Actions → Release → Run workflow, `dry_run` on): it builds and tests and publishes nothing.
 
+**Once, on GitHub** (repository settings; not visible from a checkout):
+
+- Settings → Environments → New environment `release`, with the maintainer as required reviewer and "Prevent
+  self-review" off. The publish job runs in it, so no attestation or draft is made before that approval.
+- Settings → Rules → Rulesets → a tag ruleset on `v*` that only the maintainer may bypass, restricting creation,
+  update and deletion: whoever can push a `v*` tag onto `main` could otherwise start a release.
+
 ## 1. Before the tag
 
 - `main` is green (CI) and your tree is clean.
@@ -51,7 +58,8 @@ Push the commit and the tag together, atomically: `git push --atomic origin main
 The Release workflow runs on the tag: it checks the tag matches `package.json` and `CHANGELOG.md` has the section,
 runs the whole CI suite, builds the five targets, starts the Linux binary on an empty folder, attests the build
 provenance of every file, and creates a **draft** GitHub Release with the notes from `scripts/release-notes.ts`
-(marked pre-release for a `-beta.N` or `-rc.N`). It never runs on a push to `main`.
+(marked pre-release for a `-beta.N` or `-rc.N`). It never runs on a push to `main`. The last job, the attestation and
+the draft, waits for your approval in the `release` environment: Actions → the run → Review deployments.
 
 If the workflow can't be used, make the draft by hand:
 

@@ -4,6 +4,7 @@ import * as api from "./api";
 import { events } from "./live";
 import { NewerPageError } from "./files";
 import { refuseRequest } from "./guard";
+import { devRoutesOn } from "./devMode";
 
 type Handler = (req: any, srv: any) => unknown;
 /**
@@ -29,6 +30,8 @@ const refusingNewer = (h: Handler): Handler => {
   }
   return w;
 };
+const devOnly = <H extends (req: any, srv?: any) => Response | Promise<Response>>(h: H): H =>
+  ((req: any, srv: any) => (devRoutesOn() ? h(req, srv) : Response.json({ error: { code: "not_found", message: "Dev only." } }, { status: 404 }))) as H;
 const guard = <T,>(route: T): T =>
   (typeof route === "function" ? refusingNewer(route as Handler) : Object.fromEntries(Object.entries(route as object).map(([m, h]) => [m, refusingNewer(h)]))) as T;
 
@@ -57,9 +60,10 @@ export function apiRoutes() {
     "/api/config": { GET: (req: any, srv: any) => api.getConfig(req, srv) },
     "/api/prompts": { GET: (req: any, srv: any) => api.getPrompts(req, srv) },
     "/api/prompts/:id": { PUT: (req: any, srv: any) => api.putPrompt(req, srv), DELETE: (req: any, srv: any) => api.resetPromptRoute(req, srv) },
-    "/api/dev/changed/:id": { POST: api.pageTouched },
-    "/api/dev/mock-comment/:id": { POST: api.mockComment },
-    "/api/dev/comments/:id": { POST: api.addComments },
+    // For the tests and `bun run dev` only (`devOnly`): a 404 anywhere else, the released binary included.
+    "/api/dev/changed/:id": { POST: devOnly(api.pageTouched) },
+    "/api/dev/mock-comment/:id": { POST: devOnly(api.mockComment) },
+    "/api/dev/comments/:id": { POST: devOnly(api.addComments) },
     "/api/assets/*": api.assetFile,
     "/api/*": api.notImplemented,
   } as const;

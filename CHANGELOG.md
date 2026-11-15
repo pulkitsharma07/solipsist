@@ -8,6 +8,7 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ### Added
 
+- A second Solipsist started on a folder that already has one running is refused, with where the first one is and how to stop it, instead of both writing the same pages. A lock left by a crash is taken over.
 - `solipsist doctor` prints what a bug report needs: the version, your system, which settings file is in effect, whether the port is free, whether the folder can be written, which agents can run, and the last errors. It shows no key and no page text.
 
 ### Security
@@ -21,6 +22,9 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 - A `.env` file in the folder Solipsist runs in can no longer choose a command for it to run.
 - An SVG image opened on its own can no longer run scripts as the app.
 - The `public/` folder of your project is no longer served.
+- The routes kept for testing are off unless Solipsist runs under `bun test` or `bun run dev`.
+- Updated two libraries the agents use, `undici` and `minimatch`, past their known vulnerabilities.
+- Opening Solipsist in a folder that holds its own git settings no longer runs a command they name.
 
 ## [0.1.0] — first public build
 

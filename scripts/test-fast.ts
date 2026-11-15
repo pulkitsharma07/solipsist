@@ -14,6 +14,7 @@ const SLOW = new Set([
   "persisting-agents.test.ts", // 6 s
   "project.test.ts", // 5 s
   "agent-leftovers.test.ts", // 5 s
+  "lock.test.ts", // 8 s: two real servers on one folder
   "install-sh.test.ts", // 6 s: the real script, seven times
   "release-cut.test.ts", // 6 s: scratch git repos
   "page-chat.test.ts", // 4 s

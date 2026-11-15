@@ -58,11 +58,15 @@ function patternOf(entry: string): string {
   return clean;
 }
 
-/** Which of `paths` git ignores; none outside a repo. */
+/**
+ * Which of `paths` git ignores; none outside a repo. The folder's own `.git/config` can name a command git runs
+ * (`core.fsmonitor`, run as git reads the index): a folder that arrives with one, an archive rather than a clone, would
+ * have it run when the file dialog looks. So it is turned off for this call.
+ */
 async function ignored(paths: string[]): Promise<Set<string>> {
   if (!paths.length) return new Set();
   try {
-    const p = Bun.spawn(["git", "check-ignore", "-z", "--stdin"], { cwd: root(), stdin: "pipe", stdout: "pipe", stderr: "ignore" });
+    const p = Bun.spawn(["git", "-c", "core.fsmonitor=false", "check-ignore", "-z", "--stdin"], { cwd: root(), stdin: "pipe", stdout: "pipe", stderr: "ignore" });
     p.stdin.write(paths.join("\0") + "\0");
     p.stdin.end();
     const out = await new Response(p.stdout).text();
