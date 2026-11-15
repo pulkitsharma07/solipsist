@@ -213,6 +213,16 @@ export const publicFile = async (req: Request) => {
 /** What a page may show. A project's folder holds its secrets too, so nothing else is served from it. */
 const ASSET_TYPES = /\.(png|jpe?g|gif|svg|webp|avif|bmp|ico|mp4|webm|mov|pdf)$/i;
 
+/**
+ * Sent with every asset. An SVG is a document that can hold scripts: in an `<img>` they never run, but opened on its
+ * own it would be a page on the app's origin, able to use every route. `sandbox` gives it an origin of its own and no
+ * scripts, `default-src 'none'` lets it load nothing, and `nosniff` keeps a file to the type its name says.
+ */
+const ASSET_HEADERS = {
+  "X-Content-Type-Options": "nosniff",
+  "Content-Security-Policy": "sandbox; default-src 'none'; style-src 'unsafe-inline'",
+};
+
 /** The images a page links to, relative to it: never a page, a dot-path or anything outside the folder. */
 export const assetFile = async (req: Request) => {
   const path = decodeURIComponent(new URL(req.url).pathname.replace(/^\/api\/assets\//, ""));
@@ -220,5 +230,5 @@ export const assetFile = async (req: Request) => {
   const inside = resolve(base, path);
   if (!inside.startsWith(base + sep) || !ASSET_TYPES.test(path) || path.split("/").some((s) => s.startsWith("."))) return fail(400, "bad_path", "Bad path.");
   const f = Bun.file(storedImage(path) || inside);
-  return (await f.exists()) ? new Response(f) : fail(404, "not_found", "No such file.");
+  return (await f.exists()) ? new Response(f, { headers: ASSET_HEADERS }) : fail(404, "not_found", "No such file.");
 };

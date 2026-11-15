@@ -19,6 +19,8 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 - Sync copies a page's images only from its own image folder to beside the page: an image link with `..`, or a
   symlink at either end, is skipped instead of copying a file outside the project.
 - A `.env` file in the folder Solipsist runs in can no longer choose a command for it to run.
+- An SVG image opened on its own can no longer run scripts as the app.
+
 
 ## [0.1.0] — first public build
 

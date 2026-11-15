@@ -196,3 +196,24 @@ describe("a folder's .env can't pick a command for the server to run (S3)", () =
     expect(fakeCommand()).toBeUndefined();
   });
 });
+
+describe("an asset can't run on the app's origin (S10)", () => {
+  test("an SVG holding a script is served sandboxed, with no scripts, loading nothing, not sniffed", async () => {
+    mkdirSync(join(P.root, "images"), { recursive: true });
+    writeFileSync(join(P.root, "images", "evil.svg"), `<svg xmlns="http://www.w3.org/2000/svg"><script>fetch("/api/config")</script></svg>`);
+    const r = await call("/api/assets/images/evil.svg");
+    expect(r.status).toBe(200);
+    const csp = r.headers.get("content-security-policy") ?? "";
+    expect(csp).toContain("sandbox");
+    expect(csp).toContain("default-src 'none'");
+    expect(csp).not.toContain("script-src");
+    expect(r.headers.get("x-content-type-options")).toBe("nosniff");
+  });
+
+  test("so does every other kind of asset", async () => {
+    writeFileSync(join(P.root, "images", "a.png"), "png");
+    const r = await call("/api/assets/images/a.png");
+    expect(r.headers.get("content-security-policy")).toContain("sandbox");
+    expect(r.headers.get("x-content-type-options")).toBe("nosniff");
+  });
+});
