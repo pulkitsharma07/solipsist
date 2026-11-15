@@ -12,6 +12,7 @@ on:
       - "src/**"
       - "test/**"
       - "scripts/**"
+      - "!scripts/site/**" # the website's build; no test reads it
       - "patches/**"
       - "design/**"
       - "package.json"
@@ -33,6 +34,7 @@ on:
       - "src/**"
       - "test/**"
       - "scripts/**"
+      - "!scripts/site/**" # the website's build; no test reads it
       - "patches/**"
       - "design/**"
       - "package.json"
