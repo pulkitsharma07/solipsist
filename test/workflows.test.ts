@@ -32,3 +32,9 @@ test("what a release ships is built without a restored cache, which any run on m
   const cached = Object.entries(release.jobs).filter(([, j]) => (j.steps ?? []).some((s) => s.uses?.startsWith("actions/cache@")));
   expect(cached.map(([name]) => name)).toEqual([]);
 });
+
+test("CI called by the release workflow can't cancel, or be cancelled by, a push's CI on the same ref", () => {
+  const ci = workflows["ci.yml"]!;
+  expect(ci.on).toHaveProperty("workflow_call");
+  expect(ci.concurrency?.group).toContain("${{ github.workflow }}");
+});

@@ -9,8 +9,10 @@ on:
   workflow_dispatch:
   workflow_call: # the release workflow runs the same suite before it builds
 permissions: { contents: read }
+# Called by the release workflow, `github.workflow` is the caller's ("Release"): a release's test run and a push's CI
+# on the same ref are then in groups of their own, and one can't cancel the other.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
