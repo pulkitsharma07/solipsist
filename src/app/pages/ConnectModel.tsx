@@ -27,30 +27,28 @@ export function ConnectModel({ onClose, onConnected, canSave = true, save = save
       <div className="dialog-backdrop" aria-hidden onClick={onClose} />
       <section className="dialog connect-model" role="dialog" aria-modal="true" aria-label="Connect an AI model" onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}>
         <h2>Connect an AI model</h2>
-        <p>Solipsist's agents need an AI model to answer. They reach one through OpenRouter, where one key opens hundreds of AI models.</p>
         {canSave ? (
           <form className="connect-form" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
-            <ol className="connect-steps">
-              <li>Sign in at <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer">openrouter.ai</a> and add a little credit.</li>
-              <li>Open <a href={KEYS_URL} target="_blank" rel="noopener noreferrer">Keys</a> and create one.</li>
-              <li>Paste it here.</li>
-            </ol>
+            <p>Paste an OpenRouter key and the agents can start.</p>
             <input
               className="field" type="password" autoFocus autoComplete="off" spellCheck={false}
               placeholder="sk-or-v1-…" aria-label="OpenRouter key"
               value={key} onChange={(e) => { setKey(e.target.value); setProblem(null); }}
             />
             {problem && <p className="dialog-warn" role="alert">{problem}</p>}
-            <p className="muted">Kept on your computer, in your system's keychain (or a file only you can read where there's none). It is sent to OpenRouter only.</p>
-            <p className="muted">Or, then restart: set <code>SOLIPSIST_OPENROUTER_KEY</code> in your environment, or run <code>pi</code>, then <code>/login</code>.</p>
+            <p className="connect-hint"><a href={KEYS_URL} target="_blank" rel="noopener noreferrer">Get a key ↗</a> · Kept in your system's keychain</p>
             <footer>
+              <details className="connect-more">
+                <summary>Other ways</summary>
+                <p>Set <code>SOLIPSIST_OPENROUTER_KEY</code>, or run <code>pi</code>, then <code>/login</code>. Then restart Solipsist.</p>
+              </details>
               <button type="button" className="btn btn-ghost" onClick={onClose}>Not now</button>
               <button type="submit" className="btn btn-primary" disabled={busy || !key.trim()}>{busy ? "Checking…" : "Save key"}</button>
             </footer>
           </form>
         ) : (
           <>
-            <p className="muted">Set <code>SOLIPSIST_OPENROUTER_KEY</code> in your environment, or run <code>pi</code>, then <code>/login</code>. Then restart Solipsist.</p>
+            <p>Set <code>SOLIPSIST_OPENROUTER_KEY</code> in your environment, or run <code>pi</code>, then <code>/login</code>. Then restart Solipsist.</p>
             <footer><button className="btn btn-primary" onClick={onClose}>Close</button></footer>
           </>
         )}

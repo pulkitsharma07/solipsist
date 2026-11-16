@@ -507,9 +507,9 @@ export const catalog: Entry[] = [
 
   {
     id: "connect-model", group: "frame", name: "Connect an AI model", kind: "React component", where: "Over the page when it opens with no AI model that can run (once per tab), and from the status bar or the ask key then",
-    summary: "Asks for an OpenRouter key, says where to get one, and keeps it in the system's keychain, instead of a request that can only fail.",
-    use: ["Paste an OpenRouter key so the agents can answer, without touching the terminal.", "Find the other ways: an environment variable or a login saved in Pi."],
-    handlers: ["Save key: the server checks it with OpenRouter, keeps it (keychain, or a file only you can read), and the page's agents start.", "Not now, Escape or a click outside: closes it; the status bar's Connect an AI model opens it again."],
+    summary: "Asks for an OpenRouter key in one line, links to where to get one, and keeps it in the system's keychain, instead of a request that can only fail.",
+    use: ["Paste an OpenRouter key so the agents can answer, without touching the terminal.", "Find the other ways under Other ways: an environment variable or a login saved in Pi."],
+    handlers: ["Save key: the server checks it with OpenRouter, keeps it (keychain, or a file only you can read), and the page's agents start.", "Get a key: opens OpenRouter's Keys page in a new tab.", "Other ways: unfolds the environment variable and Pi login.", "Not now, Escape or a click outside: closes it; the status bar's Connect an AI model opens it again."],
     specimens: [
       { label: "No AI model yet", frame: "window", html: () => { const { ConnectModel } = require("../../src/app/pages/ConnectModel"); return render(<ConnectModel onClose={noop} />); } },
       { label: "Saving keys turned off (pi.key_store: off)", frame: "window", html: () => { const { ConnectModel } = require("../../src/app/pages/ConnectModel"); return render(<ConnectModel onClose={noop} canSave={false} />); } },
