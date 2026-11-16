@@ -6,6 +6,8 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ## [Unreleased]
 
+## [0.3.3] — 2026-11-16
+
 ### Changed
 
 - The dialog that asks for your OpenRouter key is shorter: one line, the key, and a link to get one. The other ways to connect are under **Other ways**.
