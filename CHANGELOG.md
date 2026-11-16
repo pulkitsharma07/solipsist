@@ -6,6 +6,8 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ## [Unreleased]
 
+## [0.3.2] — 2026-11-16
+
 ### Added
 
 - With no AI model connected, a page now asks for your OpenRouter key when it opens, with steps for getting one. Solipsist checks the key with OpenRouter and keeps it in your system's keychain (macOS Keychain, Windows Credential Manager, the Secret Service on Linux), or in a file only you can read where there's no keychain. `SOLIPSIST_OPENROUTER_KEY` and Pi's own login still work, and a key in the environment comes first. `solipsist forget-key` removes a saved key, and `pi.key_store` / `pi.key_file` change where it's kept.
