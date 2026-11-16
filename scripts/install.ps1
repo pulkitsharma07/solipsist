@@ -76,7 +76,7 @@
       $envKey.Close()
     }
     Write-Host ""
-    Write-Host "Run it in a folder of markdown files:  solipsist"
+    Write-Host "Run it:  solipsist   then open http://localhost:3000 in your browser"
     Write-Host "Docs and configuration:  https://solipsist.sh/docs/"
     Write-Host "To uninstall: delete $dir and remove it from your PATH (your pages are never touched)."
   } finally {

@@ -30,6 +30,9 @@ process.env.SOLIPSIST_PROMPTS_DIR ??= join(dir, "prompts");
 process.env.SOLIPSIST_SUPPORT_DIR ??= join(dir, "support");
 // Pi's own (`getAgentDir`): empty, so no login of the developer's is found and no model of theirs is listed.
 process.env.PI_CODING_AGENT_DIR ??= join(dir, "pi");
+// The OpenRouter key pasted on a page: a scratch file, never the developer's keychain (which holds their real key).
+process.env.SOLIPSIST_KEY_STORE = "file";
+process.env.SOLIPSIST_KEY_FILE = join(dir, "openrouter.key");
 // The daily cap on runs nobody can price counts across every test file in this process: off, unless a test sets its own.
 process.env.AGENT_MAX_UNMETERED_RUNS_DAY ??= "0";
 // No key of the developer's either, whatever `.env` holds (Bun loads it before this runs). Set, not defaulted: a key

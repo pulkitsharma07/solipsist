@@ -19,6 +19,8 @@ test("flags", () => {
   expect(parseArgs(["--port", "4000"])).toEqual({ run: "error", message: "Unknown option --port" });
   expect(parseArgs(["notes"])).toEqual({ run: "error", message: "Unknown option notes" });
   expect(parseArgs(["doctor"])).toEqual({ run: "doctor" });
+  expect(parseArgs(["forget-key"])).toEqual({ run: "forget-key" });
+  expect(parseArgs(["--print-config", "forget-key"])).toEqual({ run: "error", message: "Unknown option forget-key" });
   expect(parseArgs(["doctor", "--config", "a.yaml"])).toEqual({ run: "doctor" });
   expect(parseArgs(["--print-config", "doctor"])).toEqual({ run: "error", message: "Unknown option doctor" });
 });

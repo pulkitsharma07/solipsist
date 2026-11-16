@@ -12,6 +12,7 @@ import { browserCopyIO, copyPage } from "../doc/copyPage";
 import { CopyButton } from "./CopyButton";
 import { useSync } from "./SyncDialog";
 import { ConnectModel } from "./ConnectModel";
+import { ProductTour, tourSeen } from "./ProductTour";
 import { resolveLink, scrollToHeading } from "../editor/links";
 import { pageUrl } from "../../shared/ids";
 import { setAssetBase } from "../../shared/docfile";
@@ -27,6 +28,11 @@ import { Margin } from "./Margin";
 import { chatDraft } from "./CommentModal";
 import { NewerPage, newerFormat } from "./NewerPage";
 import { StatusBar } from "./StatusBar";
+
+/** Whether Connect an AI model was already offered in this tab (sessionStorage, which may be refused: then it is offered again). */
+const CONNECT_OFFERED = "solipsist.connect-offered";
+function connectOffered(): boolean { try { return sessionStorage.getItem(CONNECT_OFFERED) === "1"; } catch { return false; } }
+function markConnectOffered(): void { try { sessionStorage.setItem(CONNECT_OFFERED, "1"); } catch { /* not kept */ } }
 
 export const sheetLoader = ({ params }: { params: { "*"?: string } }) => getPage(params["*"]!);
 
@@ -51,7 +57,6 @@ function Page() {
   }, [id, file]);
   const snap = useSyncExternalStore(session.subscribe, session.getSnapshot);
 
-  const [singleAgent, setSingleAgent] = useState(false);
   const [build, setBuild] = useState<{ version: string; line: string } | null>(null);
   // The agent stream: the server runs Pi agents on the page's tasks while this page is open.
   const [debugOpen, setDebugOpen] = useState(false);
@@ -121,6 +126,8 @@ function Page() {
   // The page-wide chat keeps its conversation (closing it leaves the agent going): New chat forgets it and opens afresh.
   const newChat = async () => { await forgetPageChat(id!); setChatEpoch((e) => e + 1); };
   const refused = snap.conn === "refused";
+  // A key saved in Connect an AI model: the stream opens again, so its hello brings the models that key can run.
+  const [keyEpoch, setKeyEpoch] = useState(0);
   // The page's agents keep working when the tab closes, so the stream is always open: when they are off it only waits
   // to hear them turned on, and then a fresh one starts them.
   useEffect(() => {
@@ -132,14 +139,14 @@ function Page() {
         if (e.event === "hello") setPageChat(asPageChatStatus(e.pageChat) ?? { state: "none" });
         setAgentEvents((prev) => [...prev.slice(-999), e]);
         // The server says what the page's settings are, and when another tab changes them.
-        if (e.event === "hello") { if (Array.isArray(e.models)) setAgentModels(e.models as AgentModelOption[]); if (typeof e.model === "string") setModel(e.model); if (typeof e.on === "boolean") setAgentOn(e.on); if (typeof e.singleAgent === "boolean") setSingleAgent(e.singleAgent); if (typeof e.noEngine === "boolean") setNoEngine(e.noEngine); if (typeof e.version === "string" && typeof e.build === "string") setBuild({ version: e.version, line: e.build }); }
+        if (e.event === "hello") { if (Array.isArray(e.models)) setAgentModels(e.models as AgentModelOption[]); if (typeof e.model === "string") setModel(e.model); if (typeof e.on === "boolean") setAgentOn(e.on); if (typeof e.noEngine === "boolean") { setNoEngine(e.noEngine); if (e.noEngine) offerConnect(e.canSaveKey !== false); } if (typeof e.version === "string" && typeof e.build === "string") setBuild({ version: e.version, line: e.build }); }
         if ((e.event === "model" || e.event === "settings") && typeof e.model === "string") setModel(e.model);
         if (e.event === "settings" && typeof e.on === "boolean") setAgentOn(e.on);
         if (e.event === "end" && typeof e.costUsd === "number") setAgentCost((c) => c + (e.costUsd as number));
       },
       onState: setAgentLink,
     });
-  }, [id, refused]);
+  }, [id, refused, keyEpoch]);
   // The ask for support: checked once when the page opens, so it never appears in the middle of a session.
   const [support, setSupport] = useState<SupportView | null>(null);
   useEffect(() => { void getSupport().then(setSupport); }, []);
@@ -151,6 +158,17 @@ function Page() {
   // No engine can run: the status bar says so, and asking the agent explains how to connect one and leaves no marker.
   const [noEngine, setNoEngine] = useState(false);
   const [connecting, setConnecting] = useState(false);
+  const [canSaveKey, setCanSaveKey] = useState(true);
+  // Asked once per tab session when a page opens with no model, not again on every page: "Not now" is heard.
+  const offerConnect = (canSave: boolean) => {
+    setCanSaveKey(canSave);
+    if (connectOffered()) return;
+    markConnectOffered();
+    setConnecting(true);
+  };
+  const connected = () => { setConnecting(false); setNoEngine(false); setKeyEpoch((n) => n + 1); };
+  // The product tour, the first time this browser opens a page: once the page has drawn, and never over Connect an AI model.
+  const [touring, setTouring] = useState(false);
   const noEngineRef = useRef(false);
   noEngineRef.current = noEngine;
   const navigate = useNavigate();
@@ -173,6 +191,13 @@ function Page() {
     session.attach(editor);
     return () => session.destroy();
   }, [editor, session]);
+
+  useEffect(() => {
+    if (!editor || tourSeen()) return;
+    // A moment for the agent stream's hello, which may open Connect an AI model first.
+    const t = setTimeout(() => setTouring(true), 800);
+    return () => clearTimeout(t);
+  }, [editor]);
 
   followLink.current = (href, newTab) => {
     const to = resolveLink(id!, href);
@@ -214,7 +239,8 @@ function Page() {
     <div className={`app${debugOpen ? " debug-open" : ""}`}>
       <TopBar title={title} save={snap.save} actions={sync.buttons} />
       {sync.dialog}
-      {connecting && <ConnectModel onClose={() => setConnecting(false)} />}
+      {touring && !connecting && !chat && editor && <ProductTour onClose={() => { setTouring(false); focusQuietly(editor); }} />}
+      {connecting && <ConnectModel canSave={canSaveKey} onClose={() => setConnecting(false)} onConnected={connected} />}
       <Banners conn={snap.conn} conflict={!!snap.conflict} onReload={() => session.reloadTheirs()} onKeepMine={() => session.keepMine()} />
       {support?.show && <SupportNudge days={support.days} url={support.url} onLater={() => answerNudge("later")} onPaid={() => answerNudge("paid")} />}
       <main className="desk">
@@ -245,7 +271,7 @@ function Page() {
       {editor && (
         <StatusBar
           editor={editor}
-          agent={{ noEngine, onConnect: () => setConnecting(true), on: agentOn, model: agentModel, single: singleAgent, cost: agentCost }}
+          agent={{ noEngine, onConnect: () => setConnecting(true), on: agentOn, model: agentModel, cost: agentCost }}
           build={build}
           read={{ busy: reviewing, count: questionCount, said: reviewSaid, start: reviewPage }}
           debug={{ open: debugOpen, tone: agentPhase(agentEvents, agentPaused ? "paused" : agentLink).tone, toggle: () => setDebugOpen((o) => !o) }}

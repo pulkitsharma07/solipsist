@@ -20,6 +20,7 @@ import { applyChatEvent, chatRole, type ChatBlock, type ChatEvent, type ChatMess
 import type { AgentEngine, AgentSession, AgentStep, EngineModel } from "../engine";
 import { brief, clip, DETAIL } from "../engine";
 import { config } from "../../config";
+import { openRouterKey, openRouterKeySource } from "../../keyStore";
 import { root } from "../../runtime";
 import { insideDir } from "./guard";
 import { ALL_TOOLS, callReplyTool, toolsOf, type ReplyTool, type Turn } from "../replyTools";
@@ -34,9 +35,10 @@ export const PI_KEY_ENV = "SOLIPSIST_OPENROUTER_KEY";
  */
 export function runError(message: string): string {
   if (!/\b401\b/.test(message)) return message;
-  return config().pi.openrouter_key
-    ? `OpenRouter refused the key in ${PI_KEY_ENV} (pi.openrouter_key): fix it, or remove it to use Pi's own login. (${message})`
-    : `OpenRouter refused Pi's key: set ${PI_KEY_ENV}, or log in again with \`pi\` (/login openrouter). (${message})`;
+  const source = openRouterKeySource();
+  if (source === "config") return `OpenRouter refused the key in ${PI_KEY_ENV} (pi.openrouter_key): fix it, or remove it to use Pi's own login. (${message})`;
+  if (source === "saved") return `OpenRouter refused the key saved in Solipsist: run \`solipsist forget-key\`, restart, and paste a new one when the page asks. (${message})`;
+  return `OpenRouter refused Pi's key: set ${PI_KEY_ENV}, or log in again with \`pi\` (/login openrouter). (${message})`;
 }
 /** The tools a Pi agent may use (`pi.tools`); the reply tools are added when the agent gets them. */
 export const piTools = () => config().pi.tools;
@@ -309,7 +311,7 @@ export function piEngine(opts: PiOptions = {}): AgentEngine {
       modelsStorePath: join(dir, "models-store.json"),
       allowModelNetwork: false,
     });
-    const key = config().pi.openrouter_key;
+    const key = openRouterKey();
     if (key) await rt.setRuntimeApiKey(PI_PROVIDER, key);
     return rt;
   })().catch((e) => { shared = undefined; throw e; }));
@@ -327,7 +329,7 @@ export function piEngine(opts: PiOptions = {}): AgentEngine {
    * used, so the next `warm` reads them again.
    */
   const fresh = () => {
-    const now = `${agentDir()}\u0000${config().pi.openrouter_key ?? ""}\u0000${process.env.OPENROUTER_API_KEY ?? ""}`;
+    const now = `${agentDir()}\u0000${openRouterKey() ?? ""}\u0000${process.env.OPENROUTER_API_KEY ?? ""}`;
     if (now === readWith) return;
     readWith = now;
     shared = undefined;
@@ -379,9 +381,9 @@ export function piEngine(opts: PiOptions = {}): AgentEngine {
     knows: (model) => { fresh(); return !known.length || !!found(model); },
     unavailable: () => {
       fresh();
-      return opts.runtime || config().pi.openrouter_key || process.env.OPENROUTER_API_KEY || known.length || piAuthSaved(agentDir())
+      return opts.runtime || openRouterKey() || process.env.OPENROUTER_API_KEY || known.length || piAuthSaved(agentDir())
         ? null
-        : `Set ${PI_KEY_ENV} in your environment, or log in with \`pi\` (/login openrouter), to use Pi.`;
+        : `Paste your OpenRouter key on a page (Connect an AI model), set ${PI_KEY_ENV} in your environment, or log in with \`pi\` (/login openrouter), to use Pi.`;
     },
     async start(o): Promise<AgentSession> {
       fresh();

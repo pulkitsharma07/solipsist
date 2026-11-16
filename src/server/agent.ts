@@ -14,6 +14,8 @@ import { onSettings, readSettings, writeSettings } from "./agent/settings";
 import { onPageChat, pageChatStatus } from "./agent/pageChatStatus";
 import { pageHash, pendingTasks } from "./agent/page";
 import { config } from "./config";
+import { canSaveKey, checkKey, forgetKey, keyProblem, saveKey } from "./keyStore";
+import { notLocal, type Peer } from "./local";
 import { readModifyWrite, validId, withLock } from "./files";
 import { scheduleButton } from "./suggest";
 import { log, why } from "./log";
@@ -159,6 +161,41 @@ export async function getModels() {
   return Response.json({ models: modelList(), catalog: modelCatalog() });
 }
 
+/** Whether any engine can run now: with none, a page asks for a key (`ConnectModel`). */
+const noEngine = () => engines().every((e) => !!e.unavailable());
+
+/**
+ * `POST /api/agent/key` `{ key }`: the OpenRouter key the writer pasted, checked with OpenRouter and kept
+ * (`keyStore.ts`: the keychain, or a file only they can read). Local only, like the settings. Every page's agents are
+ * nudged, since a request may have been waiting for a model.
+ */
+export async function saveOpenRouterKey(req: Request, srv?: Peer) {
+  const refused = notLocal(req, srv);
+  if (refused) return refused;
+  if (!canSaveKey()) return reject(400, "off", "Saving a key is turned off (pi.key_store: off). Set SOLIPSIST_OPENROUTER_KEY instead.");
+  const body = (await req.json().catch(() => null)) as { key?: unknown } | null;
+  const key = typeof body?.key === "string" ? body.key.trim() : "";
+  const problem = keyProblem(key);
+  if (problem) return reject(400, "bad_key", problem);
+  const verdict = await checkKey(key);
+  if (verdict === "refused") return reject(400, "refused", "OpenRouter didn't accept that key. Check you copied all of it, or make a new one.");
+  let kept: Awaited<ReturnType<typeof saveKey>>;
+  try { kept = await saveKey(key); } catch (e) { return reject(500, "not_saved", `The key couldn't be saved: ${why(e)}`); }
+  log("key.save", { place: kept.place, checked: verdict });
+  await warmEngines().catch(() => {});
+  for (const id of runningPages()) pageAgents(id)?.nudge();
+  return Response.json({ place: kept.place, ...(kept.file && { file: kept.file }), checked: verdict === "ok", noEngine: noEngine() });
+}
+
+/** `DELETE /api/agent/key`: forgets the saved key (`solipsist forget-key` does the same from a terminal). */
+export async function forgetOpenRouterKey(req: Request, srv?: Peer) {
+  const refused = notLocal(req, srv);
+  if (refused) return refused;
+  const had = await forgetKey();
+  if (had) log("key.forget", {});
+  return Response.json({ forgotten: had, noEngine: noEngine() });
+}
+
 const frame = (event: string, data: unknown) => `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
 
 /**
@@ -211,7 +248,7 @@ export function agentStream(req: Request & { params: Record<string, string> }, s
       };
       req.signal.addEventListener("abort", stop);
       const { agents: states, finished } = agentStates(id);
-      send("hello", { id, version: versionInfo().version, build: versionLine(), noEngine: engines().every((e) => !!e.unavailable()), on: settings.on, model: agents?.model ?? settings.model, models: modelList(), gapMs: gapMs(), concurrency: concurrency(), singleAgent: singleAgent(), maxRuns: maxRuns(), waitMs: waitMs(), agents: states, finished, engines: agentEngines(id), pageChat: pageChatStatus(id), cost: { spentUsd: spentUsd(), limitUsd: costLimit() } });
+      send("hello", { id, version: versionInfo().version, build: versionLine(), noEngine: noEngine(), canSaveKey: canSaveKey(), on: settings.on, model: agents?.model ?? settings.model, models: modelList(), gapMs: gapMs(), concurrency: concurrency(), singleAgent: singleAgent(), maxRuns: maxRuns(), waitMs: waitMs(), agents: states, finished, engines: agentEngines(id), pageChat: pageChatStatus(id), cost: { spentUsd: spentUsd(), limitUsd: costLimit() } });
       if (agents) {
         off = agents.subscribe((event, data) => { send(event, data); if (event === "stopped") stop(); });
         // The page's agents stopped (turned off from another tab, or the server stopping): this stream is done too.

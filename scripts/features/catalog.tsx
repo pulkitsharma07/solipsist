@@ -81,6 +81,14 @@ export const catalog: Entry[] = [
     source: ["src/app/pages/SettingsDialog.tsx", "src/app/pages/Frame.tsx", "src/app/pages/PagesView.tsx"],
   },
   {
+    id: "theme-toggle", group: "frame", name: "Light / dark toggle", kind: "React component", where: "Top right, just left of the settings gear: in the top bar and the header of the pages list",
+    summary: "A moon on a light page, a sun on a dark one: switches the app between light and dark mode.",
+    use: ["Write in dark mode at night, or light mode by day, whatever the system's theme."],
+    handlers: ["Click: switches to the other theme and keeps the choice in this browser (localStorage `solipsist.theme`). Until the first click it follows the system."],
+    specimens: [{ label: "In the top bar", html: () => { const { TopBar } = require("../../src/app/pages/Frame"); return render(<TopBar title="Plan for Q3" save="saved" />); }, frame: "bar" }],
+    source: ["src/app/pages/ThemeToggle.tsx", "src/app/pages/Frame.tsx", "src/app/pages/PagesView.tsx"],
+  },
+  {
     id: "copy-page", group: "frame", name: "Copy page", kind: "React component", where: "Just above the page, on its right",
     summary: "Copies the page as you see your own text (unsaved edits included), in two formats at once: markdown for GitHub and rich text for Google Docs. Markers, suggestions, margin comments and hand-written HTML comments are left out; a range's text stays.",
     use: ["Paste the page into a GitHub issue, PR or comment: the markdown keeps image paths as written (relative to the page's folder), which render when that folder is in the repo.", "Paste it into Google Docs: headings, lists, tables, code and links come across, and the images are embedded (SVG and other formats drawn as PNG), up to 8 MB of images in all; past that the rest are links to this server."],
@@ -390,8 +398,8 @@ export const catalog: Entry[] = [
     use: ["Switch between Standard and Vim editing.", "See which model is answering on this page, whether one lasting agent handles every request, and what the page's agents have cost since you opened it.", "Open the agent panel; see suggestions waiting; the caret's line and column; the word count; which version of Solipsist is serving the page."],
     handlers: ["Mode button: Vim on/off.", "Version (last, e.g. v0.1.0; v0.1.0-dev from source): its title is the whole `solipsist --version` line, to give in a bug report.", "Model: opens the agent panel, where the model is chosen and the agents are turned off and on.", "Page review: one review, which leaves questions in the margin and writes nothing in the page. It blinks and reads “Reviewing…” while the run is in flight, and its title says so when a review raised nothing.", "Debug: opens the same panel (its dot shows the agents' state).", "In Vim, typed counts and operators show beside the mode (e.g. 2d)."],
     specimens: [
-      { label: "Standard editing, agent on", frame: "bar", html: async () => { const { StatusBar } = await imp<typeof import("../../src/app/pages/StatusBar")>("../../src/app/pages/StatusBar"); const { editor } = await answeredPage("The deadline is <!-- gen:abc --> for all teams.", "abc", suggestion("30 September")); return render(<StatusBar editor={editor} agent={{ on: true, model: "pi:openrouter/~deepseek/deepseek-flash-latest", single: false, cost: 0.0123 }} read={{ busy: false, count: 2, start: noop }} debug={{ open: false, tone: "run", toggle: noop }} build={{ version: "0.1.0", line: "solipsist 0.1.0 (darwin-arm64, a1b2c3d, 2026-11-10)" }} />); } },
-      { label: "Vim on, agent off, debug open", frame: "bar", html: async () => { const { StatusBar } = await imp<typeof import("../../src/app/pages/StatusBar")>("../../src/app/pages/StatusBar"); const { setVim } = await imp<typeof import("../../src/app/editor/vim")>("../../src/app/editor/vim"); const editor = await pageEditor("Some words to count in the page."); setVim(editor, true); return render(<StatusBar editor={editor} agent={{ on: false, model: "pi:openrouter/~deepseek/deepseek-flash-latest", single: true, cost: 0.0123 }} read={{ busy: true, count: 0, start: noop }} debug={{ open: true, tone: "bad", toggle: noop }} />); } },
+      { label: "Standard editing, agent on", frame: "bar", html: async () => { const { StatusBar } = await imp<typeof import("../../src/app/pages/StatusBar")>("../../src/app/pages/StatusBar"); const { editor } = await answeredPage("The deadline is <!-- gen:abc --> for all teams.", "abc", suggestion("30 September")); return render(<StatusBar editor={editor} agent={{ on: true, model: "pi:openrouter/~deepseek/deepseek-flash-latest", cost: 0.0123 }} read={{ busy: false, count: 2, start: noop }} debug={{ open: false, tone: "run", toggle: noop }} build={{ version: "0.1.0", line: "solipsist 0.1.0 (darwin-arm64, a1b2c3d, 2026-11-10)" }} />); } },
+      { label: "Vim on, agent off, debug open", frame: "bar", html: async () => { const { StatusBar } = await imp<typeof import("../../src/app/pages/StatusBar")>("../../src/app/pages/StatusBar"); const { setVim } = await imp<typeof import("../../src/app/editor/vim")>("../../src/app/editor/vim"); const editor = await pageEditor("Some words to count in the page."); setVim(editor, true); return render(<StatusBar editor={editor} agent={{ on: false, model: "pi:openrouter/~deepseek/deepseek-flash-latest", cost: 0.0123 }} read={{ busy: true, count: 0, start: noop }} debug={{ open: true, tone: "bad", toggle: noop }} />); } },
     ],
     source: ["src/app/pages/StatusBar.tsx"],
   },
@@ -498,12 +506,27 @@ export const catalog: Entry[] = [
   },
 
   {
-    id: "connect-model", group: "frame", name: "Connect a model", kind: "React component", where: "Over the page, from the status bar or the ask key when no model can run",
-    summary: "How to connect a model, instead of a request that can only fail.",
-    use: ["Find out what the agent needs before it can answer."],
-    handlers: ["Close: closes it."],
-    specimens: [{ label: "No model yet", frame: "window", html: () => { const { ConnectModel } = require("../../src/app/pages/ConnectModel"); return render(<ConnectModel onClose={noop} />); } }],
+    id: "connect-model", group: "frame", name: "Connect an AI model", kind: "React component", where: "Over the page when it opens with no AI model that can run (once per tab), and from the status bar or the ask key then",
+    summary: "Asks for an OpenRouter key, says where to get one, and keeps it in the system's keychain, instead of a request that can only fail.",
+    use: ["Paste an OpenRouter key so the agents can answer, without touching the terminal.", "Find the other ways: an environment variable or a login saved in Pi."],
+    handlers: ["Save key: the server checks it with OpenRouter, keeps it (keychain, or a file only you can read), and the page's agents start.", "Not now, Escape or a click outside: closes it; the status bar's Connect an AI model opens it again."],
+    specimens: [
+      { label: "No AI model yet", frame: "window", html: () => { const { ConnectModel } = require("../../src/app/pages/ConnectModel"); return render(<ConnectModel onClose={noop} />); } },
+      { label: "Saving keys turned off (pi.key_store: off)", frame: "window", html: () => { const { ConnectModel } = require("../../src/app/pages/ConnectModel"); return render(<ConnectModel onClose={noop} canSave={false} />); } },
+    ],
     source: ["src/app/pages/ConnectModel.tsx"],
+  },
+
+  {
+    id: "product-tour", group: "frame", name: "Product tour", kind: "React component", where: "Over the page, the first time this browser opens one (after Connect an AI model, if that is shown)",
+    summary: "A ring around each part in turn, with a card that says what it is for: the page agent, then the status bar (editing mode, AI model, cost, Page review, the agent panel).",
+    use: ["Learn what the page's parts do on a first visit.", "Skip it; it isn't shown again in this browser."],
+    handlers: ["Next / Back (or → / ← while the card has focus): moves between the stops; a part that isn't on the page is skipped.", "Done, Skip tour or Escape: ends it and marks it seen (localStorage `solipsist.tour-done`)."],
+    specimens: [
+      { label: "First stop: the page agent", frame: "window", html: () => { const { TourCard, TOUR_STEPS } = require("../../src/app/pages/ProductTour"); return render(<TourCard step={TOUR_STEPS[0]} index={0} total={TOUR_STEPS.length} onBack={noop} onNext={noop} onSkip={noop} />); } },
+      { label: "Last stop: the agent panel", frame: "window", html: () => { const { TourCard, TOUR_STEPS } = require("../../src/app/pages/ProductTour"); return render(<TourCard step={TOUR_STEPS[TOUR_STEPS.length - 1]} index={TOUR_STEPS.length - 1} total={TOUR_STEPS.length} onBack={noop} onNext={noop} onSkip={noop} />); } },
+    ],
+    source: ["src/app/pages/ProductTour.tsx"],
   },
 
   // ------------------------------------------------------------------ primitives

@@ -15,6 +15,7 @@ import { parseArgs, USAGE } from "./server/cli";
 import { versionInfo, versionLine } from "./server/version";
 import { bunDevServer } from "./server/devMode";
 import { doctor } from "./server/doctor";
+import { forgetKey, loadSavedKey } from "./server/keyStore";
 import { acquire as acquireLock, conflictMessage, release as releaseLock } from "./server/lock";
 
 /** Which build is serving, on the log's start line: a bug report's log says which code wrote it. */
@@ -49,6 +50,12 @@ if (cli.run === "doctor") {
   console.log(await doctor());
   process.exit(0);
 }
+if (cli.run === "forget-key") {
+  console.log((await forgetKey()) ? "Forgot the saved OpenRouter key." : "No OpenRouter key was saved.");
+  process.exit(0);
+}
+// The key pasted on a page, if any: read before the engines are, since the keychain answers asynchronously.
+await loadSavedKey();
 const { port, host } = cfg.server;
 
 function start() {

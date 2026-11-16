@@ -76,7 +76,7 @@ async function open(id: string): Promise<Page> {
   const context = await browser.newContext(videos ? { recordVideo: { dir: join(root, "video"), size: { width: 1280, height: 800 } }, viewport: { width: 1280, height: 800 } } : {});
   const page = await context.newPage();
   opened.push({ page, context, name: `${String(++pages).padStart(2, "0")}-${id}` });
-  await page.addInitScript(() => localStorage.setItem("solip-agent-model", "pi:~deepseek/deepseek-flash-latest"));
+  await page.addInitScript(() => { localStorage.setItem("solip-agent-model", "pi:~deepseek/deepseek-flash-latest"); localStorage.setItem("solipsist.tour-done", "1"); });
   page.on("console", (m) => { if (m.type() === "error" && !/status of 409/.test(m.text())) errors.push(`${id}: ${m.text()}`); });
   page.on("pageerror", (e) => errors.push(`${id}: ${e.message}`));
   await page.goto(`${base}/d/${id}`);

@@ -13,7 +13,7 @@ export const modelName = (choice: string) => modelOf(choice).split("/").pop() ||
 /** `0.1.0` → `v0.1.0`; from source, `0.1.0-dev+a1b2c3d.dirty` → `v0.1.0-dev` (the commit is in the title). */
 export const shortVersion = (v: string) => `v${v.replace(/\+.*$/, "")}`;
 
-export function StatusBar({ editor, agent, read, debug, build }: { editor: Editor; agent: { on: boolean; model: string; single: boolean; cost: number; noEngine?: boolean; onConnect?(): void }; read?: { busy: boolean; count: number; said?: string | null; start(): void }; debug: { open: boolean; tone: string; toggle(): void }; build?: { version: string; line: string } | null }) {
+export function StatusBar({ editor, agent, read, debug, build }: { editor: Editor; agent: { on: boolean; model: string; cost: number; noEngine?: boolean; onConnect?(): void }; read?: { busy: boolean; count: number; said?: string | null; start(): void }; debug: { open: boolean; tone: string; toggle(): void }; build?: { version: string; line: string } | null }) {
   const [, tick] = useState(0);
   useEffect(() => {
     const f = () => tick((n) => n + 1);
@@ -46,8 +46,8 @@ export function StatusBar({ editor, agent, read, debug, build }: { editor: Edito
       <span className="sb-spacer" />
       <SuggestionCount editor={editor} />
       {agent.noEngine ? (
-        <button type="button" className="sb-item sb-model" title="No model can run yet. Click to see how to connect one." onMouseDown={(e) => { e.preventDefault(); agent.onConnect?.(); }}>
-          <span className="dot dot-err" />Connect a model
+        <button type="button" className="sb-item sb-model" title="No AI model can run yet. Click to connect one." onMouseDown={(e) => { e.preventDefault(); agent.onConnect?.(); }}>
+          <span className="dot dot-err" />Connect an AI model
         </button>
       ) : (
         <button
@@ -59,10 +59,7 @@ export function StatusBar({ editor, agent, read, debug, build }: { editor: Edito
           <span className={`dot${live ? " dot-live" : ""}`} />{modelName(agent.model)}
         </button>
       )}
-      <span className="sb-item" title={agent.single ? "One lasting agent handles every request on this page." : "Each request gets its own agent."}>
-        Single agent <b>{agent.single ? "on" : "off"}</b>
-      </span>
-      <span className="sb-item" title="Spent by all of this page's agents since you opened it.">Cost <b>${agent.cost.toFixed(4)}</b></span>
+      <span className="sb-item sb-cost" title="Spent by all of this page's agents since you opened it.">Cost <b>${agent.cost.toFixed(4)}</b></span>
       {/* One review, without opening the agent panel: questions in the margin, nothing written in the page. */}
       {read && (
         <button

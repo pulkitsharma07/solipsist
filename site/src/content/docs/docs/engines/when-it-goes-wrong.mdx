@@ -8,16 +8,21 @@ sidebar:
 Open the [agent panel](/docs/reference/agent-panel/) first: the line under its header says what the page's agents are
 doing, and a failed run's last message says what went wrong. These are the ones that come from the engine.
 
-## "Connect a model", and the dialog that says so
+## "Connect an AI model", and the dialog that asks for a key
 
-No model can run yet. Any one of these fixes it, then restart Solipsist:
+No AI model can run yet. Any one of these fixes it:
 
-- set `SOLIPSIST_OPENROUTER_KEY` in your environment,
-- or run `pi`, then `/login`.
+- paste an OpenRouter key into the dialog (it opens when a page does, and from the status bar),
+- or set `SOLIPSIST_OPENROUTER_KEY` in your environment, then restart Solipsist,
+- or run `pi`, then `/login`, then restart Solipsist.
 
-See [Connect a model](/docs/start/connect-a-model/).
+See [Connect an AI model](/docs/start/connect-a-model/).
 
-## "Set SOLIPSIST_OPENROUTER_KEY in your environment, or log in with `pi` (/login openrouter), to use Pi."
+## "OpenRouter refused the key saved in Solipsist"
+
+The key you pasted was revoked or ran out. Run `solipsist forget-key`, restart, and paste a new one when the page asks.
+
+## "Paste your OpenRouter key on a page (Connect an AI model), set SOLIPSIST_OPENROUTER_KEY in your environment, or log in with `pi` (/login openrouter), to use Pi."
 
 The same thing, from the model picker: Pi has no key, no login and no model it can run. Same fix.
 

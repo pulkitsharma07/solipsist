@@ -210,6 +210,8 @@ export async function startApp(env: Record<string, string> = {}, opts: AppOption
 
   GlobalRegistrator.register({ url: `${base}/`, settings: { navigator: { userAgent: "Mozilla/5.0 (Macintosh)" } } as any });
   for (const k of NATIVE) (globalThis as any)[k] = natives[k];
+  // The product tour (`ProductTour.tsx`) is seen: it would take the focus from the editor a moment after a page opens.
+  localStorage.setItem("solipsist.tour-done", "1");
   // The page asks for `/api/...`, as from its own origin.
   const requests: string[] = [];
   const blocked = new Set<string>();

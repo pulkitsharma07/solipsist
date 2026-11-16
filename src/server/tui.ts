@@ -7,6 +7,7 @@ import { allPageAgents, runsEverywhere, type PageSnapshot } from "./agent/pageAg
 import { config } from "./config";
 import { pagesDir } from "./runtime";
 import { logFile, onLog, type LogLine } from "./log";
+import { viewers } from "./presence";
 
 /**
  * The server's terminal view: the pages whose agents are running and where each task's agent stands (running,
@@ -31,6 +32,33 @@ export interface DashboardState {
   unmeteredLimit: number | null;
   pages: PageSnapshot[];
   recent: LogLine[];
+  /** Browser windows with the app open (`presence.ts`). 0: the view only says which address to open. */
+  viewers?: number;
+}
+
+/**
+ * The view while no browser has the app open: the address to open, big and alone, and what is still going on behind
+ * it (agents keep working after the last tab closes).
+ */
+export function renderWaiting(s: DashboardState, width: number, height: number, now = Date.now(), color = true): string[] {
+  const working = s.pages.filter((p) => p.runs.length).length;
+  const errors = s.recent.filter((l) => /error/.test(l.action)).slice(-3);
+  const body = [
+    `${paint("1", "Solipsist", color)}${s.version ? ` ${paint("2", s.version, color)}` : ""} is running.`,
+    "",
+    "Open this address in your browser to start writing:",
+    "",
+    `    ${paint("1;36", s.url, color)}`,
+    "",
+    paint("2", `Pages: ${s.docs}${s.log ? ` · log ${s.log}` : ""} · up ${duration(now - s.startedAt)}`, color),
+    ...(working ? [paint("2", `Agents are still working on ${working} page${working > 1 ? "s" : ""}.`, color)] : []),
+    ...(errors.length ? ["", paint("31", "Recent errors:", color), ...errors.map((l) => logLine(l, color))] : []),
+    "",
+    paint("2", "The full view appears here once a browser connects. Ctrl-C stops the server.", color),
+  ];
+  const top = Math.max(0, Math.floor((height - body.length) / 3));
+  const pad = "  ";
+  return [...Array<string>(top).fill(""), ...body.map((l) => (l ? pad + l : l))].slice(0, height).map((l) => fit(l, width));
 }
 
 const ESC = "\x1b[";
@@ -75,6 +103,7 @@ function logLine(l: LogLine, color: boolean): string {
 
 /** The view as lines, at most `height` of them, each at most `width` wide. */
 export function renderDashboard(s: DashboardState, width: number, height: number, now = Date.now(), color = true): string[] {
+  if (s.viewers === 0) return renderWaiting(s, width, height, now, color);
   const rule = paint("2", "─".repeat(Math.max(10, width)), color);
   const out: string[] = [];
   out.push(`${paint("1", "Solipsist", color)}${s.version ? ` ${paint("2", s.version, color)}` : ""} · ${s.url} · docs ${s.docs} · up ${duration(now - s.startedAt)}`);
@@ -126,6 +155,7 @@ export function dashboardState(url: string, startedAt: number, recent: LogLine[]
     unmeteredRuns: unmeteredRuns(),
     unmeteredLimit: unmeteredRunLimit(),
     pages: allPageAgents().map((p) => p.snapshot()),
+    viewers: viewers(),
   };
 }
 

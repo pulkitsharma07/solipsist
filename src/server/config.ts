@@ -41,7 +41,7 @@ export interface Config {
   };
   suggestions: { max_chars: number; max_edits: number };
   chat: { max_message_chars: number };
-  pi: { models: string[]; tools: string[]; openrouter_key?: string };
+  pi: { models: string[]; tools: string[]; openrouter_key?: string; key_store: string; key_file: string };
   prompts: { dir: string };
   comments: { orphan_keep_ms: number };
   support: { after_days: number; dir: string };

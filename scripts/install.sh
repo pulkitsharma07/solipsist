@@ -244,16 +244,16 @@ connect_model() {
   rc=$(shell_rc)
   say ""
   if [ "$fancy" = 1 ]; then
-    say "  ${B}Connect a model${N} ${D}(the agent needs one before it can answer)${N}"
-    say "    An OpenRouter key ${D}(https://openrouter.ai/keys)${N}, in $(tilde "$rc"):"
+    say "  ${B}Connect an AI model${N} ${D}(the agent needs one before it can answer)${N}"
+    say "    Paste an OpenRouter key ${D}(https://openrouter.ai/keys)${N} when the first page asks, or put it in $(tilde "$rc"):"
     say "      ${C}export SOLIPSIST_OPENROUTER_KEY=sk-or-...${N}"
     if command -v pi >/dev/null 2>&1; then
       say "    or a login saved in Pi: run ${C}pi${N}, then ${C}/login${N}"
     fi
     say "    ${D}More, local models too: ${DOCS}/start/connect-a-model/${N}"
   else
-    say "No model connected yet. Set SOLIPSIST_OPENROUTER_KEY (export SOLIPSIST_OPENROUTER_KEY=sk-or-... in $(tilde "$rc")),"
-    say "or run pi then /login. More: ${DOCS}/start/connect-a-model/"
+    say "No model connected yet. Paste an OpenRouter key when the first page asks, set SOLIPSIST_OPENROUTER_KEY"
+    say "(export SOLIPSIST_OPENROUTER_KEY=sk-or-... in $(tilde "$rc")), or run pi then /login. More: ${DOCS}/start/connect-a-model/"
   fi
 }
 
@@ -358,10 +358,10 @@ main() {
   say ""
   if [ "$fancy" = 1 ]; then
     say "  ${B}Get started${N}"
-    say "    cd ~/my-notes && ${C}${run}${N}      ${D}then open http://localhost:3000${N}"
+    say "    ${C}${run}${N}      ${D}then open http://localhost:3000 in your browser${N}"
     say ""
     say "  ${B}Docs${N}             ${C}${DOCS}/${N}"
-    say "  ${B}Connect a model${N}  ${C}${DOCS}/start/connect-a-model/${N}"
+    say "  ${B}Connect AI model${N} ${C}${DOCS}/start/connect-a-model/${N}"
     say "  ${B}Configuration${N}    ${C}${DOCS}/reference/configuration/${N}"
     say "  ${B}Guides${N}           ${C}${DOCS}/start/first-request/${N}"
     say ""
@@ -369,7 +369,7 @@ main() {
     say "  (your pages are never touched)${N}"
     say ""
   else
-    say "Run it in a folder of markdown files:  $run"
+    say "Run it:  $run   then open http://localhost:3000 in your browser"
     say "Docs and configuration:  ${DOCS}/"
     say "To uninstall:  rm $dir/solipsist   (your pages are never touched)"
   fi

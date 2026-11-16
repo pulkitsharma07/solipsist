@@ -174,6 +174,21 @@ export async function saveAgentSettings(id: string, patch: { on?: boolean; model
 }
 
 /**
+ * Keeps the OpenRouter key the writer pasted (`POST /api/agent/key`): the server checks it with OpenRouter and stores
+ * it in the keychain. `error` is why it wasn't kept, in the writer's words.
+ */
+export async function saveOpenRouterKey(key: string): Promise<{ ok: true; noEngine: boolean } | { ok: false; error: string }> {
+  try {
+    const res = await fetch("/api/agent/key", { method: "POST", headers: JSON_BODY, body: JSON.stringify({ key }) });
+    const body = await res.json().catch(() => null);
+    if (res.ok) return { ok: true, noEngine: !!body?.noEngine };
+    return { ok: false, error: body?.error?.message ?? `The key couldn't be saved (${res.status}).` };
+  } catch {
+    return { ok: false, error: "The server can't be reached. Is Solipsist still running?" };
+  }
+}
+
+/**
  * One reading of the page (`reader/`): the agent raises questions, which arrive as margin comments through the
  * watcher like any other change to the file. Nothing is written into the body, so there is nothing to apply here.
  */

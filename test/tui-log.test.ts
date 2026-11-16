@@ -87,3 +87,33 @@ test("the log: one JSON line per action, to SOLIPSIST_LOG; off under the tests u
   } finally { rmSync(dir, { recursive: true, force: true }); }
   expect(existsSync(dir)).toBe(false);
 });
+
+test("with no browser connected, the view only says which address to open, and what is still going on", () => {
+  const lines = plain({ viewers: 0 }).join("\n");
+  expect(lines).toContain("Open this address in your browser to start writing:");
+  expect(lines).toContain("    http://localhost:3000/");
+  expect(lines).not.toContain("Runs 1/6"); // none of the dashboard
+  expect(lines).not.toContain("Recent");
+  const busy = plain({ viewers: 0, pages: [{ id: "plan", model: "pi:m", tabs: 0, runs: [{ task: "abc", taskType: "gen", run: 1, model: "pi:m", startedAt: now }], kept: [], chatting: [] }], recent: [{ t: new Date(now).toISOString(), action: "server.error", message: "boom" }] }).join("\n");
+  expect(busy).toContain("Agents are still working on 1 page.");
+  expect(busy).toContain("Recent errors:");
+  expect(busy).toContain("boom");
+  // Once one connects, the full view.
+  expect(plain({ viewers: 1 })[1]).toBe("Runs 1/6 · cost $0.0123 · log docs/.solipsist/server.log");
+});
+
+test("each open window of the app counts as one viewer until its stream closes", async () => {
+  const { presenceStream, viewers } = await import("../src/server/presence");
+  const before = viewers();
+  const a = new AbortController(), b = new AbortController();
+  const ra = presenceStream(new Request("http://localhost/api/presence", { signal: a.signal }));
+  const rb = presenceStream(new Request("http://localhost/api/presence", { signal: b.signal }));
+  expect(ra.headers.get("content-type")).toBe("text/event-stream");
+  expect(viewers()).toBe(before + 2);
+  a.abort();
+  expect(viewers()).toBe(before + 1);
+  b.abort();
+  a.abort();
+  expect(viewers()).toBe(before);
+  void rb;
+});

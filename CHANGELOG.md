@@ -6,6 +6,19 @@ follow [Semantic Versioning](https://semver.org/) as `CONTRIBUTING.md` defines i
 
 ## [Unreleased]
 
+### Added
+
+- With no AI model connected, a page now asks for your OpenRouter key when it opens, with steps for getting one. Solipsist checks the key with OpenRouter and keeps it in your system's keychain (macOS Keychain, Windows Credential Manager, the Secret Service on Linux), or in a file only you can read where there's no keychain. `SOLIPSIST_OPENROUTER_KEY` and Pi's own login still work, and a key in the environment comes first. `solipsist forget-key` removes a saved key, and `pi.key_store` / `pi.key_file` change where it's kept.
+- A light / dark toggle at the top right of every page and the pages list. Until you use it, Solipsist follows your system's theme.
+- The first time you open a page, a short tour shows what its parts are for: the page agent, then the status bar (editing mode, AI model, cost, Page review, the agent panel). Skip it at any point; it isn't shown again.
+
+### Changed
+
+- "Connect a model" is now "Connect an AI model", in the status bar and the dialog.
+- Until a browser opens Solipsist, the terminal shows only the address to open. The full view of the agents appears once one connects, and the address comes back when the last window closes.
+- The status bar no longer shows Single agent. The setting (`agent.single_agent`) works as before.
+- The install command's closing tip no longer suggests a `cd` before running Solipsist.
+
 ## [0.3.1] — 2026-11-15
 
 ### Changed

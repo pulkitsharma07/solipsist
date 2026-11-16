@@ -9,6 +9,7 @@ import { createServer } from "node:net";
 import { homedir, platform, release } from "node:os";
 import { config } from "./config";
 import { engines, warmEngines } from "./agent/engines";
+import { loadSavedKey } from "./keyStore";
 import { logFile } from "./log";
 import { readLock, isRunning } from "./lock";
 import { versionLine } from "./version";
@@ -58,7 +59,7 @@ async function serverFacts(host: string, port: number): Promise<DoctorReport["se
 
 export async function gather(): Promise<DoctorReport> {
   const c = config();
-  await warmEngines();
+  await loadSavedKey(); await warmEngines();
   const pages = c.pagesDir;
   const exists = existsSync(pages);
   let writable = false;

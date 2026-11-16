@@ -1,7 +1,8 @@
-import { agentStream, getModels, setAgentModel, setButtonSchedule, stopAgents } from "./agent";
+import { agentStream, forgetOpenRouterKey, getModels, saveOpenRouterKey, setAgentModel, setButtonSchedule, stopAgents } from "./agent";
 import { chatForget, chatSay, chatStop, chatStream } from "./chat";
 import * as api from "./api";
 import { events } from "./live";
+import { presenceStream } from "./presence";
 import { NewerPageError } from "./files";
 import { refuseRequest } from "./guard";
 import { devRoutesOn } from "./devMode";
@@ -56,6 +57,10 @@ export function apiRoutes() {
     "/api/pages/:id/chat/:target": { GET: (req: any, srv: any) => chatStream(req, srv), POST: chatSay, DELETE: chatForget },
     "/api/pages/:id/chat/:target/stop": { POST: chatStop },
     "/api/agent/models": { GET: getModels },
+    // Held open by every view of the app, so the terminal view knows someone is there (`presence.ts`).
+    "/api/presence": { GET: (req: any, srv: any) => presenceStream(req, srv) },
+    // The OpenRouter key pasted on a page (`keyStore.ts`). Local only.
+    "/api/agent/key": { POST: saveOpenRouterKey, DELETE: forgetOpenRouterKey },
     "/api/support": { GET: api.getSupport, POST: api.postSupport },
     "/api/config": { GET: (req: any, srv: any) => api.getConfig(req, srv) },
     "/api/prompts": { GET: (req: any, srv: any) => api.getPrompts(req, srv) },

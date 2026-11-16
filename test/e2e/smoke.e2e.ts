@@ -77,6 +77,8 @@ afterEach(async () => { for (const p of opened.splice(0)) await p.close().catch(
 // The fake agent (behind AGENT_CMD) is the first engine, so it is the page's default.
 const newPage = async () => {
   const p = await browser.newPage();
+  // The product tour is seen: it would take the focus from the editor a moment after a page opens.
+  await p.addInitScript(() => localStorage.setItem("solipsist.tour-done", "1"));
   opened.push(p);
   return p;
 };

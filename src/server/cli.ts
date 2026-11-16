@@ -10,6 +10,7 @@ export const USAGE = `Solipsist ${VERSION}: a writing app on the .md files in a 
 
 Usage: solipsist [options]
        solipsist doctor     Print what a bug report needs (version, system, settings, port, agents, last errors).
+       solipsist forget-key Remove the OpenRouter key saved from a page (the keychain entry or its file).
 
   --config <file>   Use this settings file (default: ./solipsist.yaml, then ~/.config/solipsist/config.yaml).
   --print-config    Print every setting, its value and where it came from, then exit.
@@ -18,14 +19,15 @@ Usage: solipsist [options]
 
 Settings (pages folders, port, agents, keys) go in solipsist.yaml or the environment: see CONFIGURATION.md.`;
 
-export type Cli = { run: "serve" | "print-config" | "help" | "version" | "doctor" } | { run: "error"; message: string };
+export type Cli = { run: "serve" | "print-config" | "help" | "version" | "doctor" | "forget-key" } | { run: "error"; message: string };
 
 /** What the arguments (after the program's own) ask for. `--config`'s value is read by `config()`. */
 export function parseArgs(args: string[]): Cli {
-  let run: "serve" | "print-config" | "help" | "version" | "doctor" = "serve";
+  let run: "serve" | "print-config" | "help" | "version" | "doctor" | "forget-key" = "serve";
   for (let i = 0; i < args.length; i++) {
     const a = args[i]!;
     if (a === "doctor" && i === 0) { run = "doctor"; continue; }
+    if (a === "forget-key" && i === 0) { run = "forget-key"; continue; }
     if (a === "--help" || a === "-h") return { run: "help" };
     if (a === "--version" || a === "-v") run = run === "serve" ? "version" : run;
     else if (a === "--print-config") run = "print-config";

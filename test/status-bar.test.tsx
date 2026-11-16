@@ -16,7 +16,7 @@ async function bar(opts: { vim?: boolean; agent?: boolean; tone?: string; build?
   const tab = new Tab(new Server("Hello there world.\n").src);
   document.body.append(tab.editor.view.dom);
   setVim(tab.editor, !!opts.vim);
-  return renderToStaticMarkup(<StatusBar editor={tab.editor} agent={{ on: !!opts.agent, model: "pi:openrouter/~deepseek/deepseek-flash-latest", single: false, cost: 0.0123 }} debug={{ open: false, tone: opts.tone ?? "", toggle: noop }} build={opts.build} />);
+  return renderToStaticMarkup(<StatusBar editor={tab.editor} agent={{ on: !!opts.agent, model: "pi:openrouter/~deepseek/deepseek-flash-latest", cost: 0.0123 }} debug={{ open: false, tone: opts.tone ?? "", toggle: noop }} build={opts.build} />);
 }
 
 test("the version, last: short in the bar, the whole --version line in its title", async () => {
@@ -32,7 +32,7 @@ test("standard editing: the mode, the toggles as words, the position and the cou
   expect(html).toContain("Standard");
   expect(html).toContain("click to use Vim mode");
   expect(html).toContain("deepseek-flash-latest");
-  expect(html).toContain("Single agent <b>off</b>");
+  expect(html).not.toContain("Single agent");
   expect(html).toContain("Cost <b>$0.0123</b>");
   expect(html).not.toContain("Auto-merge");
   expect(html).toMatch(/sb-pos">1:\d+</);

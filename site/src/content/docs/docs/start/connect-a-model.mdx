@@ -1,6 +1,6 @@
 ---
-title: Connect a model
-description: Give the built-in agent a model to run on.
+title: Connect an AI model
+description: Give the built-in agent an AI model to run on.
 sidebar:
   order: 2
 ---
@@ -8,15 +8,30 @@ sidebar:
 import Shot from "../../../../components/Shot.astro";
 
 The agents are [Pi](https://github.com/earendil-works/pi), an open-source coding agent ([more about Pi here](/docs/engines/pi/)). It's built into Solipsist, so
-there's nothing extra to install. Pi needs a model, and there are two ways to give it one.
+there's nothing extra to install. Pi needs an AI model, and there are a few ways to give it one.
 
-If you ask for something before a model is connected, you get this dialog instead of a request that would fail:
+## Paste an OpenRouter key
 
-<Shot name="connect-model" title="Connect a model" alt="The Connect a model dialog: an OpenRouter key, or a login saved in Pi" />
+The first time a page opens with no AI model that can run, Solipsist asks for an OpenRouter key:
 
-## An OpenRouter key
+<Shot name="connect-model" title="Connect an AI model" alt="The Connect an AI model dialog: where to get an OpenRouter key, and a box to paste it" />
 
-Set the key in your environment, in your shell's profile (`~/.zshrc`, `~/.bashrc`) to keep it:
+1. Sign in at [openrouter.ai](https://openrouter.ai) and add a little credit.
+2. Open [Keys](https://openrouter.ai/settings/keys) and create one.
+3. Paste it into the dialog and choose **Save key**.
+
+Solipsist checks the key with OpenRouter, then keeps it on your computer, in your system's keychain (the macOS
+Keychain, Windows Credential Manager, or the Secret Service on Linux). Where there's no keychain, it goes in
+`~/.config/solipsist/openrouter.key`, which only you can read. The key is sent to OpenRouter and nowhere else.
+`pi.key_store` and `pi.key_file` in the [configuration](/docs/reference/configuration/) change where it's kept.
+
+If you choose **Not now**, the status bar's [Connect an AI model](/docs/reference/status-bar/#model) brings the dialog back.
+To remove a saved key, run `solipsist forget-key`.
+
+## An OpenRouter key in your environment
+
+Set the key in your environment, in your shell's profile (`~/.zshrc`, `~/.bashrc`) to keep it. A key set this way comes
+before one saved in the dialog:
 
 ```bash
 export SOLIPSIST_OPENROUTER_KEY=sk-or-...
@@ -51,7 +66,7 @@ agent:
 ```
 
 If a run is in progress when you change the model, it finishes on the old one. If no model can run yet, the status
-bar's model reads [Connect a model](/docs/reference/status-bar/#model) instead.
+bar's model reads [Connect an AI model](/docs/reference/status-bar/#model) instead.
 
 <Shot name="status-bar" title="Status bar" alt="The status bar: editing mode, the agent on, the model, what the page has cost" />
 

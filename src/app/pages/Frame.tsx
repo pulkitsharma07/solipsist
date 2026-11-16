@@ -1,13 +1,14 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 import { SettingsButton } from "./SettingsDialog";
+import { ThemeToggle } from "./ThemeToggle";
 
 /** How the page's file stands: what the top bar says, and its class (the colour of the dot). */
 export type SaveState = "saved" | "dirty" | "saving" | "error" | "readonly";
 const SAVE_LABEL: Record<SaveState, string> = { saved: "Saved", dirty: "Unsaved changes", saving: "Saving…", error: "Can't save, retrying…", readonly: "Read-only" };
 
 /**
- * The bar across the top of a page: back to all pages, the page's title, whether it is saved, Sync, and the settings gear.
+ * The bar across the top of a page: back to all pages, the page's title, whether it is saved, Sync, light or dark, and the settings gear.
  */
 export function TopBar({ title, save, actions }: { title: string; save: SaveState; actions?: ReactNode }) {
   return (
@@ -16,6 +17,7 @@ export function TopBar({ title, save, actions }: { title: string; save: SaveStat
       <span className="doc-title">{title}</span>
       <span className={`save ${save}`}>{SAVE_LABEL[save]}</span>
       {actions}
+      <ThemeToggle />
       <SettingsButton />
     </header>
   );

@@ -95,6 +95,10 @@ pi:
     - edit
   # Your OpenRouter API key. Env: SOLIPSIST_OPENROUTER_KEY.
   # openrouter_key: sk-or-...
+  # Where the OpenRouter key you paste into the app is kept. Env: SOLIPSIST_KEY_STORE.
+  key_store: keychain
+  # The file a pasted OpenRouter key is kept in when there is no keychain. Env: SOLIPSIST_KEY_FILE.
+  key_file: ~/.config/solipsist/openrouter.key
 
 prompts:
   # The folder where your edited prompts are kept, one markdown file per prompt. Env: SOLIPSIST_PROMPTS_DIR.

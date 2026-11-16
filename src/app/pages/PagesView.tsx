@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { pageUrl } from "../../shared/ids";
 import { SettingsButton } from "./SettingsDialog";
+import { ThemeToggle } from "./ThemeToggle";
 import { byFolder } from "./SetupDialog";
 
 export interface PageRow { id: string; title: string; mtime: number; unsynced?: boolean }
@@ -47,6 +48,7 @@ export function PagesView({ docs, onNew, project }: { docs: PageRow[]; onNew(): 
     <main className="home">
       <header>
         <h1>Pages</h1>
+        <ThemeToggle />
         <SettingsButton />
         {project && (
           <button className="btn" onClick={project.onAddFiles} title={project.newFiles ? `${project.newFiles} markdown file${project.newFiles === 1 ? "" : "s"} not added yet` : undefined}>

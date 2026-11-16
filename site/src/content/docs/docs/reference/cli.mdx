@@ -16,6 +16,7 @@ solipsist [options]
   --help            Print this and exit.
 
 solipsist doctor    Print what a bug report needs, then exit.
+solipsist forget-key  Remove the OpenRouter key you saved from a page.
 ```
 
 Everything else is a setting, in `solipsist.yaml` or the environment. See
@@ -54,6 +55,7 @@ folder as `~`.
 
 ## The terminal view
 
-While the server runs, the terminal shows what each page's agents are doing and what they cost. Set `SOLIPSIST_TUI=0`
+Until a browser opens Solipsist, the terminal shows only the address to open. Once one connects, it shows what each
+page's agents are doing and what they cost, and it goes back to the address when the last window closes. Set `SOLIPSIST_TUI=0`
 to get plain log lines instead. Stopping the server (<kbd>Ctrl</kbd>+<kbd>C</kbd>) stops every agent and puts the
 requests they were working on back to waiting.

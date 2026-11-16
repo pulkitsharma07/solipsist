@@ -14,8 +14,8 @@ here, so the two diagrams below take it in halves. Click a name in either one to
 <StatusBarMap half="left" title="Status bar: left half" />
 
 The left half starts with how you're editing: **Standard**, or vim's mode once you turn vim keys on. After a gap come
-the page's agents. **Suggestions** counts what's waiting for you to decide, **Model** is the model answering on this
-page, and **Single agent** says whether one agent handles every request or each request gets its own. Click the mode
+the page's agents. **Suggestions** counts what's waiting for you to decide, and **Model** is the AI model answering on this
+page. Click the mode
 to switch editing, the count to accept or reject everything, or the model to open the [agent panel](/docs/reference/agent-panel/).
 
 <StatusBarMap half="right" title="Status bar: right half" />
@@ -52,14 +52,8 @@ The model that answers requests on this page, shortened to its name (`deepseek-f
 `pi:openrouter/~deepseek/deepseek-flash-latest`). Its dot breathes while a run is going. Click it to open the
 [agent panel](/docs/reference/agent-panel/), where you change the model and turn the page's agents off and on.
 
-If no model can run yet, this part reads **Connect a model** with a red dot. Click it to see the two ways to
-[connect one](/docs/start/connect-a-model/).
-
-## Single agent
-
-Whether the page has one long-running agent for every request (**on**) or a fresh agent per request (**off**, the
-default). It's set by `agent.single_agent` in your [configuration](/docs/reference/configuration/), not from here. See
-[single-agent mode](/docs/agents/how-agents-work/#single-agent-mode) for what changes.
+If no AI model can run yet, this part reads **Connect an AI model** with a red dot. Click it to paste an OpenRouter
+key, or see the other ways to [connect one](/docs/start/connect-a-model/).
 
 ## Cost
 

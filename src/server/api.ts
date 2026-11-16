@@ -11,6 +11,7 @@ import { getPrompt, listPrompts, PromptError, resetPrompt, savePrompt } from "./
 import { answer as answerSupport, noteSave, supportView } from "./support";
 import { reviewPage, type Judged } from "./review";
 import { pageAgents } from "./agent/pageAgents";
+import { notLocal, type Peer } from "./local";
 
 const json = (body: unknown, status = 200) => Response.json(body, { status });
 const fail = (status: number, code: string, message: string) => json({ error: { code, message } }, status);
@@ -155,10 +156,6 @@ export async function addComments(req: Req) {
   return result ? json(result) : fail(404, "not_found", "No such document.");
 }
 
-/** Whoever can change a prompt steers agents that run commands: only a request from this machine may. */
-type Peer = { requestIP(req: Request): { address: string } | null };
-const LOOPBACK = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
-const notLocal = (req: Request, srv?: Peer) => (LOOPBACK.has(srv?.requestIP(req)?.address ?? "") ? null : fail(403, "local_only", "Prompts can be read and changed only from the machine the server runs on."));
 
 /** The settings in effect, for the settings dialog (a secret is only ever "set"). Local only: it shows paths. */
 export const getConfig = (req: Request, srv?: Peer) => notLocal(req, srv) ?? json(configView(config()));
